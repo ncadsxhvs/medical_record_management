@@ -3,19 +3,31 @@ import path from 'path';
 import fs from 'fs';
 import type { SheetData, SheetMetadata } from '@/types';
 
-// Find and load service account key file
+// Get auth from env vars (Vercel) or local file
 function getAuth() {
+  // Try environment variables first (for Vercel)
+  if (process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL && process.env.GOOGLE_PRIVATE_KEY) {
+    return new google.auth.GoogleAuth({
+      credentials: {
+        client_email: process.env.GOOGLE_SERVICE_ACCOUNT_EMAIL,
+        private_key: process.env.GOOGLE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+      },
+      scopes: ['https://www.googleapis.com/auth/spreadsheets'],
+    });
+  }
+
+  // Fall back to local file (for development)
   const keyPaths = [
     path.join(process.cwd(), 'config', 'dongcschen_api_key.json'),
     path.join(process.cwd(), 'config', 'service-account.json'),
   ];
 
   const keyFile = keyPaths.find((p) => fs.existsSync(p));
-  if (!keyFile) throw new Error('Service account key file not found');
+  if (!keyFile) throw new Error('Service account credentials not found');
 
   return new google.auth.GoogleAuth({
     keyFile,
-    scopes: ['https://www.googleapis.com/auth/spreadsheets'], // Read/write access
+    scopes: ['https://www.googleapis.com/auth/spreadsheets'],
   });
 }
 
