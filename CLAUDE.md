@@ -23,66 +23,56 @@ A full-stack application for tracking medical procedure RVUs (Relative Value Uni
 ```
 src/
 ├── app/
+│   ├── (main)/
+│   │   └── page.tsx            # Main authenticated page
+│   ├── analytics/
+│   │   └── page.tsx            # Analytics dashboard
 │   ├── api/
-│   │   └── sheets/
-│   │       └── read/
-│   │           └── route.ts    # POST: load sheet, GET: service account email
+│   │   ├── entries/            # Entry CRUD operations
+│   │   ├── favorites/          # Favorites management
+│   │   ├── rvu/                # RVU search & cache
+│   │   └── analytics/          # Analytics data
+│   ├── sign-in/
+│   │   └── page.tsx            # Google sign-in page
 │   ├── globals.css
-│   ├── layout.tsx              # Root layout
-│   └── page.tsx                # Single-page app (form + cards)
+│   └── layout.tsx              # Root layout
+├── components/
+│   ├── UserProfile.tsx         # User profile dropdown
+│   ├── RVUPicker.tsx           # HCPCS autocomplete
+│   ├── FavoritesPicker.tsx     # Saved favorites
+│   └── EntryForm.tsx           # Entry creation form
 ├── lib/
-│   └── google-sheets.ts        # Google Sheets API wrapper
+│   ├── db.ts                   # Postgres client
+│   └── rvu-cache.ts            # In-memory RVU cache
 └── types/
     └── index.ts                # TypeScript types
 
-config/
-  dongcschen_api_key.json       # Google service account credentials (gitignored)
+data/
+  RVU.csv                       # 16,852 RVU codes
 
 scripts/
-  test-sheets.ts                # Test script for Sheets API
+  init-db.sql                   # Database schema
+  seed-rvu.ts                   # Seed RVU data
 ```
-
-## Key Files
-
-### src/app/page.tsx
-Single-page application with:
-- URL input form (initial state)
-- Cards display (after loading sheet)
-- Each card shows all columns from the row
-
-### src/app/api/sheets/read/route.ts
-- **POST:** Accepts `{ url: string }`, returns `{ success, data: { headers, rows, metadata } }`
-- **GET:** Returns service account email for sharing instructions
-
-### src/lib/google-sheets.ts
-- Auto-finds key file from multiple paths
-- Functions: `extractSpreadsheetId()`, `getServiceAccountEmail()`, `readSheet()`, `getSheetMetadata()`
-
-## Service Account
-
-**Email:** `google-sheet-sa@data-procs.iam.gserviceaccount.com`
-
-**Key file locations checked (in order):**
-1. `config/dongcschen_api_key.json`
-2. `dongcschen_api_key.json`
-3. `config/service-account.json`
-
-**Usage:** Users must share their Google Sheet with the service account email to grant read access.
 
 ## Development
 
 ### Quick Start
 
 ```bash
-./start.sh           # Start development server
+./start.sh           # Start development server (port 3001)
 # or
 npm run dev
 ```
 
-### Test Sheets Integration
+### Database Setup
 
 ```bash
-SHEET_URL="https://docs.google.com/spreadsheets/d/..." npx tsx scripts/test-sheets.ts
+# Run migrations
+psql $POSTGRES_URL -f scripts/init-db.sql
+
+# Seed RVU data
+npx tsx scripts/seed-rvu.ts
 ```
 
 ### Build
@@ -142,18 +132,13 @@ Response includes cache statistics and load time.
 - All state is local (useState) - no global state management
 - Tailwind CSS for all styling
 - No external UI libraries
-
-## Limitations
-
-- Read-only access to sheets
-- Sheets must be shared with service account email
-- Rate limited by Google Sheets API (100 req/100s)
+- TypeScript strict mode enabled
 
 ---
 
 ## Current Status
 
-**COMPLETED** - Simplified single-page app that loads Google Sheets and displays records as cards.
+**✅ PRODUCTION READY** - Full-stack RVU tracking application with authentication, database, caching, and analytics.
 
 See TASK.md for detailed progress tracking.
 

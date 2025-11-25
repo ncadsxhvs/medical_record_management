@@ -15,17 +15,6 @@ if [ ! -d "node_modules" ]; then
     echo ""
 fi
 
-# Check for service account key
-if [ -f "config/dongcschen_api_key.json" ]; then
-    echo "Service account key found"
-elif [ -f "config/service-account.json" ]; then
-    echo "Service account key found"
-else
-    echo "WARNING: No service account key found in config/"
-    echo "Add your Google service account JSON to config/service-account.json"
-    echo ""
-fi
-
 echo ""
 echo "Starting development server..."
 echo "Open http://localhost:3001 in your browser"

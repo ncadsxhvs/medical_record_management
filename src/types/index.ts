@@ -45,22 +45,3 @@ export interface AnalyticsBreakdown {
   count: number;
   total_rvu: number;
 }
-
-// Legacy Sheet Data Types (to be removed)
-export interface SheetData {
-  headers: string[];
-  rows: Record<string, string>[];
-  spreadsheetId: string;
-  sheetName: string;
-}
-
-export interface SheetMetadata {
-  spreadsheetId: string;
-  title: string;
-  sheets: {
-    sheetId: number;
-    title: string;
-    rowCount: number;
-    columnCount: number;
-  }[];
-}
