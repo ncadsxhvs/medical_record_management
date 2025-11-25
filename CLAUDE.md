@@ -1,5 +1,5 @@
 # Claude Development Guide
-## Google Sheets Viewer (Simplified)
+## RVU Tracker - Medical Procedure RVU Management
 
 This document guides Claude through working on this Next.js project.
 
@@ -7,15 +7,16 @@ This document guides Claude through working on this Next.js project.
 
 ## Project Overview
 
-A minimalist Next.js application that reads Google Sheets data and displays rows as simple cards (todo-list style). No workflow, no customization, no templates - just data display.
+A full-stack application for tracking medical procedure RVUs (Relative Value Units) with Google OAuth authentication, Postgres database, and analytics dashboard.
 
 ## Tech Stack
 
 - **Framework:** Next.js 16 (App Router)
 - **Language:** TypeScript (strict mode)
 - **Styling:** Tailwind CSS
-- **Authentication:** Google Service Account
-- **API:** Google Sheets API v4 (`googleapis`)
+- **Authentication:** Auth.js with Google OAuth
+- **Database:** Neon Postgres (Vercel)
+- **API:** Next.js API Routes
 
 ## Project Structure
 
@@ -91,19 +92,49 @@ npm run build
 npm run start
 ```
 
-## Data Flow
+## Core Features
 
-1. User enters Google Sheet URL
-2. Frontend POSTs URL to `/api/sheets/read`
-3. Backend extracts sheet ID, reads data via Google Sheets API
-4. Returns headers + rows to frontend
-5. Frontend displays each row as a card
+- **Authentication:** Google OAuth sign-in
+- **HCPCS Code Picker:** Autocomplete search across 16,852+ RVU codes
+- **Favorites Management:** Save frequently used HCPCS codes
+- **Entry CRUD:** Create, read, update, delete procedure entries
+- **Analytics Dashboard:** Daily/weekly/monthly/yearly RVU summations
+- **Performance:** In-memory cache for instant search (~5ms queries)
 
-## Error Handling
+## RVU Cache System
 
-- **Permission denied (403):** Show service account email for sharing
-- **Not found (404):** Sheet doesn't exist or URL is invalid
-- **Network error:** Generic retry message
+The application uses an in-memory cache for optimal search performance:
+
+- **Location:** `src/lib/rvu-cache.ts`
+- **Capacity:** 16,852 RVU codes
+- **Load Time:** ~200-500ms initial load
+- **Search Time:** ~5ms average per query
+- **Cache Duration:** 24 hours
+- **Auto-reload:** On app startup via `CacheWarmer` component
+
+### Cache API
+
+```typescript
+// Search RVU codes
+await searchRVUCodes('99213', 100);
+
+// Get specific code
+await getRVUCodeByHCPCS('99213');
+
+// Refresh cache manually
+await refreshCache();
+
+// Get cache statistics
+getCacheStats();
+```
+
+### Warmup Endpoint
+
+```bash
+curl http://localhost:3001/api/rvu/warmup
+```
+
+Response includes cache statistics and load time.
 
 ## Conventions
 

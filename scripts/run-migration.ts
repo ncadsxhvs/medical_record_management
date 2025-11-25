@@ -1,6 +1,10 @@
 import { sql } from '@vercel/postgres';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as dotenv from 'dotenv';
+
+// Load environment variables from .env.local
+dotenv.config({ path: path.join(process.cwd(), '.env.local') });
 
 async function runMigration() {
   console.log('Starting database migration...');
@@ -10,19 +14,9 @@ async function runMigration() {
     const sqlPath = path.join(process.cwd(), 'scripts', 'init-db.sql');
     const sqlContent = fs.readFileSync(sqlPath, 'utf-8');
 
-    // Split by semicolon and execute each statement
-    const statements = sqlContent
-      .split(';')
-      .map(s => s.trim())
-      .filter(s => s.length > 0 && !s.startsWith('--'));
-
-    console.log(`Found ${statements.length} SQL statements to execute`);
-
-    for (let i = 0; i < statements.length; i++) {
-      const statement = statements[i];
-      console.log(`Executing statement ${i + 1}/${statements.length}...`);
-      await sql.query(statement);
-    }
+    // Execute the entire SQL file as one transaction
+    console.log('Executing SQL migration...');
+    await sql.query(sqlContent);
 
     console.log('✅ Migration completed successfully!');
   } catch (error) {

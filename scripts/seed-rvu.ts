@@ -1,6 +1,10 @@
 import { sql } from '@vercel/postgres';
 import * as fs from 'fs';
 import * as path from 'path';
+import * as dotenv from 'dotenv';
+
+// Load environment variables from .env.local
+dotenv.config({ path: path.join(process.cwd(), '.env.local') });
 
 async function seedRVUData() {
   console.log('Starting RVU data seeding...');
@@ -26,11 +30,19 @@ async function seedRVUData() {
       const values: string[] = [];
       const params: any[] = [];
       let paramIndex = 1;
+      const seenHcpcs = new Set<string>(); // Track duplicates within batch
 
       for (const line of batch) {
         const parts = line.split(',');
         if (parts.length >= 4) {
           const hcpcs = parts[0].trim();
+
+          // Skip if we've already seen this HCPCS in this batch
+          if (seenHcpcs.has(hcpcs)) {
+            continue;
+          }
+          seenHcpcs.add(hcpcs);
+
           const description = parts[1].trim();
           const statusCode = parts[2].trim();
           const workRvu = parseFloat(parts[3].trim()) || 0;
