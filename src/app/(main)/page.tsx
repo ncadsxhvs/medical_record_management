@@ -1,6 +1,9 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSession } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
+import UserProfile from '@/components/UserProfile';
 import { DEFAULTS } from '@/config/defaults';
 
 interface SheetData {
@@ -10,6 +13,9 @@ interface SheetData {
 }
 
 export default function Home() {
+  const { data: session, status } = useSession();
+  const router = useRouter();
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<SheetData | null>(null);
@@ -17,6 +23,13 @@ export default function Home() {
   const [isAdding, setIsAdding] = useState(false);
   const [formData, setFormData] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+
+  // Redirect to sign-in if not authenticated
+  useEffect(() => {
+    if (status === 'unauthenticated') {
+      router.push('/sign-in');
+    }
+  }, [status, router]);
 
   const loadData = () => {
     setLoading(true);
@@ -35,8 +48,10 @@ export default function Home() {
   };
 
   useEffect(() => {
-    loadData();
-  }, []);
+    if (status === 'authenticated') {
+      loadData();
+    }
+  }, [status]);
 
   const handleAdd = () => {
     if (!data) return;
@@ -126,6 +141,11 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="max-w-4xl mx-auto">
+        {/* User Profile Header */}
+        <div className="flex items-center justify-end mb-4">
+          <UserProfile />
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between mb-6">
           <div>
