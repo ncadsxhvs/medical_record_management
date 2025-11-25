@@ -65,6 +65,25 @@ scripts/
 npm run dev
 ```
 
+**Development URL:** http://localhost:3001
+
+### Environment Configuration
+
+The project uses separate environment files for development and production:
+
+- **`.env.development`** - Local development (automatically loaded)
+  - NEXTAUTH_URL: `http://localhost:3001`
+  - Dev Google OAuth credentials
+  - Neon Postgres connection strings
+
+- **`.env.production`** - Production template (for reference)
+  - NEXTAUTH_URL: `https://hh-ncadsxhvs-projects.vercel.app`
+  - Production OAuth credentials (set in Vercel Dashboard)
+
+- **`.env.example`** - Comprehensive documentation template
+
+**IMPORTANT:** Never commit `.env.development` or `.env.production` files. They are protected by `.gitignore`.
+
 ### Database Setup
 
 ```bash
@@ -144,8 +163,29 @@ See TASK.md for detailed progress tracking.
 
 ---
 
+## Deployment
+
+### Vercel Deployment
+
+**Production URL:** https://hh-ncadsxhvs-projects.vercel.app
+
+**Environment Variables (Set in Vercel Dashboard):**
+- `NEXTAUTH_URL` - Production URL
+- `AUTH_SECRET` - Generated via `openssl rand -base64 32`
+- `GOOGLE_CLIENT_ID` - Production OAuth client ID
+- `GOOGLE_CLIENT_SECRET` - Production OAuth client secret
+- `POSTGRES_URL` - Neon Postgres connection string
+- All other database variables from `.env.production`
+
+**Google OAuth Setup:**
+1. Create separate OAuth app for production in Google Cloud Console
+2. Add authorized redirect URI: `https://hh-ncadsxhvs-projects.vercel.app/api/auth/callback/google`
+3. Update Vercel environment variables with production credentials
+
+---
+
 **When working on this project:**
 1. Keep it simple - avoid adding complexity
 2. Use TypeScript strictly
-3. Test with actual Google Sheets (share with service account first)
-4. Update TASK.md after completing tasks
+3. Update environment variables carefully (separate for dev/prod)
+4. Update TASK.md and CLAUDE.md after completing tasks

@@ -273,57 +273,54 @@ Create comprehensive analytics views with RVU summations grouped by date periods
   - [x] Detailed breakdown table with period filtering
   - [x] Responsive design for mobile/tablet
 
-### Database Queries Needed
+---
 
-```sql
--- Daily grouping
-SELECT DATE(date) as period, hcpcs, COUNT(*), SUM(work_rvu)
-FROM entries
-WHERE user_id = ? AND date BETWEEN ? AND ?
-GROUP BY DATE(date), hcpcs
-ORDER BY period DESC, SUM(work_rvu) DESC;
+## Phase 7: Environment Configuration ✅ COMPLETED
 
--- Weekly grouping
-SELECT DATE_TRUNC('week', date) as period, hcpcs, COUNT(*), SUM(work_rvu)
-FROM entries
-WHERE user_id = ? AND date BETWEEN ? AND ?
-GROUP BY DATE_TRUNC('week', date), hcpcs
-ORDER BY period DESC, SUM(work_rvu) DESC;
+### Goal
+Implement proper environment configuration for development and production deployments.
 
--- Monthly grouping
-SELECT DATE_TRUNC('month', date) as period, hcpcs, COUNT(*), SUM(work_rvu)
-FROM entries
-WHERE user_id = ? AND date BETWEEN ? AND ?
-GROUP BY DATE_TRUNC('month', date), hcpcs
-ORDER BY period DESC, SUM(work_rvu) DESC;
+### Features Implemented
 
--- Yearly grouping
-SELECT DATE_TRUNC('year', date) as period, hcpcs, COUNT(*), SUM(work_rvu)
-FROM entries
-WHERE user_id = ? AND date BETWEEN ? AND ?
-GROUP BY DATE_TRUNC('year', date), hcpcs
-ORDER BY period DESC, SUM(work_rvu) DESC;
-```
+- [x] **Separate Environment Files**
+  - [x] Created `.env.development` for local development (localhost:3001)
+  - [x] Created `.env.production` template for Vercel deployment
+  - [x] Updated `.env.example` with comprehensive documentation
 
-### Implementation Plan
+- [x] **Configuration Documentation**
+  - [x] Database connection strings (Neon Postgres)
+  - [x] Auth.js configuration (AUTH_SECRET, NEXTAUTH_URL)
+  - [x] Google OAuth credentials (separate for dev/prod)
+  - [x] Clear instructions for setup and deployment
 
-1. **Backend (API Routes)**
-   - Enhance `/api/analytics/route.ts` with HCPCS grouping
-   - Add support for all period types (daily/weekly/monthly/yearly)
-   - Optimize queries with proper indexes
+- [x] **Security Enhancements**
+  - [x] Updated `.gitignore` to protect environment files
+  - [x] Added `config/` directory to `.gitignore`
+  - [x] Protected `.env.development` and `.env.production`
+  - [x] Kept `.env.example` tracked for documentation
 
-2. **Frontend (Analytics Dashboard)**
-   - Update `/app/analytics/page.tsx`
-   - Add period selector component
-   - Create breakdown table component
-   - Add data visualization components
-   - Implement export functionality
+### Deployment Configuration
 
-3. **Testing**
-   - Test with various date ranges
-   - Verify calculations are accurate
-   - Check performance with large datasets
-   - Mobile responsiveness testing
+**Development (localhost:3001):**
+- Uses `.env.development` automatically
+- Google OAuth redirect: `http://localhost:3001/api/auth/callback/google`
+- Dev OAuth client ID configured
+
+**Production (Vercel):**
+- Environment variables set in Vercel Dashboard
+- Production URL: `https://hh-ncadsxhvs-projects.vercel.app`
+- Requires separate production OAuth app
+- Google OAuth redirect: `https://hh-ncadsxhvs-projects.vercel.app/api/auth/callback/google`
+
+### Next Steps for Production
+
+1. Create production OAuth app in Google Cloud Console
+2. Update Vercel environment variables:
+   - `NEXTAUTH_URL=https://hh-ncadsxhvs-projects.vercel.app`
+   - `GOOGLE_CLIENT_ID=<prod-client-id>`
+   - `GOOGLE_CLIENT_SECRET=<prod-client-secret>`
+   - Database connection strings
+3. Redeploy to Vercel
 
 ---
 
