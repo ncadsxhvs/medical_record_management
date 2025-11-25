@@ -15,6 +15,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
   pages: {
     signIn: "/sign-in",
   },
+  trustHost: true,
   callbacks: {
     // Custom authorized callback - allow sign-in page when not authenticated
     authorized: async ({ auth, request }) => {

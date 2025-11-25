@@ -71,18 +71,29 @@ npm run dev
 
 The project uses separate environment files for development and production:
 
-- **`.env.development`** - Local development (automatically loaded)
+- **`.env.development`** - Local development (automatically loaded by Next.js)
   - NEXTAUTH_URL: `http://localhost:3001`
-  - Dev Google OAuth credentials
+  - Dev Google OAuth credentials from `configs/dev-oauth.json`
+  - Client ID: `386826311054-0irihu7h7uc7ft0nfoh47l393dko7u6d`
   - Neon Postgres connection strings
 
 - **`.env.production`** - Production template (for reference)
   - NEXTAUTH_URL: `https://hh-ncadsxhvs-projects.vercel.app`
-  - Production OAuth credentials (set in Vercel Dashboard)
+  - Production OAuth credentials from `configs/prod-auth.json`
+  - Client ID: `386826311054-hic8jh474jh1aiq6dclp2oor9mgc981l`
+  - Set actual values in Vercel Dashboard for deployment
 
 - **`.env.example`** - Comprehensive documentation template
 
-**IMPORTANT:** Never commit `.env.development` or `.env.production` files. They are protected by `.gitignore`.
+**OAuth Configuration Files:**
+- `configs/dev-oauth.json` - Development OAuth credentials
+- `configs/prod-auth.json` - Production OAuth credentials
+- Both files are in `.gitignore` (protected)
+
+**IMPORTANT:**
+- Never commit `.env.development`, `.env.production`, or `configs/` files
+- Do NOT use `.env.local` - it causes environment precedence conflicts
+- Auth.js config includes `trustHost: true` for localhost development
 
 ### Database Setup
 
@@ -178,9 +189,17 @@ See TASK.md for detailed progress tracking.
 - All other database variables from `.env.production`
 
 **Google OAuth Setup:**
-1. Create separate OAuth app for production in Google Cloud Console
-2. Add authorized redirect URI: `https://hh-ncadsxhvs-projects.vercel.app/api/auth/callback/google`
-3. Update Vercel environment variables with production credentials
+1. ✅ Production OAuth app already created (client ID: `386826311054-hic8jh474jh1aiq6dclp2oor9mgc981l`)
+2. Add authorized redirect URI in Google Cloud Console:
+   - `https://hh-ncadsxhvs-projects.vercel.app/api/auth/callback/google`
+3. Update Vercel environment variables with values from `.env.production`
+
+**Known Issues:**
+- OAuth redirect_uri_mismatch errors occur when:
+  - `.env.local` file exists (causes precedence conflicts - DO NOT USE)
+  - Wrong OAuth client ID is configured
+  - Redirect URI not set in Google Cloud Console
+- **Solution:** Use only `.env.development` for local dev, ensure correct OAuth client IDs
 
 ---
 

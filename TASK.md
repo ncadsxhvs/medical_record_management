@@ -286,6 +286,7 @@ Implement proper environment configuration for development and production deploy
   - [x] Created `.env.development` for local development (localhost:3001)
   - [x] Created `.env.production` template for Vercel deployment
   - [x] Updated `.env.example` with comprehensive documentation
+  - [x] Removed `.env.local` to avoid environment precedence conflicts
 
 - [x] **Configuration Documentation**
   - [x] Database connection strings (Neon Postgres)
@@ -299,28 +300,41 @@ Implement proper environment configuration for development and production deploy
   - [x] Protected `.env.development` and `.env.production`
   - [x] Kept `.env.example` tracked for documentation
 
+- [x] **OAuth Configuration Fix**
+  - [x] Added `trustHost: true` to Auth.js config for localhost
+  - [x] Configured separate OAuth apps in Google Cloud Console
+  - [x] Fixed redirect_uri_mismatch error
+  - [x] Verified authentication works in development
+
 ### Deployment Configuration
 
 **Development (localhost:3001):**
-- Uses `.env.development` automatically
-- Google OAuth redirect: `http://localhost:3001/api/auth/callback/google`
-- Dev OAuth client ID configured
+- Uses `.env.development` automatically (Next.js auto-detection)
+- Google OAuth app: `dev-oauth.json`
+  - Client ID: `386826311054-0irihu7h7uc7ft0nfoh47l393dko7u6d`
+  - Redirect URI: `http://localhost:3001/api/auth/callback/google`
+- ✅ Authentication working
 
 **Production (Vercel):**
 - Environment variables set in Vercel Dashboard
 - Production URL: `https://hh-ncadsxhvs-projects.vercel.app`
-- Requires separate production OAuth app
-- Google OAuth redirect: `https://hh-ncadsxhvs-projects.vercel.app/api/auth/callback/google`
+- Google OAuth app: `prod-auth.json`
+  - Client ID: `386826311054-hic8jh474jh1aiq6dclp2oor9mgc981l`
+  - Redirect URI: `https://hh-ncadsxhvs-projects.vercel.app/api/auth/callback/google`
+
+### OAuth Configuration Files
+
+Located in `configs/` directory (gitignored):
+- `configs/dev-oauth.json` - Development OAuth credentials
+- `configs/prod-auth.json` - Production OAuth credentials
 
 ### Next Steps for Production
 
-1. Create production OAuth app in Google Cloud Console
-2. Update Vercel environment variables:
-   - `NEXTAUTH_URL=https://hh-ncadsxhvs-projects.vercel.app`
-   - `GOOGLE_CLIENT_ID=<prod-client-id>`
-   - `GOOGLE_CLIENT_SECRET=<prod-client-secret>`
-   - Database connection strings
-3. Redeploy to Vercel
+1. ✅ OAuth apps already created in Google Cloud Console
+2. Update production redirect URI in Google Cloud Console:
+   - Add: `https://hh-ncadsxhvs-projects.vercel.app/api/auth/callback/google`
+3. Update Vercel environment variables with values from `.env.production`
+4. Redeploy to Vercel
 
 ---
 
