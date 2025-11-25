@@ -46,6 +46,7 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# keys
+# OAuth credentials and sensitive config files
 keys/
-config/dongcschen_api_key.json
+config/
+configs/
