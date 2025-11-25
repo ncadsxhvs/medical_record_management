@@ -64,7 +64,13 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-gray-100 p-4">
       <div className="max-w-4xl mx-auto">
-        <div className="flex items-center justify-end mb-4">
+        <div className="flex items-center justify-between mb-4">
+          <a
+            href="/analytics"
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+          >
+            View Analytics
+          </a>
           <UserProfile />
         </div>
 

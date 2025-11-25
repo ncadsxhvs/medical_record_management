@@ -9,26 +9,137 @@ export async function GET(req: NextRequest) {
   }
 
   const { searchParams } = new URL(req.url);
-  const period = searchParams.get('period') || 'daily';
+  const period = searchParams.get('period') || 'day';
   const start = searchParams.get('start');
   const end = searchParams.get('end');
+  const groupBy = searchParams.get('groupBy'); // 'hcpcs' or null
 
   if (!start || !end) {
     return NextResponse.json({ error: 'Missing required query parameters: start and end' }, { status: 400 });
   }
 
+  // Map frontend period names to PostgreSQL DATE_TRUNC units
+  const periodMap: Record<string, string> = {
+    'daily': 'day',
+    'weekly': 'week',
+    'monthly': 'month',
+    'yearly': 'year'
+  };
+
+  const truncUnit = periodMap[period] || period;
+
   try {
-    const { rows } = await sql`
-      SELECT
-        DATE_TRUNC(${period}, date) as period_start,
-        SUM(work_rvu) as total_work_rvu,
-        COUNT(*) as total_entries
-      FROM entries
-      WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
-      GROUP BY period_start
-      ORDER BY period_start;
-    `;
-    return NextResponse.json(rows);
+    if (groupBy === 'hcpcs') {
+      // Return data grouped by both period and HCPCS
+      let result;
+      if (truncUnit === 'day') {
+        result = await sql`
+          SELECT
+            DATE_TRUNC('day', date) as period_start,
+            hcpcs,
+            description,
+            status_code,
+            SUM(work_rvu) as total_work_rvu,
+            COUNT(*) as entry_count
+          FROM entries
+          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
+          GROUP BY DATE_TRUNC('day', date), hcpcs, description, status_code
+          ORDER BY period_start DESC, total_work_rvu DESC
+        `;
+      } else if (truncUnit === 'week') {
+        result = await sql`
+          SELECT
+            DATE_TRUNC('week', date) as period_start,
+            hcpcs,
+            description,
+            status_code,
+            SUM(work_rvu) as total_work_rvu,
+            COUNT(*) as entry_count
+          FROM entries
+          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
+          GROUP BY DATE_TRUNC('week', date), hcpcs, description, status_code
+          ORDER BY period_start DESC, total_work_rvu DESC
+        `;
+      } else if (truncUnit === 'month') {
+        result = await sql`
+          SELECT
+            DATE_TRUNC('month', date) as period_start,
+            hcpcs,
+            description,
+            status_code,
+            SUM(work_rvu) as total_work_rvu,
+            COUNT(*) as entry_count
+          FROM entries
+          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
+          GROUP BY DATE_TRUNC('month', date), hcpcs, description, status_code
+          ORDER BY period_start DESC, total_work_rvu DESC
+        `;
+      } else {
+        result = await sql`
+          SELECT
+            DATE_TRUNC('year', date) as period_start,
+            hcpcs,
+            description,
+            status_code,
+            SUM(work_rvu) as total_work_rvu,
+            COUNT(*) as entry_count
+          FROM entries
+          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
+          GROUP BY DATE_TRUNC('year', date), hcpcs, description, status_code
+          ORDER BY period_start DESC, total_work_rvu DESC
+        `;
+      }
+      return NextResponse.json(result.rows);
+    } else {
+      // Return data grouped by period only (original behavior)
+      let result;
+      if (truncUnit === 'day') {
+        result = await sql`
+          SELECT
+            DATE_TRUNC('day', date) as period_start,
+            SUM(work_rvu) as total_work_rvu,
+            COUNT(*) as total_entries
+          FROM entries
+          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
+          GROUP BY DATE_TRUNC('day', date)
+          ORDER BY period_start
+        `;
+      } else if (truncUnit === 'week') {
+        result = await sql`
+          SELECT
+            DATE_TRUNC('week', date) as period_start,
+            SUM(work_rvu) as total_work_rvu,
+            COUNT(*) as total_entries
+          FROM entries
+          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
+          GROUP BY DATE_TRUNC('week', date)
+          ORDER BY period_start
+        `;
+      } else if (truncUnit === 'month') {
+        result = await sql`
+          SELECT
+            DATE_TRUNC('month', date) as period_start,
+            SUM(work_rvu) as total_work_rvu,
+            COUNT(*) as total_entries
+          FROM entries
+          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
+          GROUP BY DATE_TRUNC('month', date)
+          ORDER BY period_start
+        `;
+      } else {
+        result = await sql`
+          SELECT
+            DATE_TRUNC('year', date) as period_start,
+            SUM(work_rvu) as total_work_rvu,
+            COUNT(*) as total_entries
+          FROM entries
+          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
+          GROUP BY DATE_TRUNC('year', date)
+          ORDER BY period_start
+        `;
+      }
+      return NextResponse.json(result.rows);
+    }
   } catch (error) {
     console.error('Failed to fetch analytics:', error);
     return NextResponse.json({ error: 'Failed to fetch analytics' }, { status: 500 });

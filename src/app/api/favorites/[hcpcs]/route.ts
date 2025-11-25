@@ -2,14 +2,14 @@ import { sql } from '@/lib/db';
 import { auth } from '@/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function DELETE(req: NextRequest, { params }: { params: { hcpcs: string } }) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ hcpcs: string }> }) {
   const session = await auth();
   const userId = session?.user?.id || session?.user?.email;
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { hcpcs } = params;
+  const { hcpcs } = await params;
 
   try {
     const result = await sql`

@@ -16,8 +16,15 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
     signIn: "/sign-in",
   },
   callbacks: {
-    // Custom authorized callback (existing)
-    authorized: async ({ auth }) => {
+    // Custom authorized callback - allow sign-in page when not authenticated
+    authorized: async ({ auth, request }) => {
+      const url = request.nextUrl;
+      const isSignInPage = url.pathname === '/sign-in';
+
+      // Allow access to sign-in page when not authenticated
+      if (isSignInPage) return true;
+
+      // Require auth for all other pages
       return !!auth;
     },
     // JWT Callback: Invoked when a JWT is created (on sign in, or subsequent requests)

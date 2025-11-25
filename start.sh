@@ -28,10 +28,10 @@ fi
 
 echo ""
 echo "Starting development server..."
-echo "Open http://localhost:3000 in your browser"
+echo "Open http://localhost:3001 in your browser"
 echo ""
 echo "Press Ctrl+C to stop the server"
 echo "============================================"
 echo ""
 
-npm run dev
+PORT=3001 npm run dev
