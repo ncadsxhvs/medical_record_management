@@ -30,8 +30,10 @@ yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
 
-# env files (can opt-in for committing if needed)
+# Environment files
+# Protect all .env files (including .env.development and .env.production)
 .env*
+# Exception: keep .env.example tracked for documentation
 !.env.example
 
 # Google Service Account credentials
