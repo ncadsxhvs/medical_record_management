@@ -28,7 +28,7 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return !!auth;
     },
     // JWT Callback: Invoked when a JWT is created (on sign in, or subsequent requests)
-    async jwt({ token, user, account, profile }) {
+    async jwt({ token, account, profile }) {
       // If token doesn't have an ID yet, try to get it from the database by email
       if (!token.id && token.email) {
         console.log('[JWT Callback] Token missing ID, fetching from DB for email:', token.email);

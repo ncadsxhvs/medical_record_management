@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Favorite, RVUCode } from '@/types';
+import { Favorite } from '@/types';
 import { useSession } from 'next-auth/react';
 
 interface FavoritesPickerProps {

@@ -2,7 +2,7 @@ import { sql } from '@/lib/db';
 import { auth } from '@/auth';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest) {
+export async function GET(_req: NextRequest) {
   const session = await auth();
   const userId = session?.user?.id || session?.user?.email;
   if (!userId) {

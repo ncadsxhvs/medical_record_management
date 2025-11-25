@@ -100,15 +100,6 @@ export default function AnalyticsPage() {
     ? breakdownData.filter(d => d.period_start === selectedPeriod)
     : breakdownData;
 
-  // Group breakdown by period for summary view
-  const breakdownByPeriod = breakdownData.reduce((acc, item) => {
-    if (!acc[item.period_start]) {
-      acc[item.period_start] = [];
-    }
-    acc[item.period_start].push(item);
-    return acc;
-  }, {} as Record<string, AnalyticsBreakdownData[]>);
-
   const formatPeriod = (dateStr: string) => {
     const date = new Date(dateStr);
     if (period === 'daily') {
