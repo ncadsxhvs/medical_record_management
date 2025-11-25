@@ -46,4 +46,4 @@ next-env.d.ts
 
 # keys
 ./keys
-./config/dongcschen_api_key.json
+./config/dongcschen_api_key.jsonkeys/
