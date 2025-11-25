@@ -45,5 +45,5 @@ yarn-error.log*
 next-env.d.ts
 
 # keys
-./keys
-./config/dongcschen_api_key.jsonkeys/
+keys/
+config/dongcschen_api_key.json
