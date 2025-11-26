@@ -221,8 +221,80 @@ npm run dev          # Start development server (http://localhost:3001)
   - Cache duration: 24 hours
   - Warmup endpoint: `/api/rvu/warmup`
   - Cache stats headers: `X-Cache-Total`, `X-Cache-Age`
+- **Multi-HCPCS Support (Phase 8):**
+  - Multiple procedures per visit
+  - Quantity tracking for each procedure
+  - Favorite management from search results
+  - Enhanced RVU calculations with quantity multipliers
 
 **🎉 Application is fully functional and production-ready!**
+
+---
+
+## Phase 8: Multi-HCPCS Support ✅ COMPLETED
+
+### Goal
+Transform the entry system to support multiple HCPCS codes per visit with quantity tracking.
+
+### Features Implemented
+
+- [x] **Database Schema Migration**
+  - [x] Created `visits` table (parent record for patient encounters)
+  - [x] Created `visit_procedures` junction table (multiple HCPCS per visit)
+  - [x] Added `quantity` column for procedure tracking
+  - [x] Migrated 16 existing entries to new schema
+  - [x] Created backwards-compatible view
+
+- [x] **Multi-Select UI**
+  - [x] Updated RVUPicker with multi-select checkboxes
+  - [x] Updated FavoritesPicker with multi-select mode
+  - [x] "Add Selected (N) Codes" button for batch selection
+  - [x] Already-selected code indicators
+
+- [x] **Quantity Management**
+  - [x] Quantity input field for each procedure (min: 1)
+  - [x] Real-time RVU calculation: Quantity × Unit RVU
+  - [x] Display: Unit RVU, Quantity, and Total RVU
+  - [x] Editable quantities before saving
+
+- [x] **Favorite Management**
+  - [x] Star buttons (★/☆) in search results
+  - [x] One-click favorite toggle from search
+  - [x] Star buttons in procedure lists
+  - [x] Real-time sync with FavoritesPicker
+
+- [x] **Visit Display**
+  - [x] Expandable visit cards
+  - [x] Show multiple procedures per visit
+  - [x] Total RVU calculation with quantities
+  - [x] Procedure breakdown: Qty × Unit RVU = Total
+
+- [x] **API Updates**
+  - [x] POST /api/visits - Create visits with multiple procedures
+  - [x] GET /api/visits - Retrieve visits with nested procedures
+  - [x] PUT /api/visits/[id] - Update visits
+  - [x] DELETE /api/visits/[id] - Delete visits (cascade)
+  - [x] Updated analytics to join visits + procedures
+
+### Technical Details
+
+**New Database Tables:**
+```sql
+visits (id, user_id, date, notes, created_at, updated_at)
+visit_procedures (id, visit_id, hcpcs, description, status_code, work_rvu, quantity, created_at)
+```
+
+**TypeScript Types:**
+- `Visit` - Parent visit record with procedures array
+- `VisitProcedure` - Individual procedure with quantity
+- `VisitFormData` - Form state for building visits
+
+**User Workflow:**
+1. Search/select multiple HCPCS codes
+2. Adjust quantities for each procedure
+3. Add visit date and optional notes
+4. Save visit - all procedures saved together
+5. View expandable visit cards with procedure breakdowns
 
 ---
 

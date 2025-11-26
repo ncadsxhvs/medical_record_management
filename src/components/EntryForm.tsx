@@ -28,6 +28,7 @@ export default function EntryForm({ onEntryAdded }: EntryFormProps) {
         description: code.description,
         status_code: code.status_code,
         work_rvu: code.work_rvu,
+        quantity: 1, // Default quantity
       }));
 
     if (newProcedures.length > 0) {
@@ -61,6 +62,15 @@ export default function EntryForm({ onEntryAdded }: EntryFormProps) {
     setVisitData(prev => ({
       ...prev,
       procedures: prev.procedures.filter(p => p.hcpcs !== hcpcs),
+    }));
+  };
+
+  const handleQuantityChange = (hcpcs: string, quantity: number) => {
+    setVisitData(prev => ({
+      ...prev,
+      procedures: prev.procedures.map(p =>
+        p.hcpcs === hcpcs ? { ...p, quantity: Math.max(1, quantity) } : p
+      ),
     }));
   };
 
@@ -129,6 +139,7 @@ export default function EntryForm({ onEntryAdded }: EntryFormProps) {
           <ProcedureList
             procedures={visitData.procedures}
             onRemove={handleRemoveProcedure}
+            onQuantityChange={handleQuantityChange}
             editable={true}
           />
         </div>

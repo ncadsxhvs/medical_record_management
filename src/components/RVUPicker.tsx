@@ -16,6 +16,7 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
   const [results, setResults] = useState<RVUCode[]>([]);
   const [loading, setLoading] = useState(false);
   const [checkedCodes, setCheckedCodes] = useState<Set<string>>(new Set());
+  const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   const fetchResults = useCallback(
     debounce((searchQuery: string) => {
@@ -35,6 +36,18 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
   useEffect(() => {
     fetchResults(query);
   }, [query, fetchResults]);
+
+  useEffect(() => {
+    // Fetch user's favorites
+    fetch('/api/favorites')
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        if (Array.isArray(data)) {
+          setFavorites(new Set(data.map((fav: any) => fav.hcpcs)));
+        }
+      })
+      .catch(() => setFavorites(new Set()));
+  }, []);
 
   const handleSelect = (rvuCode: RVUCode) => {
     if (onSelect) {
@@ -66,6 +79,31 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
     }
   };
 
+  const handleToggleFavorite = async (hcpcs: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent triggering selection
+    const isFavorite = favorites.has(hcpcs);
+
+    try {
+      if (isFavorite) {
+        await fetch(`/api/favorites/${hcpcs}`, { method: 'DELETE' });
+        setFavorites(prev => {
+          const newSet = new Set(prev);
+          newSet.delete(hcpcs);
+          return newSet;
+        });
+      } else {
+        await fetch('/api/favorites', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ hcpcs }),
+        });
+        setFavorites(prev => new Set(prev).add(hcpcs));
+      }
+    } catch (error) {
+      console.error('Failed to toggle favorite:', error);
+    }
+  };
+
   return (
     <div className="relative">
       <input
@@ -81,6 +119,7 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
           <ul className="max-h-60 overflow-y-auto">
             {results.map((rvuCode) => {
               const isAlreadySelected = selectedCodes.includes(rvuCode.hcpcs);
+              const isFavorite = favorites.has(rvuCode.hcpcs);
               return (
                 <li
                   key={rvuCode.hcpcs}
@@ -98,7 +137,16 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
                       />
                     )}
                     <div className="flex-1">
-                      <div className="font-bold">{rvuCode.hcpcs}</div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold">{rvuCode.hcpcs}</span>
+                        <button
+                          onClick={(e) => handleToggleFavorite(rvuCode.hcpcs, e)}
+                          className={`text-lg ${isFavorite ? 'text-yellow-500' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
+                          title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                        >
+                          {isFavorite ? '★' : '☆'}
+                        </button>
+                      </div>
                       <div className="text-sm text-gray-600">
                         {rvuCode.description}
                         {isAlreadySelected && <span className="ml-2 text-blue-600">(Already added)</span>}

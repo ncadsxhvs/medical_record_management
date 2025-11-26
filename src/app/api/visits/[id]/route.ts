@@ -40,8 +40,8 @@ export async function PUT(
     const procedureResults = [];
     for (const proc of procedures) {
       const procResult = await sql`
-        INSERT INTO visit_procedures (visit_id, hcpcs, description, status_code, work_rvu)
-        VALUES (${id}, ${proc.hcpcs}, ${proc.description}, ${proc.status_code}, ${proc.work_rvu})
+        INSERT INTO visit_procedures (visit_id, hcpcs, description, status_code, work_rvu, quantity)
+        VALUES (${id}, ${proc.hcpcs}, ${proc.description}, ${proc.status_code}, ${proc.work_rvu}, ${proc.quantity || 1})
         RETURNING *;
       `;
       procedureResults.push(procResult.rows[0]);

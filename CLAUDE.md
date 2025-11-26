@@ -116,8 +116,10 @@ npm run start
 
 - **Authentication:** Google OAuth sign-in
 - **HCPCS Code Picker:** Autocomplete search across 16,852+ RVU codes
-- **Favorites Management:** Save frequently used HCPCS codes
-- **Entry CRUD:** Create, read, update, delete procedure entries
+- **Multi-Select Support:** Add multiple procedures to a single visit
+- **Quantity Tracking:** Track procedure quantities with automatic RVU calculations
+- **Favorites Management:** Save/toggle favorites from search results and procedure lists
+- **Visit Management:** Create, read, update, delete visits with multiple procedures
 - **Analytics Dashboard:** Daily/weekly/monthly/yearly RVU summations
 - **Performance:** In-memory cache for instant search (~5ms queries)
 
@@ -164,11 +166,50 @@ Response includes cache statistics and load time.
 - No external UI libraries
 - TypeScript strict mode enabled
 
+## Development Workflow
+
+**IMPORTANT: Always test build locally after implementation**
+
+After completing any feature or making significant changes:
+
+1. **Run local build test:**
+   ```bash
+   npm run build
+   ```
+
+2. **Verify build succeeds:**
+   - Check for TypeScript errors
+   - Check for build warnings
+   - Ensure all routes compile successfully
+
+3. **Test production build locally:**
+   ```bash
+   npm run start
+   ```
+
+4. **Only then proceed to:**
+   - Update TASK.md with completion status
+   - Update CLAUDE.md with new features
+   - Commit changes
+
+**Why this matters:**
+- Catches TypeScript errors before deployment
+- Identifies missing dependencies
+- Prevents production build failures
+- Ensures Next.js optimizations work correctly
+
 ---
 
 ## Current Status
 
-**✅ PRODUCTION READY** - Full-stack RVU tracking application with authentication, database, caching, and analytics.
+**✅ PRODUCTION READY** - Full-stack RVU tracking application with authentication, database, caching, analytics, and multi-HCPCS visit support.
+
+**Latest Updates (Phase 8):**
+- Multi-procedure visits with quantity tracking
+- Enhanced favorite management (save from search results)
+- Improved RVU calculations (Quantity × Unit RVU)
+- Junction table architecture (visits + visit_procedures)
+- Real-time favorite toggling with star buttons
 
 See TASK.md for detailed progress tracking.
 

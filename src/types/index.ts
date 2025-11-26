@@ -40,6 +40,7 @@ export interface VisitProcedure {
   description: string;
   status_code: string;
   work_rvu: number;
+  quantity: number;
   created_at?: string;
 }
 

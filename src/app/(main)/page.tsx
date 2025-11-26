@@ -105,7 +105,7 @@ export default function Home() {
             </div>
           )}
           {visits.map((visit) => {
-            const totalRVU = visit.procedures.reduce((sum, proc) => sum + Number(proc.work_rvu), 0);
+            const totalRVU = visit.procedures.reduce((sum, proc) => sum + (Number(proc.work_rvu) * (proc.quantity || 1)), 0);
             const isExpanded = expandedVisits.has(visit.id!);
 
             return (
@@ -149,12 +149,17 @@ export default function Home() {
                     <div className="space-y-2 mb-3 pl-4 border-l-2 border-blue-200">
                       {visit.procedures.map((proc, idx) => (
                         <div key={idx} className="p-2 bg-gray-50 rounded">
-                          <div className="flex justify-between">
-                            <div>
-                              <span className="font-semibold">{proc.hcpcs}</span>
-                              <span className="text-gray-600 text-sm ml-2">{proc.description}</span>
+                          <div className="flex justify-between items-start">
+                            <div className="flex-1">
+                              <div>
+                                <span className="font-semibold">{proc.hcpcs}</span>
+                                <span className="text-gray-600 text-sm ml-2">{proc.description}</span>
+                              </div>
+                              <div className="text-xs text-gray-500 mt-1">
+                                Qty: {proc.quantity || 1} × {Number(proc.work_rvu).toFixed(2)} RVU = {(Number(proc.work_rvu) * (proc.quantity || 1)).toFixed(2)} RVU
+                              </div>
                             </div>
-                            <span className="font-semibold text-blue-600">{Number(proc.work_rvu).toFixed(2)} RVU</span>
+                            <span className="font-semibold text-blue-600 ml-2">{(Number(proc.work_rvu) * (proc.quantity || 1)).toFixed(2)} RVU</span>
                           </div>
                         </div>
                       ))}

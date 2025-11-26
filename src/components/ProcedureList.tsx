@@ -6,11 +6,12 @@ import { useState, useEffect } from 'react';
 interface ProcedureListProps {
   procedures: VisitProcedure[];
   onRemove?: (hcpcs: string) => void;
+  onQuantityChange?: (hcpcs: string, quantity: number) => void;
   editable?: boolean;
   showFavorites?: boolean;
 }
 
-export default function ProcedureList({ procedures, onRemove, editable = true, showFavorites = true }: ProcedureListProps) {
+export default function ProcedureList({ procedures, onRemove, onQuantityChange, editable = true, showFavorites = true }: ProcedureListProps) {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   useEffect(() => {
@@ -58,7 +59,7 @@ export default function ProcedureList({ procedures, onRemove, editable = true, s
     );
   }
 
-  const totalRVU = procedures.reduce((sum, proc) => sum + Number(proc.work_rvu), 0);
+  const totalRVU = procedures.reduce((sum, proc) => sum + (Number(proc.work_rvu) * (proc.quantity || 1)), 0);
 
   return (
     <div className="space-y-3">
@@ -86,8 +87,29 @@ export default function ProcedureList({ procedures, onRemove, editable = true, s
                   )}
                 </div>
                 <div className="text-gray-700 mt-1">{proc.description}</div>
-                <div className="text-sm text-gray-600 mt-1">
-                  Work RVU: <span className="font-semibold">{Number(proc.work_rvu).toFixed(2)}</span>
+                <div className="flex items-center gap-4 mt-2">
+                  {editable && onQuantityChange ? (
+                    <div className="flex items-center gap-2">
+                      <label className="text-sm text-gray-600">Quantity:</label>
+                      <input
+                        type="number"
+                        min="1"
+                        value={proc.quantity || 1}
+                        onChange={(e) => onQuantityChange(proc.hcpcs, parseInt(e.target.value) || 1)}
+                        className="w-16 px-2 py-1 border border-gray-300 rounded text-sm"
+                      />
+                    </div>
+                  ) : (
+                    <div className="text-sm text-gray-600">
+                      Quantity: <span className="font-semibold">{proc.quantity || 1}</span>
+                    </div>
+                  )}
+                  <div className="text-sm text-gray-600">
+                    Unit RVU: <span className="font-semibold">{Number(proc.work_rvu).toFixed(2)}</span>
+                  </div>
+                  <div className="text-sm text-gray-600">
+                    Total: <span className="font-semibold text-blue-600">{(Number(proc.work_rvu) * (proc.quantity || 1)).toFixed(2)} RVU</span>
+                  </div>
                 </div>
               </div>
               {editable && onRemove && (
