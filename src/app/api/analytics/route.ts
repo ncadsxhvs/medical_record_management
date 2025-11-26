@@ -35,57 +35,61 @@ export async function GET(req: NextRequest) {
       if (truncUnit === 'day') {
         result = await sql`
           SELECT
-            DATE_TRUNC('day', date) as period_start,
-            hcpcs,
-            description,
-            status_code,
-            SUM(work_rvu) as total_work_rvu,
+            DATE_TRUNC('day', v.date) as period_start,
+            vp.hcpcs,
+            vp.description,
+            vp.status_code,
+            SUM(vp.work_rvu) as total_work_rvu,
             COUNT(*) as entry_count
-          FROM entries
-          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
-          GROUP BY DATE_TRUNC('day', date), hcpcs, description, status_code
+          FROM visits v
+          JOIN visit_procedures vp ON v.id = vp.visit_id
+          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          GROUP BY DATE_TRUNC('day', v.date), vp.hcpcs, vp.description, vp.status_code
           ORDER BY period_start DESC, total_work_rvu DESC
         `;
       } else if (truncUnit === 'week') {
         result = await sql`
           SELECT
-            DATE_TRUNC('week', date) as period_start,
-            hcpcs,
-            description,
-            status_code,
-            SUM(work_rvu) as total_work_rvu,
+            DATE_TRUNC('week', v.date) as period_start,
+            vp.hcpcs,
+            vp.description,
+            vp.status_code,
+            SUM(vp.work_rvu) as total_work_rvu,
             COUNT(*) as entry_count
-          FROM entries
-          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
-          GROUP BY DATE_TRUNC('week', date), hcpcs, description, status_code
+          FROM visits v
+          JOIN visit_procedures vp ON v.id = vp.visit_id
+          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          GROUP BY DATE_TRUNC('week', v.date), vp.hcpcs, vp.description, vp.status_code
           ORDER BY period_start DESC, total_work_rvu DESC
         `;
       } else if (truncUnit === 'month') {
         result = await sql`
           SELECT
-            DATE_TRUNC('month', date) as period_start,
-            hcpcs,
-            description,
-            status_code,
-            SUM(work_rvu) as total_work_rvu,
+            DATE_TRUNC('month', v.date) as period_start,
+            vp.hcpcs,
+            vp.description,
+            vp.status_code,
+            SUM(vp.work_rvu) as total_work_rvu,
             COUNT(*) as entry_count
-          FROM entries
-          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
-          GROUP BY DATE_TRUNC('month', date), hcpcs, description, status_code
+          FROM visits v
+          JOIN visit_procedures vp ON v.id = vp.visit_id
+          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          GROUP BY DATE_TRUNC('month', v.date), vp.hcpcs, vp.description, vp.status_code
           ORDER BY period_start DESC, total_work_rvu DESC
         `;
       } else {
         result = await sql`
           SELECT
-            DATE_TRUNC('year', date) as period_start,
-            hcpcs,
-            description,
-            status_code,
-            SUM(work_rvu) as total_work_rvu,
+            DATE_TRUNC('year', v.date) as period_start,
+            vp.hcpcs,
+            vp.description,
+            vp.status_code,
+            SUM(vp.work_rvu) as total_work_rvu,
             COUNT(*) as entry_count
-          FROM entries
-          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
-          GROUP BY DATE_TRUNC('year', date), hcpcs, description, status_code
+          FROM visits v
+          JOIN visit_procedures vp ON v.id = vp.visit_id
+          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          GROUP BY DATE_TRUNC('year', v.date), vp.hcpcs, vp.description, vp.status_code
           ORDER BY period_start DESC, total_work_rvu DESC
         `;
       }
@@ -96,45 +100,49 @@ export async function GET(req: NextRequest) {
       if (truncUnit === 'day') {
         result = await sql`
           SELECT
-            DATE_TRUNC('day', date) as period_start,
-            SUM(work_rvu) as total_work_rvu,
+            DATE_TRUNC('day', v.date) as period_start,
+            SUM(vp.work_rvu) as total_work_rvu,
             COUNT(*) as total_entries
-          FROM entries
-          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
-          GROUP BY DATE_TRUNC('day', date)
+          FROM visits v
+          JOIN visit_procedures vp ON v.id = vp.visit_id
+          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          GROUP BY DATE_TRUNC('day', v.date)
           ORDER BY period_start
         `;
       } else if (truncUnit === 'week') {
         result = await sql`
           SELECT
-            DATE_TRUNC('week', date) as period_start,
-            SUM(work_rvu) as total_work_rvu,
+            DATE_TRUNC('week', v.date) as period_start,
+            SUM(vp.work_rvu) as total_work_rvu,
             COUNT(*) as total_entries
-          FROM entries
-          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
-          GROUP BY DATE_TRUNC('week', date)
+          FROM visits v
+          JOIN visit_procedures vp ON v.id = vp.visit_id
+          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          GROUP BY DATE_TRUNC('week', v.date)
           ORDER BY period_start
         `;
       } else if (truncUnit === 'month') {
         result = await sql`
           SELECT
-            DATE_TRUNC('month', date) as period_start,
-            SUM(work_rvu) as total_work_rvu,
+            DATE_TRUNC('month', v.date) as period_start,
+            SUM(vp.work_rvu) as total_work_rvu,
             COUNT(*) as total_entries
-          FROM entries
-          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
-          GROUP BY DATE_TRUNC('month', date)
+          FROM visits v
+          JOIN visit_procedures vp ON v.id = vp.visit_id
+          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          GROUP BY DATE_TRUNC('month', v.date)
           ORDER BY period_start
         `;
       } else {
         result = await sql`
           SELECT
-            DATE_TRUNC('year', date) as period_start,
-            SUM(work_rvu) as total_work_rvu,
+            DATE_TRUNC('year', v.date) as period_start,
+            SUM(vp.work_rvu) as total_work_rvu,
             COUNT(*) as total_entries
-          FROM entries
-          WHERE user_id = ${session.user.id} AND date >= ${start} AND date <= ${end}
-          GROUP BY DATE_TRUNC('year', date)
+          FROM visits v
+          JOIN visit_procedures vp ON v.id = vp.visit_id
+          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          GROUP BY DATE_TRUNC('year', v.date)
           ORDER BY period_start
         `;
       }

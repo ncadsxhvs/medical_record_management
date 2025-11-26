@@ -5,36 +5,37 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import UserProfile from '@/components/UserProfile';
 import EntryForm from '@/components/EntryForm';
-import { Entry } from '@/types';
+import { Visit } from '@/types';
 
 export default function Home() {
   const { status } = useSession();
   const router = useRouter();
 
-  const [entries, setEntries] = useState<Entry[]>([]);
+  const [visits, setVisits] = useState<Visit[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expandedVisits, setExpandedVisits] = useState<Set<number>>(new Set());
 
-  const fetchEntries = useCallback(() => {
+  const fetchVisits = useCallback(() => {
     if (status === 'authenticated') {
       setLoading(true);
-      fetch('/api/entries')
+      fetch('/api/visits')
         .then((res) => {
           if (!res.ok) {
-            throw new Error('Failed to fetch entries');
+            throw new Error('Failed to fetch visits');
           }
           return res.json();
         })
         .then((data) => {
           if (Array.isArray(data)) {
-            setEntries(data);
+            setVisits(data);
           } else {
             console.error('Fetched data is not an array:', data);
-            setEntries([]);
+            setVisits([]);
           }
         })
         .catch((error) => {
           console.error(error);
-          setEntries([]); // Set to empty array on error
+          setVisits([]); // Set to empty array on error
         })
         .finally(() => setLoading(false));
     }
@@ -44,13 +45,27 @@ export default function Home() {
     if (status === 'unauthenticated') {
       router.push('/sign-in');
     } else {
-      fetchEntries();
+      fetchVisits();
     }
-  }, [status, router, fetchEntries]);
+  }, [status, router, fetchVisits]);
 
   const handleRemove = (id: number) => {
-    fetch(`/api/entries/${id}`, { method: 'DELETE' })
-      .then(() => fetchEntries());
+    if (confirm('Are you sure you want to delete this visit?')) {
+      fetch(`/api/visits/${id}`, { method: 'DELETE' })
+        .then(() => fetchVisits());
+    }
+  };
+
+  const toggleVisitExpansion = (visitId: number) => {
+    setExpandedVisits(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(visitId)) {
+        newSet.delete(visitId);
+      } else {
+        newSet.add(visitId);
+      }
+      return newSet;
+    });
   };
 
   if (status === 'loading' || loading) {
@@ -79,41 +94,85 @@ export default function Home() {
         </div>
 
         <div className="mb-6">
-          <EntryForm onEntryAdded={fetchEntries} />
+          <EntryForm onEntryAdded={fetchVisits} />
         </div>
 
         <div className="space-y-3">
-          <h2 className="text-lg font-semibold">Entries</h2>
-          {entries.map((entry) => (
-            <div key={entry.id} className="bg-white rounded-lg shadow p-4">
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-3">
-                <div>
-                  <p className="text-xs text-gray-500 uppercase">HCPCS</p>
-                  <p className="text-sm font-medium text-gray-900">{entry.hcpcs}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase">Description</p>
-                  <p className="text-sm font-medium text-gray-900">{entry.description}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase">Work RVU</p>
-                  <p className="text-sm font-medium text-gray-900">{entry.work_rvu}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase">Date</p>
-                  <p className="text-sm font-medium text-gray-900">{new Date(entry.date).toLocaleDateString()}</p>
-                </div>
-              </div>
-              <div className="flex gap-2 pt-2 border-t border-gray-100">
-                <button
-                  onClick={() => handleRemove(entry.id)}
-                  className="text-sm text-red-600 hover:underline"
-                >
-                  Remove
-                </button>
-              </div>
+          <h2 className="text-lg font-semibold">Visits ({visits.length})</h2>
+          {visits.length === 0 && (
+            <div className="bg-white rounded-lg shadow p-6 text-center text-gray-500">
+              No visits yet. Add your first visit above!
             </div>
-          ))}
+          )}
+          {visits.map((visit) => {
+            const totalRVU = visit.procedures.reduce((sum, proc) => sum + Number(proc.work_rvu), 0);
+            const isExpanded = expandedVisits.has(visit.id!);
+
+            return (
+              <div key={visit.id} className="bg-white rounded-lg shadow">
+                <div className="p-4">
+                  <div className="flex justify-between items-start mb-3">
+                    <div>
+                      <p className="text-xs text-gray-500 uppercase">Visit Date</p>
+                      <p className="text-lg font-semibold text-gray-900">
+                        {new Date(visit.date).toLocaleDateString('en-US', {
+                          weekday: 'short',
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                        })}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs text-gray-500 uppercase">Total RVU</p>
+                      <p className="text-2xl font-bold text-blue-700">{totalRVU.toFixed(2)}</p>
+                    </div>
+                  </div>
+
+                  {visit.notes && (
+                    <div className="mb-3 p-2 bg-gray-50 rounded">
+                      <p className="text-xs text-gray-500 uppercase mb-1">Notes</p>
+                      <p className="text-sm text-gray-700">{visit.notes}</p>
+                    </div>
+                  )}
+
+                  <div className="mb-3">
+                    <button
+                      onClick={() => toggleVisitExpansion(visit.id!)}
+                      className="text-sm text-blue-600 hover:underline"
+                    >
+                      {isExpanded ? '▼ Hide' : '▶ Show'} Procedures ({visit.procedures.length})
+                    </button>
+                  </div>
+
+                  {isExpanded && (
+                    <div className="space-y-2 mb-3 pl-4 border-l-2 border-blue-200">
+                      {visit.procedures.map((proc, idx) => (
+                        <div key={idx} className="p-2 bg-gray-50 rounded">
+                          <div className="flex justify-between">
+                            <div>
+                              <span className="font-semibold">{proc.hcpcs}</span>
+                              <span className="text-gray-600 text-sm ml-2">{proc.description}</span>
+                            </div>
+                            <span className="font-semibold text-blue-600">{Number(proc.work_rvu).toFixed(2)} RVU</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 pt-2 border-t border-gray-100">
+                    <button
+                      onClick={() => handleRemove(visit.id!)}
+                      className="text-sm text-red-600 hover:underline"
+                    >
+                      Delete Visit
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
