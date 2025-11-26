@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
             vp.hcpcs,
             vp.description,
             vp.status_code,
-            SUM(vp.work_rvu) as total_work_rvu,
+            SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
             COUNT(*) as entry_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
@@ -54,7 +54,7 @@ export async function GET(req: NextRequest) {
             vp.hcpcs,
             vp.description,
             vp.status_code,
-            SUM(vp.work_rvu) as total_work_rvu,
+            SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
             COUNT(*) as entry_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
@@ -69,7 +69,7 @@ export async function GET(req: NextRequest) {
             vp.hcpcs,
             vp.description,
             vp.status_code,
-            SUM(vp.work_rvu) as total_work_rvu,
+            SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
             COUNT(*) as entry_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
@@ -84,7 +84,7 @@ export async function GET(req: NextRequest) {
             vp.hcpcs,
             vp.description,
             vp.status_code,
-            SUM(vp.work_rvu) as total_work_rvu,
+            SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
             COUNT(*) as entry_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
@@ -101,7 +101,7 @@ export async function GET(req: NextRequest) {
         result = await sql`
           SELECT
             DATE_TRUNC('day', v.date) as period_start,
-            SUM(vp.work_rvu) as total_work_rvu,
+            SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
             COUNT(*) as total_entries
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
@@ -113,7 +113,7 @@ export async function GET(req: NextRequest) {
         result = await sql`
           SELECT
             DATE_TRUNC('week', v.date) as period_start,
-            SUM(vp.work_rvu) as total_work_rvu,
+            SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
             COUNT(*) as total_entries
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
@@ -125,7 +125,7 @@ export async function GET(req: NextRequest) {
         result = await sql`
           SELECT
             DATE_TRUNC('month', v.date) as period_start,
-            SUM(vp.work_rvu) as total_work_rvu,
+            SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
             COUNT(*) as total_entries
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
@@ -137,7 +137,7 @@ export async function GET(req: NextRequest) {
         result = await sql`
           SELECT
             DATE_TRUNC('year', v.date) as period_start,
-            SUM(vp.work_rvu) as total_work_rvu,
+            SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
             COUNT(*) as total_entries
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id

@@ -114,7 +114,7 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
+    <div className="min-h-screen bg-gray-100 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
           <h1 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
@@ -123,7 +123,7 @@ export default function AnalyticsPage() {
 
         {/* Controls */}
         <div className="bg-white p-4 rounded-lg shadow mb-6">
-          <div className="flex flex-wrap gap-4 items-end">
+          <div className="flex flex-wrap gap-6 items-end">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Period</label>
               <select
@@ -196,58 +196,73 @@ export default function AnalyticsPage() {
           /* Summary View */
           <div className="space-y-6">
             {/* Chart */}
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-lg font-semibold mb-4">Work RVUs Over Time</h2>
+            <div className="bg-white p-6 rounded-lg shadow-md">
+              <h2 className="text-lg font-semibold text-gray-900 mb-1">Work RVUs Over Time</h2>
+              <p className="text-sm text-gray-500 mb-6">Click on a bar to see HCPCS breakdown</p>
               {data.length === 0 ? (
-                <p className="text-gray-500 text-center py-8">No data available for the selected period</p>
+                <p className="text-gray-500 text-center py-12">No data available for the selected period</p>
               ) : (
-                <div className="flex items-end h-64 gap-2">
-                  {data.map((d) => (
-                    <div
-                      key={d.period_start}
-                      className="flex-1 flex flex-col items-center group cursor-pointer"
-                      onClick={() => {
-                        setSelectedPeriod(d.period_start);
-                        setViewMode('breakdown');
-                      }}
-                    >
+                <div className="relative">
+                  {/* Gridlines */}
+                  <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
+                    {[0, 25, 50, 75, 100].map((percent) => (
+                      <div key={percent} className="border-t border-gray-200" />
+                    ))}
+                  </div>
+
+                  {/* Bars */}
+                  <div className="flex items-end h-64 gap-2 relative">
+                    {data.map((d) => (
                       <div
-                        className="w-full bg-blue-500 group-hover:bg-blue-600 transition rounded-t"
-                        style={{ height: `${maxRvu > 0 ? (d.total_work_rvu / maxRvu) * 100 : 0}%` }}
-                        title={`RVU: ${d.total_work_rvu.toFixed(2)} | Entries: ${d.total_entries}`}
-                      ></div>
-                      <div className="text-xs text-gray-600 mt-2 text-center">
-                        <div className="font-medium">{d.total_work_rvu.toFixed(1)}</div>
-                        <div className="text-gray-400 truncate max-w-[80px]">{formatPeriod(d.period_start)}</div>
+                        key={d.period_start}
+                        className="flex-1 flex flex-col items-center group cursor-pointer"
+                        onClick={() => {
+                          setSelectedPeriod(d.period_start);
+                          setViewMode('breakdown');
+                        }}
+                      >
+                        <div
+                          className="w-full bg-gradient-to-t from-blue-600 to-blue-400 group-hover:from-blue-700 group-hover:to-blue-500 transition-all duration-200 rounded-t-md shadow-sm"
+                          style={{ height: `${maxRvu > 0 ? (d.total_work_rvu / maxRvu) * 100 : 0}%` }}
+                          title={`${formatPeriod(d.period_start)}\nRVU: ${d.total_work_rvu.toFixed(2)}\nEntries: ${d.total_entries}`}
+                        ></div>
+                        <div className="text-xs text-gray-700 mt-2 text-center w-full">
+                          <div className="font-semibold">{d.total_work_rvu.toFixed(1)}</div>
+                          <div className="text-gray-500 text-[10px] truncate max-w-full px-1">
+                            {formatPeriod(d.period_start)}
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
               )}
-              <p className="text-xs text-gray-500 mt-4 text-center">Click on a bar to see HCPCS breakdown</p>
             </div>
 
             {/* Summary Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Total RVUs</h3>
-                <p className="text-3xl font-bold text-gray-900">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg shadow-md border border-blue-200">
+                <h3 className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-2">Total RVUs</h3>
+                <p className="text-4xl font-bold text-blue-900">
                   {data.reduce((sum, d) => sum + d.total_work_rvu, 0).toFixed(2)}
                 </p>
+                <p className="text-xs text-blue-600 mt-2">Across all periods</p>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Total Entries</h3>
-                <p className="text-3xl font-bold text-gray-900">
+              <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 rounded-lg shadow-md border border-emerald-200">
+                <h3 className="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-2">Total Entries</h3>
+                <p className="text-4xl font-bold text-emerald-900">
                   {data.reduce((sum, d) => sum + d.total_entries, 0)}
                 </p>
+                <p className="text-xs text-emerald-600 mt-2">Procedure records</p>
               </div>
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Avg RVU per Entry</h3>
-                <p className="text-3xl font-bold text-gray-900">
+              <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg shadow-md border border-purple-200">
+                <h3 className="text-xs font-semibold text-purple-600 uppercase tracking-wider mb-2">Avg RVU per Entry</h3>
+                <p className="text-4xl font-bold text-purple-900">
                   {data.reduce((sum, d) => sum + d.total_entries, 0) > 0
                     ? (data.reduce((sum, d) => sum + d.total_work_rvu, 0) / data.reduce((sum, d) => sum + d.total_entries, 0)).toFixed(2)
                     : '0.00'}
                 </p>
+                <p className="text-xs text-purple-600 mt-2">Efficiency metric</p>
               </div>
             </div>
           </div>
@@ -272,42 +287,42 @@ export default function AnalyticsPage() {
 
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-50">
+                <thead className="bg-gray-100">
                   <tr>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Period</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">HCPCS</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Description</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Count</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total RVU</th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Avg RVU</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Period</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">HCPCS</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Description</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Count</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Total RVU</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Avg RVU</th>
                   </tr>
                 </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
+                <tbody className="bg-white divide-y divide-gray-100">
                   {filteredBreakdown.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="px-6 py-8 text-center text-gray-500">
+                      <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
                         No data available
                       </td>
                     </tr>
                   ) : (
                     filteredBreakdown.map((item, idx) => (
-                      <tr key={idx} className="hover:bg-gray-50">
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                      <tr key={idx} className={`hover:bg-blue-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
                           {formatPeriod(item.period_start)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">
                           {item.hcpcs}
                         </td>
-                        <td className="px-6 py-4 text-sm text-gray-900 max-w-xs truncate" title={item.description}>
+                        <td className="px-4 py-3 text-sm text-gray-700 max-w-xs truncate" title={item.description}>
                           {item.description}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right font-medium">
                           {item.entry_count}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-blue-900 text-right">
                           {item.total_work_rvu.toFixed(2)}
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right">
                           {(item.total_work_rvu / item.entry_count).toFixed(2)}
                         </td>
                       </tr>

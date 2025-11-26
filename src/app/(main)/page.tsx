@@ -5,6 +5,7 @@ import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import UserProfile from '@/components/UserProfile';
 import EntryForm from '@/components/EntryForm';
+import EditVisitModal from '@/components/EditVisitModal';
 import { Visit } from '@/types';
 
 export default function Home() {
@@ -14,6 +15,7 @@ export default function Home() {
   const [visits, setVisits] = useState<Visit[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedVisits, setExpandedVisits] = useState<Set<number>>(new Set());
+  const [editingVisit, setEditingVisit] = useState<Visit | null>(null);
 
   const fetchVisits = useCallback(() => {
     if (status === 'authenticated') {
@@ -166,7 +168,13 @@ export default function Home() {
                     </div>
                   )}
 
-                  <div className="flex gap-2 pt-2 border-t border-gray-100">
+                  <div className="flex gap-3 pt-2 border-t border-gray-100">
+                    <button
+                      onClick={() => setEditingVisit(visit)}
+                      className="text-sm text-blue-600 hover:underline font-medium"
+                    >
+                      Edit Visit
+                    </button>
                     <button
                       onClick={() => handleRemove(visit.id!)}
                       className="text-sm text-red-600 hover:underline"
@@ -180,6 +188,15 @@ export default function Home() {
           })}
         </div>
       </div>
+
+      {/* Edit Visit Modal */}
+      {editingVisit && (
+        <EditVisitModal
+          visit={editingVisit}
+          onClose={() => setEditingVisit(null)}
+          onSave={fetchVisits}
+        />
+      )}
     </div>
   );
 }
