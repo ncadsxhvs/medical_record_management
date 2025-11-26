@@ -72,10 +72,12 @@ export async function GET(_req: NextRequest) {
     }
 
     // Fetch procedures for all visits
-    const visitIds = visits.map(v => v.id);
+    // Build a Postgres int[] literal for ANY() while keeping parameters sanitized
+    const visitIds = visits.map(v => Number(v.id));
+    const visitIdArray = `{${visitIds.join(',')}}`;
     const { rows: procedures } = await sql`
       SELECT * FROM visit_procedures
-      WHERE visit_id = ANY(${visitIds})
+      WHERE visit_id = ANY(${visitIdArray}::int[])
       ORDER BY id;
     `;
 
