@@ -17,6 +17,8 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
   const [loading, setLoading] = useState(false);
   const [checkedCodes, setCheckedCodes] = useState<Set<string>>(new Set());
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [popularCodes, setPopularCodes] = useState<RVUCode[]>([]);
 
   const fetchResults = useCallback(
     debounce((searchQuery: string) => {
@@ -47,6 +49,17 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
         }
       })
       .catch(() => setFavorites(new Set()));
+
+    // Fetch popular/common codes for dropdown (office visit codes)
+    const commonCodes = ['99213', '99214', '99215', '99203', '99204', '99205'];
+    fetch(`/api/rvu/search?q=${commonCodes.join(',')}`)
+      .then(res => res.ok ? res.json() : [])
+      .then(data => {
+        if (Array.isArray(data)) {
+          setPopularCodes(data);
+        }
+      })
+      .catch(() => setPopularCodes([]));
   }, []);
 
   const handleSelect = (rvuCode: RVUCode) => {
@@ -54,6 +67,7 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
       onSelect(rvuCode);
       setQuery('');
       setResults([]);
+      setShowDropdown(false);
     }
   };
 
@@ -71,11 +85,14 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
 
   const handleAddSelected = () => {
     if (onMultiSelect && checkedCodes.size > 0) {
-      const selectedRVUCodes = results.filter(code => checkedCodes.has(code.hcpcs));
+      // Get from either results or popularCodes depending on what's displayed
+      const sourceList = query.length >= 2 ? results : popularCodes;
+      const selectedRVUCodes = sourceList.filter(code => checkedCodes.has(code.hcpcs));
       onMultiSelect(selectedRVUCodes);
       setQuery('');
       setResults([]);
       setCheckedCodes(new Set());
+      setShowDropdown(false);
     }
   };
 
@@ -104,20 +121,29 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
     }
   };
 
+  const displayResults = query.length >= 2 ? results : (showDropdown && popularCodes.length > 0 ? popularCodes : []);
+
   return (
     <div className="relative">
       <input
         type="text"
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        placeholder="Search HCPCS code or description..."
+        onFocus={() => setShowDropdown(true)}
+        onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
+        placeholder="Search HCPCS code or description... (e.g., 99213)"
         className="w-full px-3 py-2 border border-gray-300 rounded-md"
       />
       {loading && <div className="p-2">Loading...</div>}
-      {results.length > 0 && (
+      {displayResults.length > 0 && (
         <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+          {query.length < 2 && (
+            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 bg-gray-50">
+              Common Office Visit Codes
+            </div>
+          )}
           <ul className="max-h-60 overflow-y-auto">
-            {results.map((rvuCode) => {
+            {displayResults.map((rvuCode) => {
               const isAlreadySelected = selectedCodes.includes(rvuCode.hcpcs);
               const isFavorite = favorites.has(rvuCode.hcpcs);
               return (

@@ -114,14 +114,16 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
                   {fav.hcpcs}
                 </button>
               )}
-              {!multiSelect && (
-                <button
-                  onClick={() => handleRemove(fav.hcpcs)}
-                  className="absolute top-1 right-1 text-red-500 opacity-0 group-hover:opacity-100"
-                >
-                  &times;
-                </button>
-              )}
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRemove(fav.hcpcs);
+                }}
+                className="absolute top-1 right-1 text-red-500 opacity-0 group-hover:opacity-100"
+                title="Remove from favorites"
+              >
+                &times;
+              </button>
             </div>
           );
         })}
