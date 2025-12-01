@@ -15,7 +15,6 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
   const { data: session } = useSession();
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [loading, setLoading] = useState(true);
-  const [checkedFavorites, setCheckedFavorites] = useState<Set<string>>(new Set());
 
   const fetchFavorites = () => {
     if (!session) {
@@ -63,21 +62,9 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
   };
 
   const handleCheckboxChange = (hcpcs: string) => {
-    setCheckedFavorites(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(hcpcs)) {
-        newSet.delete(hcpcs);
-      } else {
-        newSet.add(hcpcs);
-      }
-      return newSet;
-    });
-  };
-
-  const handleAddSelected = () => {
-    if (onMultiSelect && checkedFavorites.size > 0) {
-      onMultiSelect(Array.from(checkedFavorites));
-      setCheckedFavorites(new Set());
+    // Immediately trigger onMultiSelect when checkbox is changed
+    if (onMultiSelect) {
+      onMultiSelect([hcpcs]);
     }
   };
 
@@ -93,19 +80,16 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
           return (
             <div key={fav.hcpcs} className={`relative p-2 border rounded-md group ${isAlreadySelected ? 'bg-gray-100 opacity-50' : ''}`}>
               {multiSelect ? (
-                <label className="flex items-center gap-2 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={checkedFavorites.has(fav.hcpcs)}
-                    onChange={() => !isAlreadySelected && handleCheckboxChange(fav.hcpcs)}
-                    disabled={isAlreadySelected}
-                    className="w-4 h-4"
-                  />
+                <button
+                  onClick={() => !isAlreadySelected && handleCheckboxChange(fav.hcpcs)}
+                  disabled={isAlreadySelected}
+                  className="w-full text-left"
+                >
                   <span className={isAlreadySelected ? 'text-gray-400' : ''}>
                     {fav.hcpcs}
                     {isAlreadySelected && <span className="ml-1 text-xs">(added)</span>}
                   </span>
-                </label>
+                </button>
               ) : (
                 <button
                   onClick={() => onSelect && onSelect(fav.hcpcs)}
@@ -128,16 +112,6 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
           );
         })}
       </div>
-      {multiSelect && checkedFavorites.size > 0 && (
-        <div className="mt-3">
-          <button
-            onClick={handleAddSelected}
-            className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-          >
-            Add Selected ({checkedFavorites.size}) {checkedFavorites.size === 1 ? 'Favorite' : 'Favorites'}
-          </button>
-        </div>
-      )}
     </div>
   );
 }

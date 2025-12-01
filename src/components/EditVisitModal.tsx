@@ -137,9 +137,16 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
             <FavoritesPicker
               multiSelect
               onMultiSelect={(hcpcsCodes) => {
-                fetch(`/api/rvu/search?q=${hcpcsCodes.join(',')}`)
+                fetch(`/api/rvu/search?q=${hcpcsCodes[0]}`)
                   .then(res => res.json())
-                  .then(data => handleAddProcedures(data));
+                  .then(data => {
+                    if (Array.isArray(data) && data.length > 0) {
+                      const rvuCode = data.find(code => code.hcpcs === hcpcsCodes[0]) || data[0];
+                      if (rvuCode) {
+                        handleAddProcedures([rvuCode]);
+                      }
+                    }
+                  });
               }}
               selectedCodes={selectedCodes}
             />

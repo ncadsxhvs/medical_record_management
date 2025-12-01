@@ -40,22 +40,19 @@ export default function EntryForm({ onEntryAdded }: EntryFormProps) {
   };
 
   const handleAddFromFavorites = async (hcpcsList: string[]) => {
-    // Fetch full RVU code details for each HCPCS
-    const fetchPromises = hcpcsList.map(async (hcpcs) => {
-      try {
-        const res = await fetch(`/api/rvu/search?q=${hcpcs}`);
-        const data = await res.json();
-        if (Array.isArray(data) && data.length > 0) {
-          return data.find(code => code.hcpcs === hcpcs) || data[0];
+    // Fetch full RVU code details for the HCPCS code
+    try {
+      const res = await fetch(`/api/rvu/search?q=${hcpcsList[0]}`);
+      const data = await res.json();
+      if (Array.isArray(data) && data.length > 0) {
+        const rvuCode = data.find(code => code.hcpcs === hcpcsList[0]) || data[0];
+        if (rvuCode) {
+          handleAddProcedures([rvuCode]);
         }
-      } catch (error) {
-        console.error(`Failed to fetch RVU code details for ${hcpcs}:`, error);
       }
-      return null;
-    });
-
-    const rvuCodes = (await Promise.all(fetchPromises)).filter(Boolean) as RVUCode[];
-    handleAddProcedures(rvuCodes);
+    } catch (error) {
+      console.error(`Failed to fetch RVU code details for ${hcpcsList[0]}:`, error);
+    }
   };
 
   const handleRemoveProcedure = (hcpcs: string) => {
