@@ -117,8 +117,12 @@ npm run start
 - **Authentication:** Google OAuth sign-in
 - **HCPCS Code Picker:** Autocomplete search across 16,852+ RVU codes
 - **Multi-Select Support:** Add multiple procedures to a single visit
-- **Quantity Tracking:** Track procedure quantities with automatic RVU calculations
-- **Favorites Management:** Save/toggle favorites from search results and procedure lists
+- **Quantity Tracking:** Stepper buttons (+ / -) for mobile-friendly quantity selection
+- **Favorites Management:**
+  - Save/toggle favorites from search results and procedure lists
+  - **Drag-and-drop reordering** using `@dnd-kit` library
+  - Visual drag handles with smooth animations
+  - Persistent sort order stored in database
 - **Visit Management:** Create, read, update, delete visits with multiple procedures
 - **Analytics Dashboard:** Daily/weekly/monthly/yearly RVU summations
 - **Performance:** In-memory cache for instant search (~5ms queries)
@@ -163,8 +167,8 @@ Response includes cache statistics and load time.
 - Server components by default, mark `'use client'` when needed
 - All state is local (useState) - no global state management
 - Tailwind CSS for all styling
-- No external UI libraries
 - TypeScript strict mode enabled
+- **CRITICAL:** Always update CLAUDE.md and TASK.md after completing features or making significant changes
 
 ## Development Workflow
 
@@ -204,11 +208,13 @@ After completing any feature or making significant changes:
 
 **✅ PRODUCTION READY** - Full-stack RVU tracking application with authentication, database, caching, analytics, and multi-HCPCS visit support.
 
-**Latest Updates (Phase 8):**
-- Multi-procedure visits with quantity tracking
-- Enhanced favorite management (save from search results)
+**Latest Updates:**
+- **Phase 8:** Multi-procedure visits with quantity tracking, junction table architecture
+- **Phase 9:** Stepper buttons for mobile-friendly quantity input
+- **Phase 10:** Drag-and-drop favorites reordering with `@dnd-kit`
+- **Phase 11:** Analytics yearly view auto-dates to current year (Jan 1 - Dec 31)
+- Enhanced favorite management with visual drag handles
 - Improved RVU calculations (Quantity × Unit RVU)
-- Junction table architecture (visits + visit_procedures)
 - Real-time favorite toggling with star buttons
 
 See TASK.md for detailed progress tracking.
@@ -244,8 +250,26 @@ See TASK.md for detailed progress tracking.
 
 ---
 
+## Dependencies
+
+### Core Dependencies
+- `next` - Next.js 16 framework
+- `react`, `react-dom` - React 19
+- `typescript` - TypeScript 5
+- `next-auth` - Authentication with Google OAuth
+- `@vercel/postgres` - Neon Postgres client
+- `@dnd-kit/core`, `@dnd-kit/sortable`, `@dnd-kit/utilities` - Drag-and-drop functionality
+- `lodash` - Utility functions (debounce)
+
+### Dev Dependencies
+- `tailwindcss` - Utility-first CSS
+- `@types/*` - TypeScript definitions
+- `tsx` - TypeScript execution for scripts
+
+---
+
 **When working on this project:**
 1. Keep it simple - avoid adding complexity
 2. Use TypeScript strictly
 3. Update environment variables carefully (separate for dev/prod)
-4. Update TASK.md and CLAUDE.md after completing tasks
+4. **ALWAYS update TASK.md and CLAUDE.md after completing tasks**

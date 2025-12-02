@@ -231,6 +231,148 @@ npm run dev          # Start development server (http://localhost:3001)
 
 ---
 
+## Phase 9: Mobile-Friendly Quantity Input ✅ COMPLETED
+
+### Goal
+Improve quantity input UX on mobile devices with stepper buttons instead of standard number inputs.
+
+### Features Implemented
+
+- [x] **Stepper Button Interface**
+  - [x] Replaced number input with [-] [value] [+] button interface
+  - [x] Large touch targets (36px × 36px) for mobile accessibility
+  - [x] Minimum quantity enforced at 1
+  - [x] Smooth hover and active states with Apple-style design
+
+- [x] **Component Updates**
+  - [x] Updated `ProcedureList.tsx` with stepper UI
+  - [x] Applied to both EntryForm and EditVisitModal
+  - [x] Clean, minimal design matching overall UI aesthetic
+
+- [x] **UX Improvements**
+  - [x] Clear visual feedback on button press
+  - [x] No more keyboard popup on mobile
+  - [x] Easier single-digit quantity changes
+  - [x] Consistent experience across devices
+
+### Technical Details
+
+**UI Components:**
+```tsx
+<button onClick={decrease}>−</button>
+<div>{quantity}</div>
+<button onClick={increase}>+</button>
+```
+
+**Benefits:**
+- Touch-friendly for mobile users
+- No input validation issues
+- Clear affordance (obvious what buttons do)
+- Prevents invalid input (negative numbers, decimals)
+
+---
+
+## Phase 10: Drag-and-Drop Favorites Reordering ✅ COMPLETED
+
+### Goal
+Allow users to reorder their favorite HCPCS codes using drag-and-drop functionality on both desktop and mobile.
+
+### Features Implemented
+
+- [x] **Library Integration**
+  - [x] Installed `@dnd-kit` library (core, sortable, utilities)
+  - [x] Modern, lightweight drag-and-drop solution
+  - [x] Excellent mobile touch support
+  - [x] Built-in accessibility features
+
+- [x] **Database Schema**
+  - [x] Added `sort_order` column to favorites table
+  - [x] Migration script to update existing favorites
+  - [x] Index for efficient sorting queries
+  - [x] Auto-assignment of sort order for new favorites
+
+- [x] **API Updates**
+  - [x] GET `/api/favorites` - Returns favorites sorted by sort_order
+  - [x] POST `/api/favorites` - Assigns next sort order automatically
+  - [x] PATCH `/api/favorites` - Updates sort order after reordering
+  - [x] Immediate persistence to database
+
+- [x] **UI Components**
+  - [x] Completely rewrote FavoritesPicker with `@dnd-kit`
+  - [x] Visible drag handles (6-dot grip icon)
+  - [x] SortableItem component for each favorite
+  - [x] Smooth animations during drag
+  - [x] Visual feedback (opacity, scale, shadow)
+
+- [x] **UX Features**
+  - [x] 8px movement threshold before drag starts (prevents accidental drags)
+  - [x] Drag handle only - clicking text still selects favorite
+  - [x] Disabled drag for already-selected items
+  - [x] Works perfectly on both desktop and mobile
+  - [x] Keyboard navigation support for accessibility
+
+### Technical Details
+
+**Dependencies Added:**
+```json
+"@dnd-kit/core": "^6.x.x",
+"@dnd-kit/sortable": "^8.x.x",
+"@dnd-kit/utilities": "^3.x.x"
+```
+
+**Database Migration:**
+```sql
+ALTER TABLE favorites ADD COLUMN sort_order INTEGER DEFAULT 0;
+CREATE INDEX idx_favorites_user_sort ON favorites(user_id, sort_order);
+```
+
+**Sensors Configuration:**
+- PointerSensor: Handles mouse and touch input
+- KeyboardSensor: Enables keyboard navigation
+- Activation constraint: 8px distance threshold
+
+---
+
+## Phase 11: Analytics Improvements ✅ COMPLETED
+
+### Goal
+Improve analytics yearly view to automatically show current year data.
+
+### Features Implemented
+
+- [x] **Auto-Date Selection**
+  - [x] When selecting "Yearly" period, automatically sets:
+    - Start Date: January 1 of current year
+    - End Date: December 31 of current year
+  - [x] Users can still manually adjust dates if needed
+
+- [x] **Timezone Fix**
+  - [x] Fixed year display showing 2024 when data is in 2025
+  - [x] Extract year directly from date string to avoid timezone conversion
+  - [x] Prevents JavaScript Date timezone issues
+
+### Technical Details
+
+**Implementation:**
+```tsx
+useEffect(() => {
+  if (period === 'yearly') {
+    const currentYear = new Date().getFullYear();
+    setStartDate(`${currentYear}-01-01`);
+    setEndDate(`${currentYear}-12-31`);
+  }
+}, [period]);
+```
+
+**Date Formatting Fix:**
+```tsx
+if (period === 'yearly') {
+  return dateStr.substring(0, 4); // Extract year directly
+}
+```
+
+---
+
 ## Phase 8: Multi-HCPCS Support ✅ COMPLETED
 
 ### Goal
