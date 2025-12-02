@@ -28,6 +28,7 @@ export interface Favorite {
   id: number;
   user_id: string;
   hcpcs: string;
+  sort_order: number;
   created_at: string;
   rvu_code?: RVUCode;
 }

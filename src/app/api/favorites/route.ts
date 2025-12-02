@@ -12,7 +12,8 @@ export async function GET(_req: NextRequest) {
   try {
     const { rows } = await sql`
       SELECT * FROM favorites
-      WHERE user_id = ${userId};
+      WHERE user_id = ${userId}
+      ORDER BY sort_order ASC, created_at ASC;
     `;
     return NextResponse.json(rows);
   } catch (error) {
@@ -35,9 +36,17 @@ export async function POST(req: NextRequest) {
   }
 
   try {
+    // Get max sort_order for this user
+    const maxOrder = await sql`
+      SELECT COALESCE(MAX(sort_order), -1) as max_order
+      FROM favorites
+      WHERE user_id = ${userId}
+    `;
+    const nextOrder = (maxOrder.rows[0]?.max_order || 0) + 1;
+
     const result = await sql`
-      INSERT INTO favorites (user_id, hcpcs)
-      VALUES (${userId}, ${hcpcs})
+      INSERT INTO favorites (user_id, hcpcs, sort_order)
+      VALUES (${userId}, ${hcpcs}, ${nextOrder})
       ON CONFLICT (user_id, hcpcs) DO NOTHING
       RETURNING *;
     `;
@@ -45,5 +54,35 @@ export async function POST(req: NextRequest) {
   } catch (error) {
     console.error('Failed to add favorite:', error);
     return NextResponse.json({ error: 'Failed to add favorite' }, { status: 500 });
+  }
+}
+
+export async function PATCH(req: NextRequest) {
+  const session = await auth();
+  const userId = session?.user?.id || session?.user?.email;
+  if (!userId) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+  }
+
+  const { favorites } = await req.json();
+
+  if (!Array.isArray(favorites)) {
+    return NextResponse.json({ error: 'Invalid request: favorites must be an array' }, { status: 400 });
+  }
+
+  try {
+    // Update sort_order for each favorite
+    for (let i = 0; i < favorites.length; i++) {
+      await sql`
+        UPDATE favorites
+        SET sort_order = ${i}
+        WHERE user_id = ${userId} AND hcpcs = ${favorites[i].hcpcs}
+      `;
+    }
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('Failed to reorder favorites:', error);
+    return NextResponse.json({ error: 'Failed to reorder favorites' }, { status: 500 });
   }
 }
