@@ -115,7 +115,11 @@ export default function AnalyticsPage() {
       return dateStr.substring(0, 4);
     }
 
-    const date = new Date(dateStr);
+    // Parse date as local date to avoid timezone shifts
+    const dateOnly = dateStr.toString().split('T')[0];
+    const [year, month, day] = dateOnly.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
+
     if (period === 'daily') {
       return date.toLocaleDateString();
     } else if (period === 'weekly') {
