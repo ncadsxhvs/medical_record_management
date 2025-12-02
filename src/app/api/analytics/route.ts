@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
       if (truncUnit === 'day') {
         result = await sql`
           SELECT
-            DATE_TRUNC('day', v.date) as period_start,
+            v.date as period_start,
             vp.hcpcs,
             vp.description,
             vp.status_code,
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
-          GROUP BY DATE_TRUNC('day', v.date), vp.hcpcs, vp.description, vp.status_code
+          GROUP BY v.date, vp.hcpcs, vp.description, vp.status_code
           ORDER BY period_start DESC, total_work_rvu DESC
         `;
       } else if (truncUnit === 'week') {
@@ -100,13 +100,13 @@ export async function GET(req: NextRequest) {
       if (truncUnit === 'day') {
         result = await sql`
           SELECT
-            DATE_TRUNC('day', v.date) as period_start,
+            v.date as period_start,
             SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
             COUNT(*) as total_entries
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
-          GROUP BY DATE_TRUNC('day', v.date)
+          GROUP BY v.date
           ORDER BY period_start
         `;
       } else if (truncUnit === 'week') {
