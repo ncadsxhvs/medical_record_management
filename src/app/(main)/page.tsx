@@ -119,12 +119,16 @@ export default function Home() {
                     <div className="flex-1">
                       <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Visit Date</p>
                       <p className="text-lg font-semibold text-gray-900">
-                        {new Date(visit.date).toLocaleDateString('en-US', {
-                          weekday: 'short',
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                        })}
+                        {(() => {
+                          const [year, month, day] = visit.date.split('-').map(Number);
+                          const date = new Date(year, month - 1, day);
+                          return date.toLocaleDateString('en-US', {
+                            weekday: 'short',
+                            year: 'numeric',
+                            month: 'short',
+                            day: 'numeric',
+                          });
+                        })()}
                       </p>
                     </div>
                     <div className="text-right">
