@@ -91,13 +91,25 @@ export default function ProcedureList({ procedures, onRemove, onQuantityChange, 
                   {editable && onQuantityChange ? (
                     <div className="flex items-center gap-2">
                       <label className="text-sm text-gray-600">Quantity:</label>
-                      <input
-                        type="number"
-                        min="1"
-                        value={proc.quantity || 1}
-                        onChange={(e) => onQuantityChange(proc.hcpcs, parseInt(e.target.value) || 1)}
-                        className="w-16 px-2 py-1 border border-gray-300 rounded text-sm"
-                      />
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => onQuantityChange(proc.hcpcs, Math.max(1, (proc.quantity || 1) - 1))}
+                          className="w-9 h-9 flex items-center justify-center bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-all duration-150 font-bold text-lg"
+                          aria-label="Decrease quantity"
+                        >
+                          −
+                        </button>
+                        <div className="w-12 h-9 flex items-center justify-center bg-white border border-gray-300 rounded-lg font-semibold text-gray-900">
+                          {proc.quantity || 1}
+                        </div>
+                        <button
+                          onClick={() => onQuantityChange(proc.hcpcs, (proc.quantity || 1) + 1)}
+                          className="w-9 h-9 flex items-center justify-center bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 active:bg-gray-300 transition-all duration-150 font-bold text-lg"
+                          aria-label="Increase quantity"
+                        >
+                          +
+                        </button>
+                      </div>
                     </div>
                   ) : (
                     <div className="text-sm text-gray-600">
