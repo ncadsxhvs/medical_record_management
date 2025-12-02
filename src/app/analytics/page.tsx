@@ -32,6 +32,15 @@ export default function AnalyticsPage() {
   const [viewMode, setViewMode] = useState<'summary' | 'breakdown'>('summary');
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
 
+  // Update date range when period changes to yearly
+  useEffect(() => {
+    if (period === 'yearly') {
+      const currentYear = new Date().getFullYear();
+      setStartDate(`${currentYear}-01-01`);
+      setEndDate(`${currentYear}-12-31`);
+    }
+  }, [period]);
+
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/sign-in');
@@ -101,6 +110,11 @@ export default function AnalyticsPage() {
     : breakdownData;
 
   const formatPeriod = (dateStr: string) => {
+    // For yearly period, extract year directly from the string to avoid timezone issues
+    if (period === 'yearly') {
+      return dateStr.substring(0, 4);
+    }
+
     const date = new Date(dateStr);
     if (period === 'daily') {
       return date.toLocaleDateString();
