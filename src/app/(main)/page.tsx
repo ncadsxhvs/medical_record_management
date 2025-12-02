@@ -120,7 +120,9 @@ export default function Home() {
                       <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Visit Date</p>
                       <p className="text-lg font-semibold text-gray-900">
                         {(() => {
-                          const [year, month, day] = visit.date.split('-').map(Number);
+                          // Extract just the date part (YYYY-MM-DD) from the date string
+                          const dateStr = visit.date.toString().split('T')[0];
+                          const [year, month, day] = dateStr.split('-').map(Number);
                           const date = new Date(year, month - 1, day);
                           return date.toLocaleDateString('en-US', {
                             weekday: 'short',
