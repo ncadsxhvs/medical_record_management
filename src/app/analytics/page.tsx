@@ -7,7 +7,7 @@ import { useRouter } from 'next/navigation';
 interface AnalyticsData {
   period_start: string;
   total_work_rvu: number;
-  total_entries: number;
+  total_encounters: number;
 }
 
 interface AnalyticsBreakdownData {
@@ -16,7 +16,7 @@ interface AnalyticsBreakdownData {
   description: string;
   status_code: string;
   total_work_rvu: number;
-  entry_count: number;
+  encounter_count: number;
 }
 
 export default function AnalyticsPage() {
@@ -60,7 +60,7 @@ export default function AnalyticsPage() {
             const normalized = data.map(d => ({
               ...d,
               total_work_rvu: parseFloat(d.total_work_rvu) || 0,
-              total_entries: parseInt(d.total_entries) || 0
+              total_encounters: parseInt(d.total_encounters) || 0
             }));
             setData(normalized);
           } else {
@@ -82,7 +82,7 @@ export default function AnalyticsPage() {
             const normalized = data.map(d => ({
               ...d,
               total_work_rvu: parseFloat(d.total_work_rvu) || 0,
-              entry_count: parseInt(d.entry_count) || 0
+              encounter_count: parseInt(d.encounter_count) || 0
             }));
             setBreakdownData(normalized);
           } else {
@@ -242,7 +242,7 @@ export default function AnalyticsPage() {
                         <div
                           className="w-full bg-gradient-to-t from-blue-600 to-blue-400 group-hover:from-blue-700 group-hover:to-blue-500 transition-all duration-200 rounded-t-md shadow-sm"
                           style={{ height: `${maxRvu > 0 ? (d.total_work_rvu / maxRvu) * 100 : 0}%` }}
-                          title={`${formatPeriod(d.period_start)}\nRVU: ${d.total_work_rvu.toFixed(2)}\nEntries: ${d.total_entries}`}
+                          title={`${formatPeriod(d.period_start)}\nRVU: ${d.total_work_rvu.toFixed(2)}\nEncounters: ${d.total_encounters}`}
                         ></div>
                         <div className="text-xs text-gray-700 mt-2 text-center w-full">
                           <div className="font-semibold">{d.total_work_rvu.toFixed(1)}</div>
@@ -267,17 +267,17 @@ export default function AnalyticsPage() {
                 <p className="text-xs text-blue-600 mt-2">Across all periods</p>
               </div>
               <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-6 rounded-lg shadow-md border border-emerald-200">
-                <h3 className="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-2">Total Entries</h3>
+                <h3 className="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-2">Total Encounters</h3>
                 <p className="text-4xl font-bold text-emerald-900">
-                  {data.reduce((sum, d) => sum + d.total_entries, 0)}
+                  {data.reduce((sum, d) => sum + d.total_encounters, 0)}
                 </p>
                 <p className="text-xs text-emerald-600 mt-2">Procedure records</p>
               </div>
               <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg shadow-md border border-purple-200">
-                <h3 className="text-xs font-semibold text-purple-600 uppercase tracking-wider mb-2">Avg RVU per Entry</h3>
+                <h3 className="text-xs font-semibold text-purple-600 uppercase tracking-wider mb-2">Avg RVU per Encounter</h3>
                 <p className="text-4xl font-bold text-purple-900">
-                  {data.reduce((sum, d) => sum + d.total_entries, 0) > 0
-                    ? (data.reduce((sum, d) => sum + d.total_work_rvu, 0) / data.reduce((sum, d) => sum + d.total_entries, 0)).toFixed(2)
+                  {data.reduce((sum, d) => sum + d.total_encounters, 0) > 0
+                    ? (data.reduce((sum, d) => sum + d.total_work_rvu, 0) / data.reduce((sum, d) => sum + d.total_encounters, 0)).toFixed(2)
                     : '0.00'}
                 </p>
                 <p className="text-xs text-purple-600 mt-2">Efficiency metric</p>
@@ -335,13 +335,13 @@ export default function AnalyticsPage() {
                           {item.description}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right font-medium">
-                          {item.entry_count}
+                          {item.encounter_count}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-blue-900 text-right">
                           {item.total_work_rvu.toFixed(2)}
                         </td>
                         <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right">
-                          {(item.total_work_rvu / item.entry_count).toFixed(2)}
+                          {(item.total_work_rvu / item.encounter_count).toFixed(2)}
                         </td>
                       </tr>
                     ))

@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
             vp.description,
             vp.status_code,
             SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
-            COUNT(*) as entry_count
+            COUNT(*) as encounter_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
@@ -55,7 +55,7 @@ export async function GET(req: NextRequest) {
             vp.description,
             vp.status_code,
             SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
-            COUNT(*) as entry_count
+            COUNT(*) as encounter_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
@@ -70,7 +70,7 @@ export async function GET(req: NextRequest) {
             vp.description,
             vp.status_code,
             SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
-            COUNT(*) as entry_count
+            COUNT(*) as encounter_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
@@ -85,7 +85,7 @@ export async function GET(req: NextRequest) {
             vp.description,
             vp.status_code,
             SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
-            COUNT(*) as entry_count
+            COUNT(*) as encounter_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
@@ -102,7 +102,7 @@ export async function GET(req: NextRequest) {
           SELECT
             v.date as period_start,
             SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
-            COUNT(*) as total_entries
+            COUNT(*) as total_encounters
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
@@ -114,7 +114,7 @@ export async function GET(req: NextRequest) {
           SELECT
             DATE_TRUNC('week', v.date) as period_start,
             SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
-            COUNT(*) as total_entries
+            COUNT(*) as total_encounters
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
@@ -126,7 +126,7 @@ export async function GET(req: NextRequest) {
           SELECT
             DATE_TRUNC('month', v.date) as period_start,
             SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
-            COUNT(*) as total_entries
+            COUNT(*) as total_encounters
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
@@ -138,7 +138,7 @@ export async function GET(req: NextRequest) {
           SELECT
             DATE_TRUNC('year', v.date) as period_start,
             SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
-            COUNT(*) as total_entries
+            COUNT(*) as total_encounters
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}

@@ -10,17 +10,17 @@ const mockAnalyticsData = [
   {
     period_start: '2025-12-02',
     total_work_rvu: 4.52,
-    total_entries: 2,
+    total_encounters: 2,
   },
   {
     period_start: '2025-12-01',
     total_work_rvu: 1.3,
-    total_entries: 1,
+    total_encounters: 1,
   },
   {
     period_start: '2025-11-01',
     total_work_rvu: 2.6,
-    total_entries: 1,
+    total_encounters: 1,
   },
 ];
 
@@ -31,7 +31,7 @@ const mockHCPCSBreakdown = [
     description: 'Office visit',
     status_code: 'A',
     total_work_rvu: 2.6,
-    entry_count: 2,
+    encounter_count: 2,
   },
   {
     period_start: '2025-12-02',
@@ -39,7 +39,7 @@ const mockHCPCSBreakdown = [
     description: 'Office visit extended',
     status_code: 'A',
     total_work_rvu: 1.92,
-    entry_count: 1,
+    encounter_count: 1,
   },
   {
     period_start: '2025-12-01',
@@ -47,7 +47,7 @@ const mockHCPCSBreakdown = [
     description: 'Office visit',
     status_code: 'A',
     total_work_rvu: 1.3,
-    entry_count: 1,
+    encounter_count: 1,
   },
 ];
 
@@ -115,16 +115,16 @@ describe('Analytics API Integration', () => {
       expect(grandTotal).toBeCloseTo(8.42, 2);
     });
 
-    it('should calculate average RVU per entry', () => {
+    it('should calculate average RVU per encounter', () => {
       const totalRVU = mockAnalyticsData.reduce(
         (sum, d) => sum + d.total_work_rvu,
         0
       );
-      const totalEntries = mockAnalyticsData.reduce(
-        (sum, d) => sum + d.total_entries,
+      const totalEncounters = mockAnalyticsData.reduce(
+        (sum, d) => sum + d.total_encounters,
         0
       );
-      const avgRVU = totalRVU / totalEntries;
+      const avgRVU = totalRVU / totalEncounters;
 
       // 8.42 / 4 = 2.105
       expect(avgRVU).toBeCloseTo(2.105, 2);
@@ -147,28 +147,28 @@ describe('Analytics API Integration', () => {
     });
   });
 
-  describe('Entry Counts', () => {
-    it('should count total entries correctly per period', () => {
-      const dec2Entries = mockAnalyticsData.find(
+  describe('Encounter Counts', () => {
+    it('should count total encounters correctly per period', () => {
+      const dec2Encounters = mockAnalyticsData.find(
         (d) => d.period_start === '2025-12-02'
-      )?.total_entries;
+      )?.total_encounters;
 
-      expect(dec2Entries).toBe(2);
+      expect(dec2Encounters).toBe(2);
     });
 
-    it('should sum entries across all periods', () => {
-      const totalEntries = mockAnalyticsData.reduce(
-        (sum, d) => sum + d.total_entries,
+    it('should sum encounters across all periods', () => {
+      const totalEncounters = mockAnalyticsData.reduce(
+        (sum, d) => sum + d.total_encounters,
         0
       );
 
-      expect(totalEntries).toBe(4);
+      expect(totalEncounters).toBe(4);
     });
 
-    it('should count HCPCS-specific entries', () => {
+    it('should count HCPCS-specific encounters', () => {
       const code99213Count = mockHCPCSBreakdown
         .filter((d) => d.hcpcs === '99213')
-        .reduce((sum, d) => sum + d.entry_count, 0);
+        .reduce((sum, d) => sum + d.encounter_count, 0);
 
       expect(code99213Count).toBe(3);
     });
@@ -216,7 +216,7 @@ describe('Analytics API Integration', () => {
 
       expect(data).toHaveProperty('period_start');
       expect(data).toHaveProperty('total_work_rvu');
-      expect(data).toHaveProperty('total_entries');
+      expect(data).toHaveProperty('total_encounters');
     });
 
     it('should include all required fields in breakdown data', () => {
@@ -227,14 +227,14 @@ describe('Analytics API Integration', () => {
       expect(data).toHaveProperty('description');
       expect(data).toHaveProperty('status_code');
       expect(data).toHaveProperty('total_work_rvu');
-      expect(data).toHaveProperty('entry_count');
+      expect(data).toHaveProperty('encounter_count');
     });
 
     it('should maintain data type consistency', () => {
       mockAnalyticsData.forEach((data) => {
         expect(typeof data.period_start).toBe('string');
         expect(typeof data.total_work_rvu).toBe('number');
-        expect(typeof data.total_entries).toBe('number');
+        expect(typeof data.total_encounters).toBe('number');
       });
     });
   });
@@ -243,17 +243,17 @@ describe('Analytics API Integration', () => {
     it('should calculate correct summary statistics', () => {
       const stats = {
         totalRVU: mockAnalyticsData.reduce((sum, d) => sum + d.total_work_rvu, 0),
-        totalEntries: mockAnalyticsData.reduce(
-          (sum, d) => sum + d.total_entries,
+        totalEncounters: mockAnalyticsData.reduce(
+          (sum, d) => sum + d.total_encounters,
           0
         ),
         avgRVU: 0,
       };
 
-      stats.avgRVU = stats.totalRVU / stats.totalEntries;
+      stats.avgRVU = stats.totalRVU / stats.totalEncounters;
 
       expect(stats.totalRVU).toBeCloseTo(8.42, 2);
-      expect(stats.totalEntries).toBe(4);
+      expect(stats.totalEncounters).toBe(4);
       expect(stats.avgRVU).toBeCloseTo(2.105, 2);
     });
 
@@ -269,12 +269,12 @@ describe('Analytics API Integration', () => {
         {
           period_start: '2025-12-03',
           total_work_rvu: 0,
-          total_entries: 0,
+          total_encounters: 0,
         },
       ];
 
       expect(emptyData[0].total_work_rvu).toBe(0);
-      expect(emptyData[0].total_entries).toBe(0);
+      expect(emptyData[0].total_encounters).toBe(0);
     });
   });
 });
