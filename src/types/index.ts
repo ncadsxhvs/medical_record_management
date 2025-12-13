@@ -50,6 +50,7 @@ export interface Visit {
   id?: number;
   user_id: string;
   date: string;
+  time?: string;
   notes?: string;
   is_no_show?: boolean;
   procedures: VisitProcedure[];
@@ -60,6 +61,7 @@ export interface Visit {
 // Form state for building a visit with multiple procedures
 export interface VisitFormData {
   date: string;
+  time?: string;
   notes?: string;
   is_no_show?: boolean;
   procedures: VisitProcedure[];

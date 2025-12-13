@@ -13,6 +13,7 @@ interface EntryFormProps {
 export default function EntryForm({ onEntryAdded }: EntryFormProps) {
   const [visitData, setVisitData] = useState<VisitFormData>({
     date: new Date().toISOString().split('T')[0],
+    time: new Date().toTimeString().slice(0, 5), // HH:MM format
     notes: '',
     procedures: [],
   });
@@ -74,6 +75,7 @@ export default function EntryForm({ onEntryAdded }: EntryFormProps) {
   const handleClearAll = () => {
     setVisitData({
       date: new Date().toISOString().split('T')[0],
+      time: new Date().toTimeString().slice(0, 5),
       notes: '',
       procedures: [],
     });
@@ -145,17 +147,31 @@ export default function EntryForm({ onEntryAdded }: EntryFormProps) {
       {/* Visit Details Section */}
       {visitData.procedures.length > 0 && (
         <div className="space-y-3 pt-3 border-t border-gray-300">
-          <div>
-            <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
-              Visit Date *
-            </label>
-            <input
-              type="date"
-              id="date"
-              value={visitData.date}
-              onChange={(e) => setVisitData({ ...visitData, date: e.target.value })}
-              className="w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div>
+              <label htmlFor="date" className="block text-sm font-medium text-gray-700 mb-1">
+                Visit Date *
+              </label>
+              <input
+                type="date"
+                id="date"
+                value={visitData.date}
+                onChange={(e) => setVisitData({ ...visitData, date: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
+            </div>
+            <div>
+              <label htmlFor="time" className="block text-sm font-medium text-gray-700 mb-1">
+                Visit Time (Optional)
+              </label>
+              <input
+                type="time"
+                id="time"
+                value={visitData.time || ''}
+                onChange={(e) => setVisitData({ ...visitData, time: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md"
+              />
+            </div>
           </div>
           <div>
             <label htmlFor="notes" className="block text-sm font-medium text-gray-700 mb-1">

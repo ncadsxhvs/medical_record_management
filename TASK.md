@@ -481,6 +481,86 @@ npm run dev          # Start development server (http://localhost:3001)
 
 ---
 
+## Phase 17: Visit Time Tracking ✅ COMPLETED
+
+### Goal
+Add optional time field to visits for tracking appointment times.
+
+### Features Implemented
+
+- [x] **Database Schema**
+  - [x] Added `time` TIME column to visits table
+  - [x] Created migration script: `scripts/add-visit-time.sql`
+  - [x] Added composite index: `idx_visits_user_date_time`
+  - [x] Time is optional (NULL allowed)
+
+- [x] **API Updates**
+  - [x] Modified POST `/api/visits` to accept optional `time` parameter
+  - [x] Modified PUT `/api/visits/[id]` to update time field
+  - [x] GET endpoint returns time with visits
+  - [x] Time stored as TIME type (HH:MM:SS format)
+
+- [x] **TypeScript Types**
+  - [x] Added `time?: string` to `Visit` interface
+  - [x] Added `time?: string` to `VisitFormData` interface
+
+- [x] **UI Components - Entry Form**
+  - [x] Added time input field in grid layout with date
+  - [x] Default time set to current time (HH:MM format)
+  - [x] Label: "Visit Time (Optional)"
+  - [x] Side-by-side layout on desktop, stacked on mobile
+
+- [x] **UI Components - Visit Cards**
+  - [x] Updated display label from "Visit Date" to "Visit Date & Time"
+  - [x] Time formatted as 12-hour with AM/PM (e.g., "2:30 PM")
+  - [x] Fallback to date-only if no time provided
+  - [x] Format: "Dec 13, 2025 at 2:30 PM"
+
+- [x] **UI Components - Edit Modal**
+  - [x] Added time input field in grid layout with date
+  - [x] Label: "Time (Optional)"
+  - [x] Updates saved to database on submit
+
+### Technical Details
+
+**Database Migration:**
+```sql
+ALTER TABLE visits ADD COLUMN IF NOT EXISTS time TIME;
+CREATE INDEX IF NOT EXISTS idx_visits_user_date_time ON visits(user_id, date, time);
+```
+
+**Time Display Logic:**
+```typescript
+if (visit.time) {
+  const [hours, minutes] = visit.time.split(':');
+  const hour = parseInt(hours, 10);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour % 12 || 12;
+  return `${dateFormatted} at ${displayHour}:${minutes} ${ampm}`;
+}
+```
+
+### Files Modified
+
+- `src/app/api/visits/route.ts` - POST endpoint with time support
+- `src/app/api/visits/[id]/route.ts` - PUT endpoint with time updates
+- `src/app/(main)/page.tsx` - Visit card display with time formatting
+- `src/components/EntryForm.tsx` - Time input field with default value
+- `src/components/EditVisitModal.tsx` - Time input in edit form
+- `src/types/index.ts` - TypeScript interfaces
+- `scripts/add-visit-time.sql` - Database migration
+- `CLAUDE.md` - Documentation updates
+- `TASK.md` - This file
+
+### Testing
+
+- ✅ All 57 existing tests still pass
+- ✅ TypeScript compilation successful
+- ✅ Production build successful
+- ✅ Database migration applied successfully
+
+---
+
 ## Current Status
 
 **✅ Completed:**
@@ -543,7 +623,16 @@ npm run dev          # Start development server (http://localhost:3001)
   - Database schema updated with `is_no_show` column
   - Distinctive orange styling for no-show visits
   - Delete-only (no editing) for no-show visits
+  - Analytics dashboard includes "Total No Shows" metric
   - Migration script applied successfully
+
+- **Visit Time Tracking (Phase 17):**
+  - Optional time field for tracking appointment times
+  - Database schema updated with `time` TIME column
+  - 12-hour format display with AM/PM
+  - Time input in entry form and edit modal
+  - Visit cards show "Visit Date & Time" with formatted time
+  - Composite index for optimized date/time queries
 
 **📊 Test Suite:**
 - 57/57 tests passing

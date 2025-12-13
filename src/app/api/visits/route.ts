@@ -9,7 +9,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { date, notes, procedures, is_no_show } = await req.json();
+  const { date, time, notes, procedures, is_no_show } = await req.json();
 
   // Validation
   if (!date) {
@@ -22,10 +22,10 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    // Insert visit with is_no_show flag
+    // Insert visit with is_no_show flag and time
     const visitResult = await sql`
-      INSERT INTO visits (user_id, date, notes, is_no_show)
-      VALUES (${userId}, ${date}, ${notes || null}, ${is_no_show || false})
+      INSERT INTO visits (user_id, date, time, notes, is_no_show)
+      VALUES (${userId}, ${date}, ${time || null}, ${notes || null}, ${is_no_show || false})
       RETURNING *;
     `;
 

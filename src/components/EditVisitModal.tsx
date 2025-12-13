@@ -171,16 +171,30 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
           <div className="bg-gray-50 border border-gray-200 rounded-xl p-5 space-y-4">
             <h3 className="text-sm font-semibold text-gray-900">Visit Details</h3>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date
-              </label>
-              <input
-                type="date"
-                value={editedVisit.date}
-                onChange={(e) => setEditedVisit(prev => ({ ...prev, date: e.target.value }))}
-                className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
-              />
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Date
+                </label>
+                <input
+                  type="date"
+                  value={editedVisit.date}
+                  onChange={(e) => setEditedVisit(prev => ({ ...prev, date: e.target.value }))}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Time (Optional)
+                </label>
+                <input
+                  type="time"
+                  value={editedVisit.time || ''}
+                  onChange={(e) => setEditedVisit(prev => ({ ...prev, time: e.target.value }))}
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                />
+              </div>
             </div>
 
             <div>

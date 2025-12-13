@@ -125,7 +125,8 @@ npx tsx scripts/migrate-favorites-sort.ts
 ### Visit Management
 - Create visits with multiple procedures
 - Each procedure has HCPCS code, quantity, RVU value
-- Edit existing visits (add/remove procedures, change quantities)
+- **Date and time tracking** - Optional time field for appointments (12-hour format display)
+- Edit existing visits (add/remove procedures, change quantities, update time)
 - Delete visits
 - **No-show tracking** - Quick-add no-show encounters without procedures
 - Ordered by date DESC
@@ -221,7 +222,7 @@ const date = parseLocalDate('2025-12-02');  // Local date, no shift
 ### Tables
 
 - **visits** - Parent record for each visit
-  - `id`, `user_id`, `date`, `notes`, `is_no_show`, `created_at`, `updated_at`
+  - `id`, `user_id`, `date`, `time`, `notes`, `is_no_show`, `created_at`, `updated_at`
 
 - **visit_procedures** - Procedures for each visit
   - `id`, `visit_id`, `hcpcs`, `description`, `status_code`, `work_rvu`, `quantity`
@@ -321,7 +322,15 @@ Required production environment variables:
 - Cannot edit no-show visits (delete only)
 - Migration script: `scripts/add-no-show-column.sql`
 - Analytics dashboard includes "Total No Shows" metric
-- No-shows tracked separately from regular encounters
+
+### Visit Time Tracking (2025-12-13)
+- Added `time` TIME column to visits table for appointment times
+- Optional time field in visit forms (defaults to current time)
+- Display format: 12-hour with AM/PM (e.g., "2:30 PM")
+- Visit cards show "Visit Date & Time" with formatted time
+- Edit visit modal supports time updates
+- Migration script: `scripts/add-visit-time.sql`
+- Database index: `idx_visits_user_date_time` for optimized queries
 
 ---
 

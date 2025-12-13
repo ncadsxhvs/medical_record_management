@@ -13,7 +13,7 @@ export async function PUT(
   }
 
   const { id } = await params;
-  const { date, notes, procedures } = await req.json();
+  const { date, time, notes, procedures } = await req.json();
 
   // Validation
   if (!date || !procedures || !Array.isArray(procedures) || procedures.length === 0) {
@@ -24,7 +24,7 @@ export async function PUT(
     // Update visit
     const visitResult = await sql`
       UPDATE visits
-      SET date = ${date}, notes = ${notes || null}
+      SET date = ${date}, time = ${time || null}, notes = ${notes || null}
       WHERE id = ${id} AND user_id = ${userId}
       RETURNING *;
     `;

@@ -163,19 +163,30 @@ export default function Home() {
                   )}
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
-                      <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Visit Date</p>
+                      <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Visit Date & Time</p>
                       <p className="text-lg font-semibold text-gray-900">
                         {(() => {
                           // Extract just the date part (YYYY-MM-DD) from the date string
                           const dateStr = visit.date.toString().split('T')[0];
                           const [year, month, day] = dateStr.split('-').map(Number);
                           const date = new Date(year, month - 1, day);
-                          return date.toLocaleDateString('en-US', {
+                          const dateFormatted = date.toLocaleDateString('en-US', {
                             weekday: 'short',
                             year: 'numeric',
                             month: 'short',
                             day: 'numeric',
                           });
+
+                          // Format time if available
+                          if (visit.time) {
+                            const [hours, minutes] = visit.time.split(':');
+                            const hour = parseInt(hours, 10);
+                            const ampm = hour >= 12 ? 'PM' : 'AM';
+                            const displayHour = hour % 12 || 12;
+                            return `${dateFormatted} at ${displayHour}:${minutes} ${ampm}`;
+                          }
+
+                          return dateFormatted;
                         })()}
                       </p>
                     </div>
