@@ -127,6 +127,7 @@ npx tsx scripts/migrate-favorites-sort.ts
 - Each procedure has HCPCS code, quantity, RVU value
 - Edit existing visits (add/remove procedures, change quantities)
 - Delete visits
+- **No-show tracking** - Quick-add no-show encounters without procedures
 - Ordered by date DESC
 
 ### HCPCS Code Picker
@@ -220,7 +221,7 @@ const date = parseLocalDate('2025-12-02');  // Local date, no shift
 ### Tables
 
 - **visits** - Parent record for each visit
-  - `id`, `user_id`, `date`, `notes`, `created_at`, `updated_at`
+  - `id`, `user_id`, `date`, `notes`, `is_no_show`, `created_at`, `updated_at`
 
 - **visit_procedures** - Procedures for each visit
   - `id`, `visit_id`, `hcpcs`, `description`, `status_code`, `work_rvu`, `quantity`
@@ -312,6 +313,14 @@ Required production environment variables:
 - Configured trackmyrvu.com as primary domain
 - Updated all documentation and environment templates
 
+### No-Show Feature (2025-12-12)
+- Added `is_no_show` boolean column to visits table
+- Quick-add no-show encounters without procedures
+- Distinctive orange styling for no-show visit cards
+- No-show visits display badge, date, and notes only (no RVU/procedures)
+- Cannot edit no-show visits (delete only)
+- Migration script: `scripts/add-no-show-column.sql`
+
 ---
 
 ## Current Status
@@ -321,6 +330,7 @@ Required production environment variables:
 Full-stack RVU tracking application with:
 - Authentication ✅
 - Multi-procedure visits ✅
+- No-show tracking ✅
 - Drag-and-drop favorites ✅
 - Analytics dashboard ✅
 - Comprehensive testing ✅

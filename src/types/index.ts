@@ -51,6 +51,7 @@ export interface Visit {
   user_id: string;
   date: string;
   notes?: string;
+  is_no_show?: boolean;
   procedures: VisitProcedure[];
   created_at?: string;
   updated_at?: string;
@@ -60,6 +61,7 @@ export interface Visit {
 export interface VisitFormData {
   date: string;
   notes?: string;
+  is_no_show?: boolean;
   procedures: VisitProcedure[];
 }
 

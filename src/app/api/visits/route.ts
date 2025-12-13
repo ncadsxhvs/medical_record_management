@@ -9,32 +9,39 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const { date, notes, procedures } = await req.json();
+  const { date, notes, procedures, is_no_show } = await req.json();
 
   // Validation
-  if (!date || !procedures || !Array.isArray(procedures) || procedures.length === 0) {
+  if (!date) {
+    return NextResponse.json({ error: 'Date is required' }, { status: 400 });
+  }
+
+  // Allow empty procedures only if is_no_show is true
+  if (!is_no_show && (!procedures || !Array.isArray(procedures) || procedures.length === 0)) {
     return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
   }
 
   try {
-    // Insert visit
+    // Insert visit with is_no_show flag
     const visitResult = await sql`
-      INSERT INTO visits (user_id, date, notes)
-      VALUES (${userId}, ${date}, ${notes || null})
+      INSERT INTO visits (user_id, date, notes, is_no_show)
+      VALUES (${userId}, ${date}, ${notes || null}, ${is_no_show || false})
       RETURNING *;
     `;
 
     const visitId = visitResult.rows[0].id;
 
-    // Insert all procedures
+    // Insert all procedures (skip for no-shows)
     const procedureResults = [];
-    for (const proc of procedures) {
-      const procResult = await sql`
-        INSERT INTO visit_procedures (visit_id, hcpcs, description, status_code, work_rvu, quantity)
-        VALUES (${visitId}, ${proc.hcpcs}, ${proc.description}, ${proc.status_code}, ${proc.work_rvu}, ${proc.quantity || 1})
-        RETURNING *;
-      `;
-      procedureResults.push(procResult.rows[0]);
+    if (procedures && Array.isArray(procedures) && procedures.length > 0) {
+      for (const proc of procedures) {
+        const procResult = await sql`
+          INSERT INTO visit_procedures (visit_id, hcpcs, description, status_code, work_rvu, quantity)
+          VALUES (${visitId}, ${proc.hcpcs}, ${proc.description}, ${proc.status_code}, ${proc.work_rvu}, ${proc.quantity || 1})
+          RETURNING *;
+        `;
+        procedureResults.push(procResult.rows[0]);
+      }
     }
 
     const result = {

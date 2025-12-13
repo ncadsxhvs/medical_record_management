@@ -538,6 +538,13 @@ npm run dev          # Start development server (http://localhost:3001)
   - OAuth configured for both environments
   - Ready for production deployment
 
+- **No-Show Feature (Phase 16):**
+  - Quick-add no-show encounters without procedures
+  - Database schema updated with `is_no_show` column
+  - Distinctive orange styling for no-show visits
+  - Delete-only (no editing) for no-show visits
+  - Migration script applied successfully
+
 **📊 Test Suite:**
 - 57/57 tests passing
 - ~0.25s execution time
@@ -867,6 +874,78 @@ Located in `configs/` directory (gitignored):
    - Add: `https://hh-ncadsxhvs-projects.vercel.app/api/auth/callback/google`
 3. Update Vercel environment variables with values from `.env.production`
 4. Redeploy to Vercel
+
+---
+
+## Phase 16: No-Show Feature ✅ COMPLETED
+
+### Goal
+Add ability to track no-show encounters without entering procedure details.
+
+### Features Implemented
+
+- [x] **Database Schema**
+  - [x] Added `is_no_show` boolean column to visits table
+  - [x] Created migration script: `scripts/add-no-show-column.sql`
+  - [x] Added index for efficient querying: `idx_visits_no_show`
+  - [x] Default value: FALSE
+
+- [x] **API Updates**
+  - [x] Modified POST `/api/visits` to accept `is_no_show` flag
+  - [x] Allow empty procedures array when `is_no_show` is true
+  - [x] Validation ensures regular visits still require procedures
+  - [x] GET endpoint returns `is_no_show` flag with visits
+
+- [x] **TypeScript Types**
+  - [x] Added `is_no_show?: boolean` to `Visit` interface
+  - [x] Added `is_no_show?: boolean` to `VisitFormData` interface
+
+- [x] **UI Components**
+  - [x] "Add No Show" button below entry form
+  - [x] Red button styling matching delete button style
+  - [x] Circle-slash icon for visual consistency
+  - [x] Right-aligned placement
+  - [x] Loading state while creating no-show
+
+- [x] **Visit Card Display**
+  - [x] Orange background and border for no-show visits
+  - [x] "🚫 No Show" badge at top of card
+  - [x] No RVU total displayed (since no procedures)
+  - [x] No procedures section shown
+  - [x] Edit button hidden (only Delete available)
+  - [x] Date and notes still displayed
+
+### Technical Details
+
+**Database Migration:**
+```sql
+ALTER TABLE visits ADD COLUMN IF NOT EXISTS is_no_show BOOLEAN DEFAULT FALSE;
+CREATE INDEX idx_visits_no_show ON visits(user_id, is_no_show);
+```
+
+**User Workflow:**
+1. Click "Add No Show" button below entry form
+2. No-show visit created instantly with:
+   - Today's date
+   - "No Show" in notes field
+   - Empty procedures array
+   - `is_no_show` flag set to true
+3. Visit appears in list with distinctive orange styling
+4. Can only be deleted (not edited)
+
+### Files Modified
+
+- `src/app/api/visits/route.ts` - API logic for no-shows
+- `src/app/(main)/page.tsx` - UI components and handlers
+- `src/types/index.ts` - TypeScript interfaces
+- `scripts/add-no-show-column.sql` - Database migration
+
+### Testing
+
+- ✅ All 57 existing tests still pass
+- ✅ TypeScript compilation successful
+- ✅ Production build successful
+- ✅ Database migration applied successfully
 
 ---
 

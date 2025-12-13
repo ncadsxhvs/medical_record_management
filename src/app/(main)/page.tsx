@@ -16,6 +16,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [expandedVisits, setExpandedVisits] = useState<Set<number>>(new Set());
   const [editingVisit, setEditingVisit] = useState<Visit | null>(null);
+  const [addingNoShow, setAddingNoShow] = useState(false);
 
   const fetchVisits = useCallback(() => {
     if (status === 'authenticated') {
@@ -70,6 +71,33 @@ export default function Home() {
     });
   };
 
+  const handleAddNoShow = async () => {
+    setAddingNoShow(true);
+    try {
+      const response = await fetch('/api/visits', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          date: new Date().toISOString().split('T')[0],
+          notes: 'No Show',
+          is_no_show: true,
+          procedures: [],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create no-show visit');
+      }
+
+      fetchVisits();
+    } catch (error) {
+      console.error('Failed to add no-show:', error);
+      alert('Failed to add no-show visit. Please try again.');
+    } finally {
+      setAddingNoShow(false);
+    }
+  };
+
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -100,6 +128,19 @@ export default function Home() {
           <EntryForm onEntryAdded={fetchVisits} />
         </div>
 
+        <div className="mb-6 flex justify-end">
+          <button
+            onClick={handleAddNoShow}
+            disabled={addingNoShow}
+            className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 text-sm font-semibold rounded-lg hover:bg-red-100 active:bg-red-200 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+            </svg>
+            {addingNoShow ? 'Adding...' : 'Add No Show'}
+          </button>
+        </div>
+
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-gray-900">Visits ({visits.length})</h2>
           {visits.length === 0 && (
@@ -113,8 +154,13 @@ export default function Home() {
             const isExpanded = expandedVisits.has(visit.id!);
 
             return (
-              <div key={visit.id} className="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
+              <div key={visit.id} className={`bg-white rounded-xl shadow-sm border ${visit.is_no_show ? 'border-orange-300 bg-orange-50' : 'border-gray-200'} hover:shadow-md transition-shadow duration-200`}>
                 <div className="p-5">
+                  {visit.is_no_show && (
+                    <div className="mb-3 inline-block px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-full uppercase tracking-wide">
+                      🚫 No Show
+                    </div>
+                  )}
                   <div className="flex justify-between items-start mb-4">
                     <div className="flex-1">
                       <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Visit Date</p>
@@ -133,10 +179,12 @@ export default function Home() {
                         })()}
                       </p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Total RVU</p>
-                      <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">{totalRVU.toFixed(2)}</p>
-                    </div>
+                    {!visit.is_no_show && (
+                      <div className="text-right">
+                        <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Total RVU</p>
+                        <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">{totalRVU.toFixed(2)}</p>
+                      </div>
+                    )}
                   </div>
 
                   {visit.notes && (
@@ -146,47 +194,53 @@ export default function Home() {
                     </div>
                   )}
 
-                  <div className="mb-3">
-                    <button
-                      onClick={() => toggleVisitExpansion(visit.id!)}
-                      className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-                    >
-                      <span className="text-lg">{isExpanded ? '▼' : '▶'}</span>
-                      <span>{isExpanded ? 'Hide' : 'Show'} Procedures ({visit.procedures.length})</span>
-                    </button>
-                  </div>
+                  {!visit.is_no_show && (
+                    <>
+                      <div className="mb-3">
+                        <button
+                          onClick={() => toggleVisitExpansion(visit.id!)}
+                          className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                        >
+                          <span className="text-lg">{isExpanded ? '▼' : '▶'}</span>
+                          <span>{isExpanded ? 'Hide' : 'Show'} Procedures ({visit.procedures.length})</span>
+                        </button>
+                      </div>
 
-                  {isExpanded && (
-                    <div className="space-y-2 mb-4 pl-4 border-l-2 border-blue-200">
-                      {visit.procedures.map((proc, idx) => (
-                        <div key={idx} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
-                          <div className="flex justify-between items-start">
-                            <div className="flex-1">
-                              <div>
-                                <span className="font-semibold text-gray-900">{proc.hcpcs}</span>
-                                <span className="text-gray-600 text-sm ml-2">{proc.description}</span>
-                              </div>
-                              <div className="text-xs text-gray-500 mt-1 font-medium">
-                                Qty: {proc.quantity || 1} × {Number(proc.work_rvu).toFixed(2)} RVU = {(Number(proc.work_rvu) * (proc.quantity || 1)).toFixed(2)} RVU
+                      {isExpanded && (
+                        <div className="space-y-2 mb-4 pl-4 border-l-2 border-blue-200">
+                          {visit.procedures.map((proc, idx) => (
+                            <div key={idx} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
+                              <div className="flex justify-between items-start">
+                                <div className="flex-1">
+                                  <div>
+                                    <span className="font-semibold text-gray-900">{proc.hcpcs}</span>
+                                    <span className="text-gray-600 text-sm ml-2">{proc.description}</span>
+                                  </div>
+                                  <div className="text-xs text-gray-500 mt-1 font-medium">
+                                    Qty: {proc.quantity || 1} × {Number(proc.work_rvu).toFixed(2)} RVU = {(Number(proc.work_rvu) * (proc.quantity || 1)).toFixed(2)} RVU
+                                  </div>
+                                </div>
+                                <span className="font-bold text-blue-600 ml-3 text-sm">{(Number(proc.work_rvu) * (proc.quantity || 1)).toFixed(2)}</span>
                               </div>
                             </div>
-                            <span className="font-bold text-blue-600 ml-3 text-sm">{(Number(proc.work_rvu) * (proc.quantity || 1)).toFixed(2)}</span>
-                          </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      )}
+                    </>
                   )}
 
                   <div className="flex gap-2 pt-3 border-t border-gray-100">
-                    <button
-                      onClick={() => setEditingVisit(visit)}
-                      className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 text-sm font-semibold rounded-lg hover:bg-blue-100 active:bg-blue-200 transition-all duration-150"
-                    >
-                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                      </svg>
-                      Edit
-                    </button>
+                    {!visit.is_no_show && (
+                      <button
+                        onClick={() => setEditingVisit(visit)}
+                        className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 text-sm font-semibold rounded-lg hover:bg-blue-100 active:bg-blue-200 transition-all duration-150"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                        Edit
+                      </button>
+                    )}
                     <button
                       onClick={() => handleRemove(visit.id!)}
                       className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 text-sm font-semibold rounded-lg hover:bg-red-100 active:bg-red-200 transition-all duration-150"
