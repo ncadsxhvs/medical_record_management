@@ -915,6 +915,13 @@ Add ability to track no-show encounters without entering procedure details.
   - [x] Edit button hidden (only Delete available)
   - [x] Date and notes still displayed
 
+- [x] **Analytics Integration**
+  - [x] Added "Total No Shows" metric to analytics dashboard
+  - [x] Orange-themed card matching no-show visit styling
+  - [x] Updated analytics API to count no-shows separately
+  - [x] No-shows tracked across all period types (daily/weekly/monthly/yearly)
+  - [x] Removed emoji from Analytics button
+
 ### Technical Details
 
 **Database Migration:**
@@ -936,7 +943,9 @@ CREATE INDEX idx_visits_no_show ON visits(user_id, is_no_show);
 ### Files Modified
 
 - `src/app/api/visits/route.ts` - API logic for no-shows
-- `src/app/(main)/page.tsx` - UI components and handlers
+- `src/app/api/analytics/route.ts` - Analytics queries with no-show counts
+- `src/app/(main)/page.tsx` - UI components and handlers, Analytics button
+- `src/app/analytics/page.tsx` - Analytics dashboard with no-show metric
 - `src/types/index.ts` - TypeScript interfaces
 - `scripts/add-no-show-column.sql` - Database migration
 

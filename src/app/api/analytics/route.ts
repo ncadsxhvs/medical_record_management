@@ -101,10 +101,11 @@ export async function GET(req: NextRequest) {
         result = await sql`
           SELECT
             v.date as period_start,
-            SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
-            COUNT(*) as total_encounters
+            COALESCE(SUM(vp.work_rvu * COALESCE(vp.quantity, 1)), 0) as total_work_rvu,
+            COUNT(DISTINCT CASE WHEN vp.id IS NOT NULL THEN v.id END) as total_encounters,
+            COUNT(DISTINCT CASE WHEN v.is_no_show = true THEN v.id END) as total_no_shows
           FROM visits v
-          JOIN visit_procedures vp ON v.id = vp.visit_id
+          LEFT JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
           GROUP BY v.date
           ORDER BY period_start
@@ -113,10 +114,11 @@ export async function GET(req: NextRequest) {
         result = await sql`
           SELECT
             DATE_TRUNC('week', v.date) as period_start,
-            SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
-            COUNT(*) as total_encounters
+            COALESCE(SUM(vp.work_rvu * COALESCE(vp.quantity, 1)), 0) as total_work_rvu,
+            COUNT(DISTINCT CASE WHEN vp.id IS NOT NULL THEN v.id END) as total_encounters,
+            COUNT(DISTINCT CASE WHEN v.is_no_show = true THEN v.id END) as total_no_shows
           FROM visits v
-          JOIN visit_procedures vp ON v.id = vp.visit_id
+          LEFT JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
           GROUP BY DATE_TRUNC('week', v.date)
           ORDER BY period_start
@@ -125,10 +127,11 @@ export async function GET(req: NextRequest) {
         result = await sql`
           SELECT
             DATE_TRUNC('month', v.date) as period_start,
-            SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
-            COUNT(*) as total_encounters
+            COALESCE(SUM(vp.work_rvu * COALESCE(vp.quantity, 1)), 0) as total_work_rvu,
+            COUNT(DISTINCT CASE WHEN vp.id IS NOT NULL THEN v.id END) as total_encounters,
+            COUNT(DISTINCT CASE WHEN v.is_no_show = true THEN v.id END) as total_no_shows
           FROM visits v
-          JOIN visit_procedures vp ON v.id = vp.visit_id
+          LEFT JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
           GROUP BY DATE_TRUNC('month', v.date)
           ORDER BY period_start
@@ -137,10 +140,11 @@ export async function GET(req: NextRequest) {
         result = await sql`
           SELECT
             DATE_TRUNC('year', v.date) as period_start,
-            SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
-            COUNT(*) as total_encounters
+            COALESCE(SUM(vp.work_rvu * COALESCE(vp.quantity, 1)), 0) as total_work_rvu,
+            COUNT(DISTINCT CASE WHEN vp.id IS NOT NULL THEN v.id END) as total_encounters,
+            COUNT(DISTINCT CASE WHEN v.is_no_show = true THEN v.id END) as total_no_shows
           FROM visits v
-          JOIN visit_procedures vp ON v.id = vp.visit_id
+          LEFT JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
           GROUP BY DATE_TRUNC('year', v.date)
           ORDER BY period_start

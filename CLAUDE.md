@@ -147,7 +147,7 @@ npx tsx scripts/migrate-favorites-sort.ts
 - Period grouping: Daily, Weekly, Monthly, Yearly
 - Summary view: RVU chart over time
 - HCPCS breakdown: Detailed procedure statistics
-- Metrics: Total RVUs, Total Entries, Avg RVU per Entry
+- Metrics: Total RVUs, Total Encounters, Total No Shows, Avg RVU per Encounter
 
 ### Testing
 - **57 passing tests** covering date handling, RVU calculations, API logic
@@ -320,6 +320,8 @@ Required production environment variables:
 - No-show visits display badge, date, and notes only (no RVU/procedures)
 - Cannot edit no-show visits (delete only)
 - Migration script: `scripts/add-no-show-column.sql`
+- Analytics dashboard includes "Total No Shows" metric
+- No-shows tracked separately from regular encounters
 
 ---
 

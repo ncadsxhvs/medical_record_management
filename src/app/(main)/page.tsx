@@ -114,7 +114,7 @@ export default function Home() {
             href="/analytics"
             className="px-5 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-lg hover:bg-blue-600 transition-all duration-200 shadow-sm hover:shadow-md"
           >
-            📊 Analytics
+            Analytics
           </a>
           <UserProfile />
         </div>

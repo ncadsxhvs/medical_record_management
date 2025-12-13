@@ -8,6 +8,7 @@ interface AnalyticsData {
   period_start: string;
   total_work_rvu: number;
   total_encounters: number;
+  total_no_shows: number;
 }
 
 interface AnalyticsBreakdownData {
@@ -60,7 +61,8 @@ export default function AnalyticsPage() {
             const normalized = data.map(d => ({
               ...d,
               total_work_rvu: parseFloat(d.total_work_rvu) || 0,
-              total_encounters: parseInt(d.total_encounters) || 0
+              total_encounters: parseInt(d.total_encounters) || 0,
+              total_no_shows: parseInt(d.total_no_shows) || 0
             }));
             setData(normalized);
           } else {
@@ -346,7 +348,7 @@ export default function AnalyticsPage() {
             </div>
 
             {/* Summary Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg shadow-md border border-blue-200">
                 <h3 className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-2">Total RVUs</h3>
                 <p className="text-4xl font-bold text-blue-900">
@@ -360,6 +362,13 @@ export default function AnalyticsPage() {
                   {data.reduce((sum, d) => sum + d.total_encounters, 0)}
                 </p>
                 <p className="text-xs text-emerald-600 mt-2">Procedure records</p>
+              </div>
+              <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-lg shadow-md border border-orange-200">
+                <h3 className="text-xs font-semibold text-orange-600 uppercase tracking-wider mb-2">Total No Shows</h3>
+                <p className="text-4xl font-bold text-orange-900">
+                  {data.reduce((sum, d) => sum + d.total_no_shows, 0)}
+                </p>
+                <p className="text-xs text-orange-600 mt-2">Missed appointments</p>
               </div>
               <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg shadow-md border border-purple-200">
                 <h3 className="text-xs font-semibold text-purple-600 uppercase tracking-wider mb-2">Avg RVU per Encounter</h3>
