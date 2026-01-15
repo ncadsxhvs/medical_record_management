@@ -70,7 +70,7 @@ export async function GET(_req: NextRequest) {
     const { rows: visits } = await sql`
       SELECT * FROM visits
       WHERE user_id = ${userId}
-      ORDER BY date DESC;
+      ORDER BY created_at DESC;
     `;
 
     // If no visits, return empty array
