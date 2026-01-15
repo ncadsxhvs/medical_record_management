@@ -17,6 +17,7 @@ export default function Home() {
   const [expandedVisits, setExpandedVisits] = useState<Set<number>>(new Set());
   const [editingVisit, setEditingVisit] = useState<Visit | null>(null);
   const [addingNoShow, setAddingNoShow] = useState(false);
+  const [copiedVisit, setCopiedVisit] = useState<Visit | null>(null);
 
   const fetchVisits = useCallback(() => {
     if (status === 'authenticated') {
@@ -98,6 +99,12 @@ export default function Home() {
     }
   };
 
+  const handleCopyVisit = (visit: Visit) => {
+    setCopiedVisit(visit);
+    // Scroll to the form
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   if (status === 'loading' || loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -125,7 +132,11 @@ export default function Home() {
         </div>
 
         <div className="mb-6">
-          <EntryForm onEntryAdded={fetchVisits} />
+          <EntryForm
+            onEntryAdded={fetchVisits}
+            copiedVisit={copiedVisit}
+            onClearCopy={() => setCopiedVisit(null)}
+          />
         </div>
 
         <div className="mb-6 flex justify-end">
@@ -250,6 +261,17 @@ export default function Home() {
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                         </svg>
                         Edit
+                      </button>
+                    )}
+                    {!visit.is_no_show && (
+                      <button
+                        onClick={() => handleCopyVisit(visit)}
+                        className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 text-sm font-semibold rounded-lg hover:bg-green-100 active:bg-green-200 transition-all duration-150"
+                      >
+                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                        </svg>
+                        Copy
                       </button>
                     )}
                     <button

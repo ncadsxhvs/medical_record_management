@@ -1,16 +1,18 @@
 'use client';
 
-import { useState } from 'react';
-import { RVUCode, VisitFormData, VisitProcedure } from '@/types';
+import { useState, useEffect } from 'react';
+import { RVUCode, VisitFormData, VisitProcedure, Visit } from '@/types';
 import RVUPicker from './RVUPicker';
 import FavoritesPicker from './FavoritesPicker';
 import ProcedureList from './ProcedureList';
 
 interface EntryFormProps {
   onEntryAdded: () => void;
+  copiedVisit?: Visit | null;
+  onClearCopy?: () => void;
 }
 
-export default function EntryForm({ onEntryAdded }: EntryFormProps) {
+export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: EntryFormProps) {
   const [visitData, setVisitData] = useState<VisitFormData>({
     date: new Date().toISOString().split('T')[0],
     time: new Date().toTimeString().slice(0, 5), // HH:MM format
@@ -19,6 +21,24 @@ export default function EntryForm({ onEntryAdded }: EntryFormProps) {
   });
 
   const selectedCodes = visitData.procedures.map(p => p.hcpcs);
+
+  // Populate form when a visit is copied
+  useEffect(() => {
+    if (copiedVisit) {
+      setVisitData({
+        date: new Date().toISOString().split('T')[0],
+        time: new Date().toTimeString().slice(0, 5),
+        notes: copiedVisit.notes ? `Copy of: ${copiedVisit.notes}` : 'Copy of visit',
+        procedures: copiedVisit.procedures.map(proc => ({
+          hcpcs: proc.hcpcs,
+          description: proc.description,
+          status_code: proc.status_code,
+          work_rvu: proc.work_rvu,
+          quantity: proc.quantity || 1,
+        })),
+      });
+    }
+  }, [copiedVisit]);
 
   const handleAddProcedures = (rvuCodes: RVUCode[]) => {
     // Filter out codes that are already added
@@ -79,6 +99,9 @@ export default function EntryForm({ onEntryAdded }: EntryFormProps) {
       notes: '',
       procedures: [],
     });
+    if (onClearCopy) {
+      onClearCopy();
+    }
   };
 
   const handleSaveVisit = async () => {
@@ -100,6 +123,9 @@ export default function EntryForm({ onEntryAdded }: EntryFormProps) {
 
       // Success - reset form and refresh parent
       handleClearAll();
+      if (onClearCopy) {
+        onClearCopy();
+      }
       onEntryAdded();
     } catch (error) {
       console.error('Failed to save visit:', error);
@@ -109,6 +135,31 @@ export default function EntryForm({ onEntryAdded }: EntryFormProps) {
 
   return (
     <div className="p-4 border border-gray-200 rounded-md space-y-4">
+      {/* Copy Indicator Banner */}
+      {copiedVisit && (
+        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+            </svg>
+            <div>
+              <p className="text-sm font-semibold text-green-900">
+                Copying visit with {copiedVisit.procedures.length} procedure{copiedVisit.procedures.length !== 1 ? 's' : ''}
+              </p>
+              <p className="text-xs text-green-700 mt-0.5">
+                Review and edit the procedures below, then save to create a new visit
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleClearAll}
+            className="text-green-600 hover:text-green-800 text-sm font-medium"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
       {/* Search and Favorites Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
