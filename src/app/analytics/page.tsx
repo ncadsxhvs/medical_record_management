@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
@@ -406,50 +406,79 @@ export default function AnalyticsPage() {
             </div>
 
             <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Period</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">HCPCS</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Description</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Count</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Total RVU</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Avg RVU</th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-100">
-                  {filteredBreakdown.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="px-6 py-12 text-center text-gray-500">
-                        No data available
-                      </td>
-                    </tr>
-                  ) : (
-                    filteredBreakdown.map((item, idx) => (
-                      <tr key={idx} className={`hover:bg-blue-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
-                          {formatPeriod(item.period_start)}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">
-                          {item.hcpcs}
-                        </td>
-                        <td className="px-4 py-3 text-sm text-gray-700 max-w-xs truncate" title={item.description}>
-                          {item.description}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right font-medium">
-                          {item.encounter_count}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-blue-900 text-right">
-                          {item.total_work_rvu.toFixed(2)}
-                        </td>
-                        <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right">
-                          {(item.total_work_rvu / item.encounter_count).toFixed(2)}
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
+              {filteredBreakdown.length === 0 ? (
+                <div className="px-6 py-12 text-center text-gray-500">
+                  No data available
+                </div>
+              ) : (
+                (() => {
+                  // Group breakdown data by period_start
+                  const groupedData = filteredBreakdown.reduce((acc, item) => {
+                    const period = item.period_start;
+                    if (!acc[period]) {
+                      acc[period] = [];
+                    }
+                    acc[period].push(item);
+                    return acc;
+                  }, {} as Record<string, typeof filteredBreakdown>);
+
+                  return (
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-100">
+                        <tr>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">HCPCS</th>
+                          <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Description</th>
+                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Count</th>
+                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Total RVU</th>
+                          <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Avg RVU</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white">
+                        {Object.entries(groupedData)
+                          .sort(([periodA], [periodB]) => periodB.localeCompare(periodA))
+                          .map(([period, items]) => (
+                          <React.Fragment key={period}>
+                            {/* Date Header Row */}
+                            <tr className="bg-blue-50 border-t-2 border-blue-200">
+                              <td colSpan={5} className="px-4 py-3">
+                                <div className="flex items-center gap-2">
+                                  <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                                  </svg>
+                                  <span className="text-sm font-bold text-blue-900">{formatPeriod(period)}</span>
+                                  <span className="text-xs text-blue-600 ml-2">
+                                    ({items.length} procedure{items.length !== 1 ? 's' : ''})
+                                  </span>
+                                </div>
+                              </td>
+                            </tr>
+                            {/* Procedure Rows */}
+                            {items.map((item, idx) => (
+                              <tr key={`${period}-${idx}`} className={`hover:bg-blue-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">
+                                  {item.hcpcs}
+                                </td>
+                                <td className="px-4 py-3 text-sm text-gray-700 max-w-xs truncate" title={item.description}>
+                                  {item.description}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right font-medium">
+                                  {item.encounter_count}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-blue-900 text-right">
+                                  {item.total_work_rvu.toFixed(2)}
+                                </td>
+                                <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right">
+                                  {(item.total_work_rvu / item.encounter_count).toFixed(2)}
+                                </td>
+                              </tr>
+                            ))}
+                          </React.Fragment>
+                        ))}
+                      </tbody>
+                    </table>
+                  );
+                })()
+              )}
             </div>
           </div>
         )}
