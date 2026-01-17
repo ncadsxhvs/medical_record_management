@@ -19,6 +19,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
     notes: '',
     procedures: [],
   });
+  const [isTimeManuallyEdited, setIsTimeManuallyEdited] = useState(false);
 
   const selectedCodes = visitData.procedures.map(p => p.hcpcs);
 
@@ -37,6 +38,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
           quantity: proc.quantity || 1,
         })),
       });
+      setIsTimeManuallyEdited(false); // Reset flag when copying visit
     }
   }, [copiedVisit]);
 
@@ -99,6 +101,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
       notes: '',
       procedures: [],
     });
+    setIsTimeManuallyEdited(false); // Reset flag when clearing
     if (onClearCopy) {
       onClearCopy();
     }
@@ -110,11 +113,17 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
       return;
     }
 
+    // Update time to current time if not manually edited
+    const dataToSave = {
+      ...visitData,
+      time: isTimeManuallyEdited ? visitData.time : new Date().toTimeString().slice(0, 5)
+    };
+
     try {
       const response = await fetch('/api/visits', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(visitData),
+        body: JSON.stringify(dataToSave),
       });
 
       if (!response.ok) {
@@ -219,7 +228,10 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
                 type="time"
                 id="time"
                 value={visitData.time || ''}
-                onChange={(e) => setVisitData({ ...visitData, time: e.target.value })}
+                onChange={(e) => {
+                  setVisitData({ ...visitData, time: e.target.value });
+                  setIsTimeManuallyEdited(true); // Mark as manually edited
+                }}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md"
               />
             </div>
