@@ -71,6 +71,7 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           date: editedVisit.date,
+          time: editedVisit.time,
           notes: editedVisit.notes,
           procedures: editedVisit.procedures,
         }),
