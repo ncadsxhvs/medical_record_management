@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { SessionProvider } from "next-auth/react";
 import CacheWarmer from "@/components/CacheWarmer";
+import SWRProvider from "@/components/SWRProvider";
 
 export const metadata: Metadata = {
   title: "RVU Tracker",
@@ -18,7 +19,9 @@ export default function RootLayout({
       <body>
         <CacheWarmer />
         <SessionProvider>
-          {children}
+          <SWRProvider>
+            {children}
+          </SWRProvider>
         </SessionProvider>
       </body>
     </html>

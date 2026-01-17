@@ -1,62 +1,56 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import useSWR, { mutate } from 'swr';
 import UserProfile from '@/components/UserProfile';
 import EntryForm from '@/components/EntryForm';
 import EditVisitModal from '@/components/EditVisitModal';
 import { Visit } from '@/types';
+import { fetcher } from '@/lib/fetcher';
+import { CACHE_KEYS } from '@/lib/cache-keys';
 
 export default function Home() {
   const { status } = useSession();
   const router = useRouter();
 
-  const [visits, setVisits] = useState<Visit[]>([]);
-  const [loading, setLoading] = useState(true);
   const [expandedVisits, setExpandedVisits] = useState<Set<number>>(new Set());
   const [editingVisit, setEditingVisit] = useState<Visit | null>(null);
   const [addingNoShow, setAddingNoShow] = useState(false);
   const [copiedVisit, setCopiedVisit] = useState<Visit | null>(null);
 
-  const fetchVisits = useCallback(() => {
-    if (status === 'authenticated') {
-      setLoading(true);
-      fetch('/api/visits')
-        .then((res) => {
-          if (!res.ok) {
-            throw new Error('Failed to fetch visits');
-          }
-          return res.json();
-        })
-        .then((data) => {
-          if (Array.isArray(data)) {
-            setVisits(data);
-          } else {
-            console.error('Fetched data is not an array:', data);
-            setVisits([]);
-          }
-        })
-        .catch((error) => {
-          console.error(error);
-          setVisits([]); // Set to empty array on error
-        })
-        .finally(() => setLoading(false));
+  // Use SWR for visits data
+  const { data: visits = [], error, isLoading } = useSWR<Visit[]>(
+    status === 'authenticated' ? CACHE_KEYS.visits : null,
+    fetcher,
+    {
+      revalidateOnFocus: true,
+      revalidateOnReconnect: true,
+      dedupingInterval: 2000,
     }
-  }, [status]);
+  );
 
   useEffect(() => {
     if (status === 'unauthenticated') {
       router.push('/sign-in');
-    } else {
-      fetchVisits();
     }
-  }, [status, router, fetchVisits]);
+  }, [status, router]);
 
-  const handleRemove = (id: number) => {
+  const handleRemove = async (id: number) => {
     if (confirm('Are you sure you want to delete this visit?')) {
-      fetch(`/api/visits/${id}`, { method: 'DELETE' })
-        .then(() => fetchVisits());
+      // Optimistic update - remove from UI immediately
+      mutate(CACHE_KEYS.visits, visits.filter(v => v.id !== id), false);
+
+      try {
+        await fetch(`/api/visits/${id}`, { method: 'DELETE' });
+        // Revalidate to get fresh data from server
+        mutate(CACHE_KEYS.visits);
+      } catch (error) {
+        // Rollback on error
+        console.error('Failed to delete visit:', error);
+        mutate(CACHE_KEYS.visits);
+      }
     }
   };
 
@@ -90,7 +84,8 @@ export default function Home() {
         throw new Error('Failed to create no-show visit');
       }
 
-      fetchVisits();
+      // Revalidate visits data
+      mutate(CACHE_KEYS.visits);
     } catch (error) {
       console.error('Failed to add no-show:', error);
       alert('Failed to add no-show visit. Please try again.');
@@ -105,10 +100,26 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  if (status === 'loading' || loading) {
+  if (status === 'loading' || isLoading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <p className="text-gray-600">Loading...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-red-600 mb-2">Failed to load visits</p>
+          <button
+            onClick={() => mutate(CACHE_KEYS.visits)}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
       </div>
     );
   }
@@ -133,7 +144,7 @@ export default function Home() {
 
         <div className="mb-6">
           <EntryForm
-            onEntryAdded={fetchVisits}
+            onEntryAdded={() => mutate(CACHE_KEYS.visits)}
             copiedVisit={copiedVisit}
             onClearCopy={() => setCopiedVisit(null)}
           />
@@ -296,7 +307,7 @@ export default function Home() {
         <EditVisitModal
           visit={editingVisit}
           onClose={() => setEditingVisit(null)}
-          onSave={fetchVisits}
+          onSave={() => mutate(CACHE_KEYS.visits)}
         />
       )}
     </div>
