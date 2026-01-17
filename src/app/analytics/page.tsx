@@ -1,8 +1,11 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import useSWR, { mutate } from 'swr';
+import { fetcher } from '@/lib/fetcher';
+import { CACHE_KEYS } from '@/lib/cache-keys';
 
 interface AnalyticsData {
   period_start: string;
@@ -22,17 +25,51 @@ interface AnalyticsBreakdownData {
 }
 
 export default function AnalyticsPage() {
-  const { data: session, status } = useSession();
+  const { status } = useSession();
   const router = useRouter();
 
-  const [data, setData] = useState<AnalyticsData[]>([]);
-  const [breakdownData, setBreakdownData] = useState<AnalyticsBreakdownData[]>([]);
-  const [loading, setLoading] = useState(false);
   const [period, setPeriod] = useState('daily');
   const [startDate, setStartDate] = useState(new Date(new Date().setDate(new Date().getDate() - 30)).toISOString().split('T')[0]);
   const [endDate, setEndDate] = useState(new Date().toISOString().split('T')[0]);
   const [viewMode, setViewMode] = useState<'summary' | 'breakdown'>('summary');
   const [selectedPeriod, setSelectedPeriod] = useState<string | null>(null);
+
+  // Use SWR for summary data
+  const { data: summaryData = [], isLoading: loadingSummary } = useSWR<AnalyticsData[]>(
+    status === 'authenticated' ? CACHE_KEYS.analytics(period, startDate, endDate) : null,
+    fetcher,
+    {
+      revalidateOnFocus: false, // Don't auto-refresh expensive analytics queries
+      dedupingInterval: 5000,
+    }
+  );
+
+  // Use SWR for breakdown data
+  const { data: breakdownDataRaw = [], isLoading: loadingBreakdown } = useSWR<AnalyticsBreakdownData[]>(
+    status === 'authenticated' ? CACHE_KEYS.analyticsBreakdown(period, startDate, endDate) : null,
+    fetcher,
+    {
+      revalidateOnFocus: false,
+      dedupingInterval: 5000,
+    }
+  );
+
+  // Normalize data (memoized to prevent re-calculation on every render)
+  const data = useMemo(() => summaryData.map(d => ({
+    ...d,
+    total_work_rvu: parseFloat(d.total_work_rvu as any) || 0,
+    total_encounters: parseInt(d.total_encounters as any) || 0,
+    total_no_shows: parseInt(d.total_no_shows as any) || 0
+  })), [summaryData]);
+
+  const breakdownData = useMemo(() => breakdownDataRaw.map(d => ({
+    ...d,
+    total_work_rvu: parseFloat(d.total_work_rvu as any) || 0,
+    total_quantity: parseInt(d.total_quantity as any) || 0,
+    encounter_count: parseInt(d.encounter_count as any) || 0
+  })), [breakdownDataRaw]);
+
+  const loading = loadingSummary || loadingBreakdown;
 
   // Update date range when period changes to yearly
   useEffect(() => {
@@ -48,63 +85,6 @@ export default function AnalyticsPage() {
       router.push('/sign-in');
     }
   }, [status, router]);
-
-  const fetchAnalytics = () => {
-    if (status === 'authenticated') {
-      setLoading(true);
-
-      // Fetch summary data
-      fetch(`/api/analytics?period=${period}&start=${startDate}&end=${endDate}`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (Array.isArray(data)) {
-            // Convert numeric strings to numbers
-            const normalized = data.map(d => ({
-              ...d,
-              total_work_rvu: parseFloat(d.total_work_rvu) || 0,
-              total_encounters: parseInt(d.total_encounters) || 0,
-              total_no_shows: parseInt(d.total_no_shows) || 0
-            }));
-            setData(normalized);
-          } else {
-            console.error('Summary data is not an array:', data);
-            setData([]);
-          }
-        })
-        .catch((err) => {
-          console.error('Failed to fetch summary:', err);
-          setData([]);
-        });
-
-      // Fetch breakdown data
-      fetch(`/api/analytics?period=${period}&start=${startDate}&end=${endDate}&groupBy=hcpcs`)
-        .then((res) => res.json())
-        .then((data) => {
-          if (Array.isArray(data)) {
-            // Convert numeric strings to numbers
-            const normalized = data.map(d => ({
-              ...d,
-              total_work_rvu: parseFloat(d.total_work_rvu) || 0,
-              total_quantity: parseInt(d.total_quantity) || 0,
-              encounter_count: parseInt(d.encounter_count) || 0
-            }));
-            setBreakdownData(normalized);
-          } else {
-            console.error('Breakdown data is not an array:', data);
-            setBreakdownData([]);
-          }
-        })
-        .catch((err) => {
-          console.error('Failed to fetch breakdown:', err);
-          setBreakdownData([]);
-        })
-        .finally(() => setLoading(false));
-    }
-  };
-
-  useEffect(() => {
-    fetchAnalytics();
-  }, [session, period, startDate, endDate]);
 
   // Calculate y-axis range for better visual presentation
   const maxRvu = Math.max(...data.map(d => d.total_work_rvu), 0);
@@ -185,7 +165,10 @@ export default function AnalyticsPage() {
               />
             </div>
             <button
-              onClick={fetchAnalytics}
+              onClick={() => {
+                mutate(CACHE_KEYS.analytics(period, startDate, endDate));
+                mutate(CACHE_KEYS.analyticsBreakdown(period, startDate, endDate));
+              }}
               className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
             >
               Refresh
