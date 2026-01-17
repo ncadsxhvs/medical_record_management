@@ -40,6 +40,7 @@ export async function GET(req: NextRequest) {
             vp.description,
             vp.status_code,
             SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
+            SUM(COALESCE(vp.quantity, 1)) as total_quantity,
             COUNT(*) as encounter_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
@@ -55,6 +56,7 @@ export async function GET(req: NextRequest) {
             vp.description,
             vp.status_code,
             SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
+            SUM(COALESCE(vp.quantity, 1)) as total_quantity,
             COUNT(*) as encounter_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
@@ -70,6 +72,7 @@ export async function GET(req: NextRequest) {
             vp.description,
             vp.status_code,
             SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
+            SUM(COALESCE(vp.quantity, 1)) as total_quantity,
             COUNT(*) as encounter_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
@@ -85,6 +88,7 @@ export async function GET(req: NextRequest) {
             vp.description,
             vp.status_code,
             SUM(vp.work_rvu * COALESCE(vp.quantity, 1)) as total_work_rvu,
+            SUM(COALESCE(vp.quantity, 1)) as total_quantity,
             COUNT(*) as encounter_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id

@@ -17,6 +17,7 @@ interface AnalyticsBreakdownData {
   description: string;
   status_code: string;
   total_work_rvu: number;
+  total_quantity: number;
   encounter_count: number;
 }
 
@@ -84,6 +85,7 @@ export default function AnalyticsPage() {
             const normalized = data.map(d => ({
               ...d,
               total_work_rvu: parseFloat(d.total_work_rvu) || 0,
+              total_quantity: parseInt(d.total_quantity) || 0,
               encounter_count: parseInt(d.encounter_count) || 0
             }));
             setBreakdownData(normalized);
@@ -462,13 +464,13 @@ export default function AnalyticsPage() {
                                   {item.description}
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right font-medium">
-                                  {item.encounter_count}
+                                  {item.total_quantity}
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-blue-900 text-right">
                                   {item.total_work_rvu.toFixed(2)}
                                 </td>
                                 <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right">
-                                  {(item.total_work_rvu / item.encounter_count).toFixed(2)}
+                                  {(item.total_work_rvu / item.total_quantity).toFixed(2)}
                                 </td>
                               </tr>
                             ))}
