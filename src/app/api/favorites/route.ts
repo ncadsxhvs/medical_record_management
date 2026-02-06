@@ -1,10 +1,9 @@
 import { sql } from '@/lib/db';
-import { auth } from '@/auth';
+import { getUserId } from '@/lib/mobile-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(_req: NextRequest) {
-  const session = await auth();
-  const userId = session?.user?.id || session?.user?.email;
+export async function GET(req: NextRequest) {
+  const userId = await getUserId(req);
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -23,8 +22,7 @@ export async function GET(_req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await auth();
-  const userId = session?.user?.id || session?.user?.email;
+  const userId = await getUserId(req);
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -58,8 +56,7 @@ export async function POST(req: NextRequest) {
 }
 
 export async function PATCH(req: NextRequest) {
-  const session = await auth();
-  const userId = session?.user?.id || session?.user?.email;
+  const userId = await getUserId(req);
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

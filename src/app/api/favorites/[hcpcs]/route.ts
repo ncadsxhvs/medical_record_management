@@ -1,10 +1,9 @@
 import { sql } from '@/lib/db';
-import { auth } from '@/auth';
+import { getUserId } from '@/lib/mobile-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ hcpcs: string }> }) {
-  const session = await auth();
-  const userId = session?.user?.id || session?.user?.email;
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ hcpcs: string }> }) {
+  const userId = await getUserId(req);
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
