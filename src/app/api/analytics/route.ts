@@ -1,10 +1,10 @@
 import { sql } from '@/lib/db';
-import { auth } from '@/auth';
+import { getUserId } from '@/lib/mobile-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user?.id) {
+  const userId = await getUserId(req);
+  if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
@@ -44,7 +44,7 @@ export async function GET(req: NextRequest) {
             COUNT(*) as encounter_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
-          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          WHERE v.user_id = ${userId} AND v.date >= ${start} AND v.date <= ${end}
           GROUP BY v.date, vp.hcpcs, vp.description, vp.status_code
           ORDER BY period_start DESC, total_work_rvu DESC
         `;
@@ -60,7 +60,7 @@ export async function GET(req: NextRequest) {
             COUNT(*) as encounter_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
-          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          WHERE v.user_id = ${userId} AND v.date >= ${start} AND v.date <= ${end}
           GROUP BY DATE_TRUNC('week', v.date), vp.hcpcs, vp.description, vp.status_code
           ORDER BY period_start DESC, total_work_rvu DESC
         `;
@@ -76,7 +76,7 @@ export async function GET(req: NextRequest) {
             COUNT(*) as encounter_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
-          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          WHERE v.user_id = ${userId} AND v.date >= ${start} AND v.date <= ${end}
           GROUP BY DATE_TRUNC('month', v.date), vp.hcpcs, vp.description, vp.status_code
           ORDER BY period_start DESC, total_work_rvu DESC
         `;
@@ -92,7 +92,7 @@ export async function GET(req: NextRequest) {
             COUNT(*) as encounter_count
           FROM visits v
           JOIN visit_procedures vp ON v.id = vp.visit_id
-          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          WHERE v.user_id = ${userId} AND v.date >= ${start} AND v.date <= ${end}
           GROUP BY DATE_TRUNC('year', v.date), vp.hcpcs, vp.description, vp.status_code
           ORDER BY period_start DESC, total_work_rvu DESC
         `;
@@ -110,7 +110,7 @@ export async function GET(req: NextRequest) {
             COUNT(DISTINCT CASE WHEN v.is_no_show = true THEN v.id END) as total_no_shows
           FROM visits v
           LEFT JOIN visit_procedures vp ON v.id = vp.visit_id
-          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          WHERE v.user_id = ${userId} AND v.date >= ${start} AND v.date <= ${end}
           GROUP BY v.date
           ORDER BY period_start
         `;
@@ -123,7 +123,7 @@ export async function GET(req: NextRequest) {
             COUNT(DISTINCT CASE WHEN v.is_no_show = true THEN v.id END) as total_no_shows
           FROM visits v
           LEFT JOIN visit_procedures vp ON v.id = vp.visit_id
-          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          WHERE v.user_id = ${userId} AND v.date >= ${start} AND v.date <= ${end}
           GROUP BY DATE_TRUNC('week', v.date)
           ORDER BY period_start
         `;
@@ -136,7 +136,7 @@ export async function GET(req: NextRequest) {
             COUNT(DISTINCT CASE WHEN v.is_no_show = true THEN v.id END) as total_no_shows
           FROM visits v
           LEFT JOIN visit_procedures vp ON v.id = vp.visit_id
-          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          WHERE v.user_id = ${userId} AND v.date >= ${start} AND v.date <= ${end}
           GROUP BY DATE_TRUNC('month', v.date)
           ORDER BY period_start
         `;
@@ -149,7 +149,7 @@ export async function GET(req: NextRequest) {
             COUNT(DISTINCT CASE WHEN v.is_no_show = true THEN v.id END) as total_no_shows
           FROM visits v
           LEFT JOIN visit_procedures vp ON v.id = vp.visit_id
-          WHERE v.user_id = ${session.user.id} AND v.date >= ${start} AND v.date <= ${end}
+          WHERE v.user_id = ${userId} AND v.date >= ${start} AND v.date <= ${end}
           GROUP BY DATE_TRUNC('year', v.date)
           ORDER BY period_start
         `;

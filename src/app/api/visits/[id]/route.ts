@@ -1,13 +1,12 @@
 import { sql } from '@/lib/db';
-import { auth } from '@/auth';
+import { getUserId } from '@/lib/mobile-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function PUT(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  const userId = session?.user?.id || session?.user?.email;
+  const userId = await getUserId(req);
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
@@ -60,11 +59,10 @@ export async function PUT(
 }
 
 export async function DELETE(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
-  const session = await auth();
-  const userId = session?.user?.id || session?.user?.email;
+  const userId = await getUserId(req);
   if (!userId) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
