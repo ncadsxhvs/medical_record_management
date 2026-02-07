@@ -1,0 +1,852 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "RVU Tracker API",
+    "description": "API for tracking medical procedure RVUs (Relative Value Units). Supports visit management, HCPCS code lookup, favorites, and analytics.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "RVU Tracker",
+      "url": "https://trackmyrvu.com"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://trackmyrvu.com",
+      "description": "Production"
+    },
+    {
+      "url": "http://localhost:3001",
+      "description": "Development"
+    }
+  ],
+  "tags": [
+    { "name": "Visits", "description": "Visit CRUD with multi-procedure support" },
+    { "name": "Favorites", "description": "Favorite HCPCS codes with drag-and-drop reordering" },
+    { "name": "Analytics", "description": "RVU analytics and reporting" },
+    { "name": "RVU", "description": "HCPCS/RVU code search and cache" },
+    { "name": "Auth", "description": "Authentication endpoints" },
+    { "name": "Entries (Deprecated)", "description": "Legacy single-entry CRUD - use Visits API instead" }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "JWT token obtained from mobile Google OAuth endpoint"
+      },
+      "SessionAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "next-auth.session-token",
+        "description": "NextAuth session cookie (web UI)"
+      }
+    },
+    "schemas": {
+      "VisitProcedure": {
+        "type": "object",
+        "required": ["hcpcs", "description", "work_rvu"],
+        "properties": {
+          "id": { "type": "string", "description": "Procedure ID (response only)" },
+          "visit_id": { "type": "string", "description": "Parent visit ID (response only)" },
+          "hcpcs": { "type": "string", "example": "99213" },
+          "description": { "type": "string", "example": "Office/outpatient visit est" },
+          "status_code": { "type": "string", "example": "A" },
+          "work_rvu": { "type": "number", "format": "float", "example": 1.3 },
+          "quantity": { "type": "integer", "default": 1, "minimum": 1, "example": 1 }
+        }
+      },
+      "Visit": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "date": { "type": "string", "format": "date", "example": "2025-12-02" },
+          "time": { "type": "string", "nullable": true, "example": "14:30", "description": "Appointment time (HH:MM)" },
+          "notes": { "type": "string", "nullable": true },
+          "is_no_show": { "type": "boolean", "default": false },
+          "procedures": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/VisitProcedure" }
+          },
+          "created_at": { "type": "string", "format": "date-time" },
+          "updated_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "CreateVisitRequest": {
+        "type": "object",
+        "required": ["date"],
+        "properties": {
+          "date": { "type": "string", "format": "date", "example": "2025-12-02" },
+          "time": { "type": "string", "example": "14:30", "description": "Optional appointment time" },
+          "notes": { "type": "string" },
+          "is_no_show": { "type": "boolean", "default": false, "description": "If true, procedures can be empty" },
+          "procedures": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/VisitProcedure" },
+            "description": "Required unless is_no_show is true"
+          }
+        }
+      },
+      "UpdateVisitRequest": {
+        "type": "object",
+        "required": ["date", "procedures"],
+        "properties": {
+          "date": { "type": "string", "format": "date", "example": "2025-12-02" },
+          "time": { "type": "string", "example": "14:30" },
+          "notes": { "type": "string" },
+          "procedures": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/VisitProcedure" },
+            "minItems": 1
+          }
+        }
+      },
+      "Favorite": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "hcpcs": { "type": "string", "example": "99213" },
+          "sort_order": { "type": "integer" },
+          "created_at": { "type": "string", "format": "date-time" }
+        }
+      },
+      "RVUCode": {
+        "type": "object",
+        "properties": {
+          "hcpcs": { "type": "string", "example": "99213" },
+          "description": { "type": "string", "example": "Office/outpatient visit est" },
+          "status_code": { "type": "string", "example": "A" },
+          "work_rvu": { "type": "number", "format": "float", "example": 1.3 }
+        }
+      },
+      "Entry": {
+        "type": "object",
+        "properties": {
+          "id": { "type": "string" },
+          "user_id": { "type": "string" },
+          "hcpcs": { "type": "string" },
+          "description": { "type": "string" },
+          "status_code": { "type": "string" },
+          "work_rvu": { "type": "number", "format": "float" },
+          "date": { "type": "string", "format": "date" }
+        }
+      },
+      "AnalyticsPeriodResult": {
+        "type": "object",
+        "properties": {
+          "period_start": { "type": "string" },
+          "total_work_rvu": { "type": "number", "format": "float" },
+          "total_encounters": { "type": "integer" },
+          "total_no_shows": { "type": "integer" }
+        }
+      },
+      "AnalyticsHCPCSResult": {
+        "type": "object",
+        "properties": {
+          "period_start": { "type": "string" },
+          "hcpcs": { "type": "string" },
+          "description": { "type": "string" },
+          "status_code": { "type": "string" },
+          "total_work_rvu": { "type": "number", "format": "float" },
+          "total_quantity": { "type": "integer" },
+          "encounter_count": { "type": "integer" }
+        }
+      },
+      "MobileAuthRequest": {
+        "type": "object",
+        "required": ["idToken"],
+        "properties": {
+          "idToken": { "type": "string", "description": "Google ID token from mobile app" }
+        }
+      },
+      "MobileAuthResponse": {
+        "type": "object",
+        "properties": {
+          "success": { "type": "boolean" },
+          "user": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "email": { "type": "string" },
+              "name": { "type": "string", "nullable": true },
+              "image": { "type": "string", "nullable": true }
+            }
+          },
+          "sessionToken": { "type": "string", "description": "JWT token valid for 30 days" },
+          "expiresIn": { "type": "integer", "example": 2592000, "description": "Token TTL in seconds" }
+        }
+      },
+      "Error": {
+        "type": "object",
+        "properties": {
+          "error": { "type": "string" }
+        }
+      },
+      "Message": {
+        "type": "object",
+        "properties": {
+          "message": { "type": "string" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/visits": {
+      "get": {
+        "tags": ["Visits"],
+        "summary": "List all visits",
+        "description": "Returns all visits for the authenticated user, ordered by created_at DESC. Each visit includes its procedures.",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of visits with procedures",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Visit" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Visits"],
+        "summary": "Create a visit",
+        "description": "Creates a new visit with one or more procedures. Set is_no_show to true for no-show encounters (procedures not required).",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/CreateVisitRequest" }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Visit created",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Visit" } } }
+          },
+          "400": {
+            "description": "Missing required fields",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/api/visits/{id}": {
+      "put": {
+        "tags": ["Visits"],
+        "summary": "Update a visit",
+        "description": "Updates a visit and replaces all its procedures. Existing procedures are deleted and replaced with the new set.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/UpdateVisitRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Visit updated",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Visit" } } }
+          },
+          "400": {
+            "description": "Missing required fields",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "404": {
+            "description": "Visit not found or unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Visits"],
+        "summary": "Delete a visit",
+        "description": "Deletes a visit and all its procedures.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Visit deleted",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Message" } } }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "404": {
+            "description": "Visit not found or unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/api/favorites": {
+      "get": {
+        "tags": ["Favorites"],
+        "summary": "List favorites",
+        "description": "Returns all favorite HCPCS codes for the authenticated user, ordered by sort_order ASC.",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of favorites",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Favorite" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Favorites"],
+        "summary": "Add a favorite",
+        "description": "Adds a HCPCS code to the user's favorites list.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["hcpcs"],
+                "properties": {
+                  "hcpcs": { "type": "string", "example": "99213" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Favorite added",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Favorite" } } }
+          },
+          "400": {
+            "description": "Missing required field: hcpcs",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      },
+      "patch": {
+        "tags": ["Favorites"],
+        "summary": "Reorder favorites",
+        "description": "Updates the sort order of all favorites. The order of items in the array determines their new sort_order.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["favorites"],
+                "properties": {
+                  "favorites": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": ["hcpcs"],
+                      "properties": {
+                        "hcpcs": { "type": "string" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Favorites reordered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid request",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/api/favorites/{hcpcs}": {
+      "delete": {
+        "tags": ["Favorites"],
+        "summary": "Remove a favorite",
+        "description": "Removes a HCPCS code from the user's favorites.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "hcpcs",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "99213"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Favorite removed",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Message" } } }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "404": {
+            "description": "Favorite not found",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/api/analytics": {
+      "get": {
+        "tags": ["Analytics"],
+        "summary": "Get analytics data",
+        "description": "Returns RVU analytics for the authenticated user within a date range. Supports period grouping and optional HCPCS breakdown.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          {
+            "name": "start",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date" },
+            "example": "2025-01-01"
+          },
+          {
+            "name": "end",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string", "format": "date" },
+            "example": "2025-12-31"
+          },
+          {
+            "name": "period",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["daily", "weekly", "monthly", "yearly"],
+              "default": "daily"
+            }
+          },
+          {
+            "name": "groupBy",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": ["hcpcs"]
+            },
+            "description": "If set to 'hcpcs', groups results by both period and HCPCS code"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Analytics data",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "oneOf": [
+                    {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/AnalyticsPeriodResult" },
+                      "description": "Period grouping (without groupBy)"
+                    },
+                    {
+                      "type": "array",
+                      "items": { "$ref": "#/components/schemas/AnalyticsHCPCSResult" },
+                      "description": "HCPCS breakdown (with groupBy=hcpcs)"
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/api/rvu/search": {
+      "get": {
+        "tags": ["RVU"],
+        "summary": "Search HCPCS/RVU codes",
+        "description": "Searches the in-memory cache of 16,852+ HCPCS codes. Returns up to 100 matching results. No authentication required.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "schema": { "type": "string" },
+            "example": "99213",
+            "description": "Search query (matches HCPCS code or description)"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Search results",
+            "headers": {
+              "X-Cache-Total": {
+                "schema": { "type": "integer" },
+                "description": "Total RVU codes in cache"
+              },
+              "X-Cache-Age": {
+                "schema": { "type": "integer" },
+                "description": "Cache age in milliseconds"
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/RVUCode" }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing query parameter",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/api/rvu/warmup": {
+      "get": {
+        "tags": ["RVU"],
+        "summary": "Warm up RVU cache",
+        "description": "Preloads all RVU codes into the in-memory cache for faster subsequent searches. No authentication required.",
+        "responses": {
+          "200": {
+            "description": "Cache loaded",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean" },
+                    "message": { "type": "string" },
+                    "stats": {
+                      "type": "object",
+                      "properties": {
+                        "totalCodes": { "type": "integer" },
+                        "loadTime": { "type": "number", "description": "Load time in milliseconds" },
+                        "cacheAge": { "type": "number", "description": "Cache age in milliseconds" }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Cache load failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": false },
+                    "error": { "type": "string" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/mobile/google": {
+      "post": {
+        "tags": ["Auth"],
+        "summary": "Mobile Google OAuth",
+        "description": "Authenticates a mobile user with a Google ID token. Creates or updates the user in the database and returns a JWT session token valid for 30 days.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": { "$ref": "#/components/schemas/MobileAuthRequest" }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Authentication successful",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/MobileAuthResponse" } } }
+          },
+          "400": {
+            "description": "Missing idToken",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": {
+            "description": "Invalid ID token",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/api/entries": {
+      "get": {
+        "tags": ["Entries (Deprecated)"],
+        "summary": "List entries",
+        "description": "Returns all entries for the authenticated user ordered by date DESC. **Deprecated: use GET /api/visits instead.**",
+        "deprecated": true,
+        "security": [{ "SessionAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "List of entries",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": { "$ref": "#/components/schemas/Entry" }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      },
+      "post": {
+        "tags": ["Entries (Deprecated)"],
+        "summary": "Create an entry",
+        "description": "Creates a single RVU entry. **Deprecated: use POST /api/visits instead.**",
+        "deprecated": true,
+        "security": [{ "SessionAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["hcpcs", "description", "work_rvu", "date"],
+                "properties": {
+                  "hcpcs": { "type": "string" },
+                  "description": { "type": "string" },
+                  "status_code": { "type": "string" },
+                  "work_rvu": { "type": "number" },
+                  "date": { "type": "string", "format": "date" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Entry created",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Entry" } } }
+          },
+          "400": {
+            "description": "Missing required fields",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    },
+    "/api/entries/{id}": {
+      "put": {
+        "tags": ["Entries (Deprecated)"],
+        "summary": "Update an entry",
+        "description": "Updates an existing entry. **Deprecated: use PUT /api/visits/{id} instead.**",
+        "deprecated": true,
+        "security": [{ "SessionAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["hcpcs", "description", "work_rvu", "date"],
+                "properties": {
+                  "hcpcs": { "type": "string" },
+                  "description": { "type": "string" },
+                  "status_code": { "type": "string" },
+                  "work_rvu": { "type": "number" },
+                  "date": { "type": "string", "format": "date" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Entry updated",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Entry" } } }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "404": {
+            "description": "Entry not found",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      },
+      "delete": {
+        "tags": ["Entries (Deprecated)"],
+        "summary": "Delete an entry",
+        "description": "Deletes an entry. **Deprecated: use DELETE /api/visits/{id} instead.**",
+        "deprecated": true,
+        "security": [{ "SessionAuth": [] }],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Entry deleted",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Message" } } }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "404": {
+            "description": "Entry not found",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          },
+          "500": {
+            "description": "Server error",
+            "content": { "application/json": { "schema": { "$ref": "#/components/schemas/Error" } } }
+          }
+        }
+      }
+    }
+  }
+}
