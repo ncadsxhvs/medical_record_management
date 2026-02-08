@@ -56,6 +56,11 @@ src/
 data/
   RVU.csv                       # 16,852 RVU codes
 
+docs/
+  openapi.yaml                  # OpenAPI 3.0 API specification
+  api-docs.html                 # Interactive Swagger UI viewer
+  README.md                     # API documentation guide
+
 scripts/
   init-db.sql                   # Database schema
   seed-rvu.ts                   # Seed RVU data
@@ -82,6 +87,23 @@ npm run test:coverage      # Coverage report
 ```
 
 **Development URL:** http://localhost:3001
+
+### API Documentation
+
+Complete OpenAPI 3.0 (Swagger) specification is available in the `docs/` directory:
+
+```bash
+# View interactive API docs
+open docs/api-docs.html
+```
+
+**Documentation includes:**
+- All API endpoints (Visits, Favorites, RVU Search, Analytics, Auth)
+- Request/response schemas with examples
+- Authentication details (web session cookies + mobile JWT tokens)
+- Interactive "Try it out" functionality
+
+See `docs/README.md` for full API documentation and usage examples.
 
 ### Environment Configuration
 
