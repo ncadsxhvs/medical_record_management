@@ -1,0 +1,967 @@
+openapi: 3.0.3
+info:
+  title: RVU Tracker API
+  description: |
+    Medical Procedure RVU Management API for tracking medical procedure RVUs (Relative Value Units)
+    with Google OAuth authentication, Postgres database, and comprehensive analytics.
+
+    **Authentication:**
+    All endpoints (except `/api/auth/mobile/google`) require authentication via:
+    - Web: Next-Auth session cookie
+    - Mobile: Bearer token in Authorization header
+
+    **Base URL:**
+    - Development: `http://localhost:3001`
+    - Production: `https://trackmyrvu.com`
+  version: 1.0.0
+  contact:
+    name: RVU Tracker Support
+    url: https://trackmyrvu.com
+  license:
+    name: Private
+
+servers:
+  - url: http://localhost:3001
+    description: Development server
+  - url: https://trackmyrvu.com
+    description: Production server
+
+tags:
+  - name: Visits
+    description: Visit management with multiple procedures per visit
+  - name: Favorites
+    description: Manage frequently used HCPCS codes with drag-and-drop ordering
+  - name: RVU
+    description: HCPCS code search and RVU lookup
+  - name: Analytics
+    description: RVU analytics and reporting
+  - name: Authentication
+    description: Mobile authentication endpoints
+
+paths:
+  /api/visits:
+    get:
+      tags:
+        - Visits
+      summary: Get all visits for authenticated user
+      description: Retrieves all visits with their associated procedures, ordered by creation date (newest first)
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of visits with procedures
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Visit'
+              example:
+                - id: 123
+                  user_id: "google-oauth2|123456"
+                  date: "2025-12-15"
+                  time: "14:30:00"
+                  notes: "Follow-up appointment"
+                  is_no_show: false
+                  created_at: "2025-12-15T10:30:00Z"
+                  updated_at: "2025-12-15T10:30:00Z"
+                  procedures:
+                    - id: 456
+                      visit_id: 123
+                      hcpcs: "99213"
+                      description: "Office visit, established patient"
+                      status_code: "A"
+                      work_rvu: 1.3
+                      quantity: 1
+                      created_at: "2025-12-15T10:30:00Z"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags:
+        - Visits
+      summary: Create a new visit
+      description: |
+        Creates a new visit with one or more procedures. Supports both regular visits
+        and no-show encounters (which have no procedures).
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateVisitRequest'
+            examples:
+              regularVisit:
+                summary: Regular visit with procedures
+                value:
+                  date: "2025-12-15"
+                  time: "14:30:00"
+                  notes: "Annual physical"
+                  is_no_show: false
+                  procedures:
+                    - hcpcs: "99213"
+                      description: "Office visit, established patient"
+                      status_code: "A"
+                      work_rvu: 1.3
+                      quantity: 1
+                    - hcpcs: "80053"
+                      description: "Comprehensive metabolic panel"
+                      status_code: "A"
+                      work_rvu: 0.17
+                      quantity: 1
+              noShowVisit:
+                summary: No-show encounter
+                value:
+                  date: "2025-12-15"
+                  time: "09:00:00"
+                  notes: "Patient did not arrive"
+                  is_no_show: true
+                  procedures: []
+      responses:
+        '201':
+          description: Visit created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Visit'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/visits/{id}:
+    put:
+      tags:
+        - Visits
+      summary: Update an existing visit
+      description: |
+        Updates a visit by replacing all procedures with new ones. Only the visit owner
+        can update their visits. Cannot update no-show visits.
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Visit ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateVisitRequest'
+            example:
+              date: "2025-12-15"
+              time: "15:00:00"
+              notes: "Updated appointment time"
+              procedures:
+                - hcpcs: "99214"
+                  description: "Office visit, established patient, moderate complexity"
+                  status_code: "A"
+                  work_rvu: 1.92
+                  quantity: 1
+      responses:
+        '200':
+          description: Visit updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Visit'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags:
+        - Visits
+      summary: Delete a visit
+      description: Deletes a visit and all associated procedures (CASCADE). Only the visit owner can delete.
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: Visit ID
+      responses:
+        '200':
+          description: Visit deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Visit deleted successfully"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/favorites:
+    get:
+      tags:
+        - Favorites
+      summary: Get all favorites for authenticated user
+      description: Retrieves user's favorite HCPCS codes ordered by sort_order (drag-and-drop position)
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      responses:
+        '200':
+          description: List of favorites
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Favorite'
+              example:
+                - id: 1
+                  user_id: "google-oauth2|123456"
+                  hcpcs: "99213"
+                  sort_order: 0
+                  created_at: "2025-12-01T10:00:00Z"
+                - id: 2
+                  user_id: "google-oauth2|123456"
+                  hcpcs: "99214"
+                  sort_order: 1
+                  created_at: "2025-12-02T11:00:00Z"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags:
+        - Favorites
+      summary: Add a favorite HCPCS code
+      description: |
+        Adds a HCPCS code to user's favorites. Automatically assigns the next sort_order.
+        Duplicate favorites are ignored (ON CONFLICT DO NOTHING).
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - hcpcs
+              properties:
+                hcpcs:
+                  type: string
+                  description: HCPCS code to add to favorites
+                  example: "99213"
+      responses:
+        '201':
+          description: Favorite added successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Favorite'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+    patch:
+      tags:
+        - Favorites
+      summary: Reorder favorites (drag-and-drop)
+      description: |
+        Updates the sort_order of favorites based on drag-and-drop reordering.
+        Send the complete list of favorites in the desired order.
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - favorites
+              properties:
+                favorites:
+                  type: array
+                  description: Array of favorites in desired order
+                  items:
+                    type: object
+                    required:
+                      - hcpcs
+                    properties:
+                      hcpcs:
+                        type: string
+              example:
+                favorites:
+                  - hcpcs: "99214"
+                  - hcpcs: "99213"
+                  - hcpcs: "80053"
+      responses:
+        '200':
+          description: Favorites reordered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/favorites/{hcpcs}:
+    delete:
+      tags:
+        - Favorites
+      summary: Remove a favorite
+      description: Removes a HCPCS code from user's favorites
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      parameters:
+        - name: hcpcs
+          in: path
+          required: true
+          schema:
+            type: string
+          description: HCPCS code to remove
+          example: "99213"
+      responses:
+        '200':
+          description: Favorite removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Favorite removed successfully"
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/rvu/search:
+    get:
+      tags:
+        - RVU
+      summary: Search HCPCS/RVU codes
+      description: |
+        Searches across 16,852+ RVU codes using in-memory cache for fast autocomplete.
+        Average query time is ~5ms. Returns up to 100 results.
+      parameters:
+        - name: q
+          in: query
+          required: true
+          schema:
+            type: string
+          description: Search query (HCPCS code or description)
+          example: "99213"
+      responses:
+        '200':
+          description: Search results
+          headers:
+            X-Cache-Total:
+              schema:
+                type: integer
+              description: Total number of codes in cache
+            X-Cache-Age:
+              schema:
+                type: string
+              description: Cache age in milliseconds
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RVUCode'
+              example:
+                - id: 5432
+                  hcpcs: "99213"
+                  description: "Office outpatient visit 15 minutes"
+                  status_code: "A"
+                  work_rvu: 1.3
+                  created_at: "2025-01-01T00:00:00Z"
+        '400':
+          description: Missing query parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: 'Query parameter "q" is required'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/analytics:
+    get:
+      tags:
+        - Analytics
+      summary: Get RVU analytics
+      description: |
+        Retrieves RVU analytics data grouped by time period (daily, weekly, monthly, yearly).
+        Optionally group by HCPCS code for detailed procedure breakdown.
+      security:
+        - sessionCookie: []
+        - bearerAuth: []
+      parameters:
+        - name: start
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: Start date (YYYY-MM-DD)
+          example: "2025-01-01"
+        - name: end
+          in: query
+          required: true
+          schema:
+            type: string
+            format: date
+          description: End date (YYYY-MM-DD)
+          example: "2025-12-31"
+        - name: period
+          in: query
+          schema:
+            type: string
+            enum: [daily, weekly, monthly, yearly]
+            default: daily
+          description: Time period grouping
+        - name: groupBy
+          in: query
+          schema:
+            type: string
+            enum: [hcpcs]
+          description: Optional grouping by HCPCS code for procedure breakdown
+      responses:
+        '200':
+          description: Analytics data
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/AnalyticsSummary'
+                  - $ref: '#/components/schemas/AnalyticsBreakdown'
+              examples:
+                summaryView:
+                  summary: Summary view (period grouping only)
+                  value:
+                    - period_start: "2025-12-01"
+                      total_work_rvu: 45.6
+                      total_encounters: 15
+                      total_no_shows: 2
+                    - period_start: "2025-12-02"
+                      total_work_rvu: 32.1
+                      total_encounters: 12
+                      total_no_shows: 1
+                breakdownView:
+                  summary: HCPCS breakdown view
+                  value:
+                    - period_start: "2025-12-01"
+                      hcpcs: "99213"
+                      description: "Office visit, established patient"
+                      status_code: "A"
+                      total_work_rvu: 15.6
+                      total_quantity: 12
+                      encounter_count: 12
+                    - period_start: "2025-12-01"
+                      hcpcs: "99214"
+                      description: "Office visit, moderate complexity"
+                      status_code: "A"
+                      total_work_rvu: 9.6
+                      total_quantity: 5
+                      encounter_count: 5
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/auth/mobile/google:
+    post:
+      tags:
+        - Authentication
+      summary: Mobile Google OAuth authentication
+      description: |
+        Authenticates iOS/Android app users via Google ID token.
+        Returns a JWT session token valid for 30 days.
+
+        **Flow:**
+        1. Mobile app gets Google ID token from Google Sign-In SDK
+        2. Send ID token to this endpoint
+        3. Server verifies token, creates/updates user, returns session token
+        4. Mobile app uses session token in Authorization header for API calls
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - idToken
+              properties:
+                idToken:
+                  type: string
+                  description: Google ID token from mobile SDK
+                  example: "eyJhbGciOiJSUzI1NiIsImtpZCI6IjE..."
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileAuthResponse'
+              example:
+                success: true
+                user:
+                  id: "114857394850183928465"
+                  email: "user@example.com"
+                  name: "John Doe"
+                  image: "https://lh3.googleusercontent.com/a/..."
+                sessionToken: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTQ4..."
+                expiresIn: 2592000
+        '400':
+          description: Missing or invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Missing idToken"
+        '401':
+          description: Invalid ID token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Invalid ID token"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: next-auth.session-token
+      description: Next-Auth session cookie (web application)
+
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token from mobile authentication endpoint
+
+  schemas:
+    RVUCode:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Database ID
+        hcpcs:
+          type: string
+          description: HCPCS procedure code
+          example: "99213"
+        description:
+          type: string
+          description: Procedure description
+          example: "Office outpatient visit 15 minutes"
+        status_code:
+          type: string
+          description: Status code (A=Active, etc.)
+          example: "A"
+        work_rvu:
+          type: number
+          format: float
+          description: Work RVU value
+          example: 1.3
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+
+    VisitProcedure:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Database ID
+        visit_id:
+          type: integer
+          description: Parent visit ID
+        hcpcs:
+          type: string
+          description: HCPCS procedure code
+          example: "99213"
+        description:
+          type: string
+          description: Procedure description
+          example: "Office visit, established patient"
+        status_code:
+          type: string
+          description: Status code
+          example: "A"
+        work_rvu:
+          type: number
+          format: float
+          description: Work RVU value
+          example: 1.3
+        quantity:
+          type: integer
+          description: Quantity of procedures performed
+          example: 1
+          default: 1
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+
+    Visit:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Database ID
+        user_id:
+          type: string
+          description: Google OAuth user ID
+        date:
+          type: string
+          format: date
+          description: Visit date (YYYY-MM-DD)
+          example: "2025-12-15"
+        time:
+          type: string
+          format: time
+          description: Optional visit time (HH:MM:SS)
+          example: "14:30:00"
+          nullable: true
+        notes:
+          type: string
+          description: Optional visit notes
+          nullable: true
+        is_no_show:
+          type: boolean
+          description: Whether this is a no-show encounter
+          default: false
+        procedures:
+          type: array
+          description: List of procedures for this visit (empty for no-shows)
+          items:
+            $ref: '#/components/schemas/VisitProcedure'
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        updated_at:
+          type: string
+          format: date-time
+          description: Last update timestamp
+
+    CreateVisitRequest:
+      type: object
+      required:
+        - date
+      properties:
+        date:
+          type: string
+          format: date
+          description: Visit date (YYYY-MM-DD)
+          example: "2025-12-15"
+        time:
+          type: string
+          format: time
+          description: Optional visit time (HH:MM:SS)
+          example: "14:30:00"
+          nullable: true
+        notes:
+          type: string
+          description: Optional visit notes
+          nullable: true
+        is_no_show:
+          type: boolean
+          description: Set to true for no-show encounters (no procedures required)
+          default: false
+        procedures:
+          type: array
+          description: List of procedures (required unless is_no_show is true)
+          items:
+            type: object
+            required:
+              - hcpcs
+              - description
+              - status_code
+              - work_rvu
+            properties:
+              hcpcs:
+                type: string
+                example: "99213"
+              description:
+                type: string
+                example: "Office visit, established patient"
+              status_code:
+                type: string
+                example: "A"
+              work_rvu:
+                type: number
+                format: float
+                example: 1.3
+              quantity:
+                type: integer
+                example: 1
+                default: 1
+
+    UpdateVisitRequest:
+      type: object
+      required:
+        - date
+        - procedures
+      properties:
+        date:
+          type: string
+          format: date
+          description: Visit date (YYYY-MM-DD)
+          example: "2025-12-15"
+        time:
+          type: string
+          format: time
+          description: Optional visit time (HH:MM:SS)
+          example: "15:00:00"
+          nullable: true
+        notes:
+          type: string
+          description: Optional visit notes
+          nullable: true
+        procedures:
+          type: array
+          description: Complete list of procedures (replaces existing)
+          items:
+            type: object
+            required:
+              - hcpcs
+              - description
+              - status_code
+              - work_rvu
+            properties:
+              hcpcs:
+                type: string
+                example: "99214"
+              description:
+                type: string
+                example: "Office visit, moderate complexity"
+              status_code:
+                type: string
+                example: "A"
+              work_rvu:
+                type: number
+                format: float
+                example: 1.92
+              quantity:
+                type: integer
+                example: 1
+                default: 1
+
+    Favorite:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Database ID
+        user_id:
+          type: string
+          description: Google OAuth user ID
+        hcpcs:
+          type: string
+          description: HCPCS code
+          example: "99213"
+        sort_order:
+          type: integer
+          description: Display order (for drag-and-drop)
+          example: 0
+        created_at:
+          type: string
+          format: date-time
+          description: Creation timestamp
+        rvu_code:
+          $ref: '#/components/schemas/RVUCode'
+          description: Associated RVU code details (when joined)
+          nullable: true
+
+    AnalyticsSummary:
+      type: array
+      items:
+        type: object
+        properties:
+          period_start:
+            type: string
+            description: Period start date/timestamp
+            example: "2025-12-01"
+          total_work_rvu:
+            type: number
+            format: float
+            description: Total RVU for the period
+            example: 45.6
+          total_encounters:
+            type: integer
+            description: Total encounters (visits with procedures)
+            example: 15
+          total_no_shows:
+            type: integer
+            description: Total no-show encounters
+            example: 2
+
+    AnalyticsBreakdown:
+      type: array
+      items:
+        type: object
+        properties:
+          period_start:
+            type: string
+            description: Period start date/timestamp
+            example: "2025-12-01"
+          hcpcs:
+            type: string
+            description: HCPCS code
+            example: "99213"
+          description:
+            type: string
+            description: Procedure description
+            example: "Office visit, established patient"
+          status_code:
+            type: string
+            description: Status code
+            example: "A"
+          total_work_rvu:
+            type: number
+            format: float
+            description: Total RVU for this HCPCS in period
+            example: 15.6
+          total_quantity:
+            type: integer
+            description: Total quantity performed
+            example: 12
+          encounter_count:
+            type: integer
+            description: Number of encounters with this HCPCS
+            example: 12
+
+    MobileAuthResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        user:
+          type: object
+          properties:
+            id:
+              type: string
+              description: Google OAuth user ID
+              example: "114857394850183928465"
+            email:
+              type: string
+              format: email
+              example: "user@example.com"
+            name:
+              type: string
+              example: "John Doe"
+              nullable: true
+            image:
+              type: string
+              format: uri
+              example: "https://lh3.googleusercontent.com/a/..."
+              nullable: true
+        sessionToken:
+          type: string
+          description: JWT token for API authentication (30-day expiry)
+          example: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMTQ4..."
+        expiresIn:
+          type: integer
+          description: Token expiry in seconds
+          example: 2592000
+
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+          example: "Unauthorized"
+
+  responses:
+    Unauthorized:
+      description: Unauthorized - authentication required
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Unauthorized"
+
+    BadRequest:
+      description: Bad request - validation error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Missing required fields"
+
+    NotFound:
+      description: Resource not found or unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Visit not found or unauthorized"
+
+    InternalError:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            error: "Internal server error"
