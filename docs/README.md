@@ -9,27 +9,47 @@ This directory contains the OpenAPI 3.0 (Swagger) specification for the RVU Trac
 
 ## Viewing the Documentation
 
-### Option 1: Local HTML Viewer (Recommended)
+### Option 1: Production Site (Recommended)
 
-Open `api-docs.html` in your browser:
+Visit the live API documentation:
+
+**🌐 https://trackmyrvu.com/api-docs**
+
+This provides an interactive Swagger UI interface where you can:
+- Browse all API endpoints
+- View request/response schemas
+- Try out API calls (with authentication)
+- Download the OpenAPI spec
+
+### Option 2: Local Development
+
+When running the dev server (`npm run dev`), access at:
+
+**http://localhost:3001/api-docs**
+
+### Option 3: Standalone HTML Viewer
+
+Open the standalone HTML file in your browser:
 
 ```bash
 # From the project root
 open docs/api-docs.html
 ```
 
-This provides an interactive interface where you can:
-- Browse all API endpoints
-- View request/response schemas
-- Try out API calls (with authentication)
-- Download the OpenAPI spec
+Or serve it with a simple HTTP server:
 
-### Option 2: Online Swagger Editor
+```bash
+cd docs
+python3 -m http.server 8080
+# Then open: http://localhost:8080/api-docs.html
+```
+
+### Option 4: Online Swagger Editor
 
 1. Go to [Swagger Editor](https://editor.swagger.io/)
 2. Upload or paste the contents of `openapi.yaml`
 
-### Option 3: VS Code
+### Option 5: VS Code
 
 Install the "OpenAPI (Swagger) Editor" extension and open `openapi.yaml`.
 
