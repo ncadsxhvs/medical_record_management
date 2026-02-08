@@ -90,12 +90,10 @@ npm run test:coverage      # Coverage report
 
 ### API Documentation
 
-Complete OpenAPI 3.0 (Swagger) specification is available in the `docs/` directory:
+Complete OpenAPI 3.0 (Swagger) specification with interactive Swagger UI:
 
-```bash
-# View interactive API docs
-open docs/api-docs.html
-```
+**Production:** https://trackmyrvu.com/api-docs
+**Development:** http://localhost:3001/api-docs
 
 **Documentation includes:**
 - All API endpoints (Visits, Favorites, RVU Search, Analytics, Auth)
@@ -103,7 +101,8 @@ open docs/api-docs.html
 - Authentication details (web session cookies + mobile JWT tokens)
 - Interactive "Try it out" functionality
 
-See `docs/README.md` for full API documentation and usage examples.
+The OpenAPI spec is also available as static files in `docs/` directory and `public/openapi.yaml`.
+See `docs/README.md` for alternative viewing options and usage examples.
 
 ### Environment Configuration
 
