@@ -35,7 +35,7 @@ export async function GET(req: NextRequest) {
       if (truncUnit === 'day') {
         result = await sql`
           SELECT
-            v.date as period_start,
+            v.date::text as period_start,
             vp.hcpcs,
             vp.description,
             vp.status_code,
@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
           JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${userId} AND v.date >= ${start} AND v.date <= ${end}
           GROUP BY v.date, vp.hcpcs, vp.description, vp.status_code
-          ORDER BY period_start DESC, total_work_rvu DESC
+          ORDER BY v.date DESC, total_work_rvu DESC
         `;
       } else if (truncUnit === 'week') {
         result = await sql`
@@ -104,7 +104,7 @@ export async function GET(req: NextRequest) {
       if (truncUnit === 'day') {
         result = await sql`
           SELECT
-            v.date as period_start,
+            v.date::text as period_start,
             COALESCE(SUM(vp.work_rvu * COALESCE(vp.quantity, 1)), 0) as total_work_rvu,
             COUNT(DISTINCT CASE WHEN vp.id IS NOT NULL THEN v.id END) as total_encounters,
             COUNT(DISTINCT CASE WHEN v.is_no_show = true THEN v.id END) as total_no_shows
@@ -112,7 +112,7 @@ export async function GET(req: NextRequest) {
           LEFT JOIN visit_procedures vp ON v.id = vp.visit_id
           WHERE v.user_id = ${userId} AND v.date >= ${start} AND v.date <= ${end}
           GROUP BY v.date
-          ORDER BY period_start
+          ORDER BY v.date
         `;
       } else if (truncUnit === 'week') {
         result = await sql`
