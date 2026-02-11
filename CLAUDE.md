@@ -381,3 +381,10 @@ See TASK.md for detailed progress tracking.
 4. **Write tests** - Especially for date handling and calculations
 5. **Update documentation** - CRITICAL: Always update CLAUDE.md and TASK.md
 6. **Test timezone behavior** - Verify dates work on both localhost and production
+7. **Follow feature summary rule** - See `.claude/rules.md` for the template; after implementing or modifying a feature, create/update a summary in `docs/features/<feature-name>.md`
+
+## Feature Summaries
+
+Detailed per-feature documentation lives in `docs/features/`. Format defined in `.claude/rules.md`.
+
+- [Analytics Dashboard](docs/features/analytics.md)

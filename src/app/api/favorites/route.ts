@@ -14,6 +14,7 @@ export async function GET(req: NextRequest) {
       WHERE user_id = ${userId}
       ORDER BY sort_order ASC, created_at ASC;
     `;
+    console.log(`[Favorites API] GET - userId: ${userId}, count: ${rows.length}, data:`, JSON.stringify(rows));
     return NextResponse.json(rows);
   } catch (error) {
     console.error('Failed to fetch favorites:', error);
