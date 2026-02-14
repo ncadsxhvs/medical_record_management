@@ -1,10 +1,12 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { RVUCode, VisitFormData, VisitProcedure, Visit } from '@/types';
+import { RVUCode, VisitFormData, Visit } from '@/types';
 import RVUPicker from './RVUPicker';
 import FavoritesPicker from './FavoritesPicker';
 import ProcedureList from './ProcedureList';
+import { getCurrentTimeString, getTodayString } from '@/lib/dateUtils';
+import { rvuCodesToProcedures, fetchRvuCodeByHcpcs } from '@/lib/procedureUtils';
 
 interface EntryFormProps {
   onEntryAdded: () => void;
@@ -14,8 +16,8 @@ interface EntryFormProps {
 
 export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: EntryFormProps) {
   const [visitData, setVisitData] = useState<VisitFormData>({
-    date: new Date().toISOString().split('T')[0],
-    time: new Date().toTimeString().slice(0, 5), // HH:MM format
+    date: getTodayString(),
+    time: getCurrentTimeString(), // HH:MM format
     notes: '',
     procedures: [],
   });
@@ -27,8 +29,8 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
   useEffect(() => {
     if (copiedVisit) {
       setVisitData({
-        date: new Date().toISOString().split('T')[0],
-        time: new Date().toTimeString().slice(0, 5),
+        date: getTodayString(),
+        time: getCurrentTimeString(),
         notes: copiedVisit.notes ? `Copy of: ${copiedVisit.notes}` : 'Copy of visit',
         procedures: copiedVisit.procedures.map(proc => ({
           hcpcs: proc.hcpcs,
@@ -43,17 +45,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
   }, [copiedVisit]);
 
   const handleAddProcedures = (rvuCodes: RVUCode[]) => {
-    // Filter out codes that are already added
-    const newProcedures: VisitProcedure[] = rvuCodes
-      .filter(code => !selectedCodes.includes(code.hcpcs))
-      .map(code => ({
-        hcpcs: code.hcpcs,
-        description: code.description,
-        status_code: code.status_code,
-        work_rvu: code.work_rvu,
-        quantity: 1, // Default quantity
-      }));
-
+    const newProcedures = rvuCodesToProcedures(rvuCodes, selectedCodes);
     if (newProcedures.length > 0) {
       setVisitData(prev => ({
         ...prev,
@@ -63,18 +55,9 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
   };
 
   const handleAddFromFavorites = async (hcpcsList: string[]) => {
-    // Fetch full RVU code details for the HCPCS code
-    try {
-      const res = await fetch(`/api/rvu/search?q=${hcpcsList[0]}`);
-      const data = await res.json();
-      if (Array.isArray(data) && data.length > 0) {
-        const rvuCode = data.find(code => code.hcpcs === hcpcsList[0]) || data[0];
-        if (rvuCode) {
-          handleAddProcedures([rvuCode]);
-        }
-      }
-    } catch (error) {
-      console.error(`Failed to fetch RVU code details for ${hcpcsList[0]}:`, error);
+    const rvuCode = await fetchRvuCodeByHcpcs(hcpcsList[0]);
+    if (rvuCode) {
+      handleAddProcedures([rvuCode]);
     }
   };
 
@@ -96,8 +79,8 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
 
   const handleClearAll = () => {
     setVisitData({
-      date: new Date().toISOString().split('T')[0],
-      time: new Date().toTimeString().slice(0, 5),
+      date: getTodayString(),
+      time: getCurrentTimeString(),
       notes: '',
       procedures: [],
     });
@@ -116,7 +99,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
     // Update time to current time if not manually edited
     const dataToSave = {
       ...visitData,
-      time: isTimeManuallyEdited ? visitData.time : new Date().toTimeString().slice(0, 5)
+      time: isTimeManuallyEdited ? visitData.time : getCurrentTimeString()
     };
 
     try {

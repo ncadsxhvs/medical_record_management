@@ -1,41 +1,29 @@
 import { sql } from '@/lib/db';
-import { getUserId } from '@/lib/mobile-auth';
+import { withAuth, apiError } from '@/lib/api-utils';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function GET(req: NextRequest) {
-  const userId = await getUserId(req);
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export const GET = withAuth(async (_req: NextRequest, userId: string) => {
   try {
     const { rows } = await sql`
       SELECT * FROM favorites
       WHERE user_id = ${userId}
       ORDER BY sort_order ASC, created_at ASC;
     `;
-    console.log(`[Favorites API] GET - userId: ${userId}, count: ${rows.length}, data:`, JSON.stringify(rows));
     return NextResponse.json(rows);
   } catch (error) {
     console.error('Failed to fetch favorites:', error);
-    return NextResponse.json({ error: 'Failed to fetch favorites' }, { status: 500 });
+    return apiError('Failed to fetch favorites', 500);
   }
-}
+});
 
-export async function POST(req: NextRequest) {
-  const userId = await getUserId(req);
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export const POST = withAuth(async (req: NextRequest, userId: string) => {
   const { hcpcs } = await req.json();
 
   if (!hcpcs) {
-    return NextResponse.json({ error: 'Missing required field: hcpcs' }, { status: 400 });
+    return apiError('Missing required field: hcpcs', 400);
   }
 
   try {
-    // Get max sort_order for this user
     const maxOrder = await sql`
       SELECT COALESCE(MAX(sort_order), -1) as max_order
       FROM favorites
@@ -52,24 +40,18 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(result.rows[0], { status: 201 });
   } catch (error) {
     console.error('Failed to add favorite:', error);
-    return NextResponse.json({ error: 'Failed to add favorite' }, { status: 500 });
+    return apiError('Failed to add favorite', 500);
   }
-}
+});
 
-export async function PATCH(req: NextRequest) {
-  const userId = await getUserId(req);
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export const PATCH = withAuth(async (req: NextRequest, userId: string) => {
   const { favorites } = await req.json();
 
   if (!Array.isArray(favorites)) {
-    return NextResponse.json({ error: 'Invalid request: favorites must be an array' }, { status: 400 });
+    return apiError('Invalid request: favorites must be an array', 400);
   }
 
   try {
-    // Update sort_order for each favorite
     for (let i = 0; i < favorites.length; i++) {
       await sql`
         UPDATE favorites
@@ -81,6 +63,6 @@ export async function PATCH(req: NextRequest) {
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error('Failed to reorder favorites:', error);
-    return NextResponse.json({ error: 'Failed to reorder favorites' }, { status: 500 });
+    return apiError('Failed to reorder favorites', 500);
   }
-}
+});

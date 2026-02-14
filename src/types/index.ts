@@ -8,21 +8,6 @@ export interface RVUCode {
   created_at?: string;
 }
 
-// Entry Types
-export interface Entry {
-  id: number;
-  user_id: string;
-  hcpcs: string;
-  description: string;
-  status_code: string;
-  work_rvu: number;
-  date: string;
-  patient_name?: string;
-  notes?: string;
-  created_at: string;
-  updated_at: string;
-}
-
 // Favorite Types
 export interface Favorite {
   id: number;
@@ -68,15 +53,19 @@ export interface VisitFormData {
 }
 
 // Analytics Types
-export interface AnalyticsPeriod {
-  date: string;
-  total_rvu: number;
-  entry_count: number;
+export interface AnalyticsData {
+  period_start: string;
+  total_work_rvu: number;
+  total_encounters: number;
+  total_no_shows: number;
 }
 
-export interface AnalyticsBreakdown {
+export interface AnalyticsBreakdownData {
+  period_start: string;
   hcpcs: string;
   description: string;
-  count: number;
-  total_rvu: number;
+  status_code: string;
+  total_work_rvu: number;
+  total_quantity: number;
+  encounter_count: number;
 }
