@@ -1,26 +1,20 @@
 import { sql } from '@/lib/db';
-import { getUserId } from '@/lib/mobile-auth';
+import { withAuth, apiError } from '@/lib/api-utils';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function PUT(
+export const PUT = withAuth(async (
   req: NextRequest,
+  userId: string,
   { params }: { params: Promise<{ id: string }> }
-) {
-  const userId = await getUserId(req);
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+) => {
   const { id } = await params;
   const { date, time, notes, procedures } = await req.json();
 
-  // Validation
   if (!date || !procedures || !Array.isArray(procedures) || procedures.length === 0) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    return apiError('Missing required fields', 400);
   }
 
   try {
-    // Update visit
     const visitResult = await sql`
       UPDATE visits
       SET date = ${date}, time = ${time || null}, notes = ${notes || null}
@@ -29,13 +23,11 @@ export async function PUT(
     `;
 
     if (visitResult.rows.length === 0) {
-      return NextResponse.json({ error: 'Visit not found or unauthorized' }, { status: 404 });
+      return apiError('Visit not found or unauthorized', 404);
     }
 
-    // Delete existing procedures
     await sql`DELETE FROM visit_procedures WHERE visit_id = ${id}`;
 
-    // Insert new procedures
     const procedureResults = [];
     for (const proc of procedures) {
       const procResult = await sql`
@@ -54,23 +46,18 @@ export async function PUT(
     return NextResponse.json(result);
   } catch (error) {
     console.error('Failed to update visit:', error);
-    return NextResponse.json({ error: 'Failed to update visit' }, { status: 500 });
+    return apiError('Failed to update visit', 500);
   }
-}
+});
 
-export async function DELETE(
-  req: NextRequest,
+export const DELETE = withAuth(async (
+  _req: NextRequest,
+  userId: string,
   { params }: { params: Promise<{ id: string }> }
-) {
-  const userId = await getUserId(req);
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+) => {
   const { id } = await params;
 
   try {
-    // CASCADE delete will automatically remove procedures
     const result = await sql`
       DELETE FROM visits
       WHERE id = ${id} AND user_id = ${userId}
@@ -78,12 +65,12 @@ export async function DELETE(
     `;
 
     if (result.rows.length === 0) {
-      return NextResponse.json({ error: 'Visit not found or unauthorized' }, { status: 404 });
+      return apiError('Visit not found or unauthorized', 404);
     }
 
     return NextResponse.json({ message: 'Visit deleted successfully' });
   } catch (error) {
     console.error('Failed to delete visit:', error);
-    return NextResponse.json({ error: 'Failed to delete visit' }, { status: 500 });
+    return apiError('Failed to delete visit', 500);
   }
-}
+});

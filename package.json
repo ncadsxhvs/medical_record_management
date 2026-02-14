@@ -21,15 +21,12 @@
     "@vercel/postgres": "^0.10.0",
     "dotenv": "^17.2.3",
     "google-auth-library": "^10.5.0",
-    "html2canvas": "^1.4.1",
-    "jspdf": "^3.0.4",
     "lodash": "^4.17.21",
     "next": "16.0.10",
     "next-auth": "^5.0.0-beta.30",
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
-    "swr": "^2.3.8",
-    "webcrypto-core": "^1.8.1"
+    "swr": "^2.3.8"
   },
   "devDependencies": {
     "@playwright/test": "^1.57.0",

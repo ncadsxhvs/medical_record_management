@@ -4,9 +4,16 @@ import {
   getTodayString,
   calculateTotalRVU,
   isValidDateString,
+  formatTime,
+  formatDateWithTime,
+  getCurrentTimeString,
 } from '../dateUtils';
 
 describe('dateUtils', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('parseLocalDate', () => {
     it('should parse YYYY-MM-DD format correctly', () => {
       const date = parseLocalDate('2025-12-02');
@@ -178,6 +185,64 @@ describe('dateUtils', () => {
       expect(dateRegex.test('2025-12-02')).toBe(true);
       expect(dateRegex.test('2024-01-15')).toBe(true);
       expect(dateRegex.test('2025-12-31')).toBe(true);
+    });
+  });
+
+  describe('formatTime', () => {
+    it('should format PM times correctly', () => {
+      expect(formatTime('14:30')).toBe('2:30 PM');
+      expect(formatTime('23:59')).toBe('11:59 PM');
+    });
+
+    it('should format AM times correctly', () => {
+      expect(formatTime('09:05')).toBe('9:05 AM');
+      expect(formatTime('00:00')).toBe('12:00 AM');
+    });
+
+    it('should handle noon and midnight', () => {
+      expect(formatTime('12:00')).toBe('12:00 PM');
+      expect(formatTime('00:00')).toBe('12:00 AM');
+    });
+
+    it('should handle HH:MM:SS format', () => {
+      expect(formatTime('14:30:00')).toBe('2:30 PM');
+    });
+  });
+
+  describe('formatDateWithTime', () => {
+    it('should format date only when no time provided', () => {
+      const result = formatDateWithTime('2025-12-02');
+      expect(result).toContain('Dec');
+      expect(result).toContain('2025');
+      expect(result).not.toContain('at');
+    });
+
+    it('should format date with time when time provided', () => {
+      const result = formatDateWithTime('2025-12-02', '14:30');
+      expect(result).toContain('Dec');
+      expect(result).toContain('2025');
+      expect(result).toContain('at 2:30 PM');
+    });
+
+    it('should handle null time', () => {
+      const result = formatDateWithTime('2025-12-02', null);
+      expect(result).not.toContain('at');
+    });
+  });
+
+  describe('getCurrentTimeString', () => {
+    it('should return time in HH:MM format', () => {
+      const time = getCurrentTimeString();
+      expect(time).toMatch(/^\d{2}:\d{2}$/);
+    });
+
+    it('should return current time', () => {
+      const now = new Date();
+      const time = getCurrentTimeString();
+      const [hours, minutes] = time.split(':').map(Number);
+      expect(hours).toBe(now.getHours());
+      // Allow 1 minute tolerance for test execution time
+      expect(Math.abs(minutes - now.getMinutes())).toBeLessThanOrEqual(1);
     });
   });
 });

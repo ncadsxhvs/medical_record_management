@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { RVUCode } from '@/types';
 import { debounce } from 'lodash';
+import { useFavorites } from '@/hooks/useFavorites';
 
 interface RVUPickerProps {
   onSelect?: (rvuCode: RVUCode) => void;
@@ -16,7 +17,7 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
   const [results, setResults] = useState<RVUCode[]>([]);
   const [loading, setLoading] = useState(false);
   const [checkedCodes, setCheckedCodes] = useState<Set<string>>(new Set());
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [showDropdown, setShowDropdown] = useState(false);
   const [popularCodes, setPopularCodes] = useState<RVUCode[]>([]);
 
@@ -40,16 +41,6 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
   }, [query, fetchResults]);
 
   useEffect(() => {
-    // Fetch user's favorites
-    fetch('/api/favorites')
-      .then(res => res.ok ? res.json() : [])
-      .then(data => {
-        if (Array.isArray(data)) {
-          setFavorites(new Set(data.map((fav: any) => fav.hcpcs)));
-        }
-      })
-      .catch(() => setFavorites(new Set()));
-
     // Fetch popular/common codes for dropdown (office visit codes)
     const commonCodes = ['99213', '99214', '99215', '99203', '99204', '99205'];
     fetch(`/api/rvu/search?q=${commonCodes.join(',')}`)
@@ -97,28 +88,8 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
   };
 
   const handleToggleFavorite = async (hcpcs: string, event: React.MouseEvent) => {
-    event.stopPropagation(); // Prevent triggering selection
-    const isFavorite = favorites.has(hcpcs);
-
-    try {
-      if (isFavorite) {
-        await fetch(`/api/favorites/${hcpcs}`, { method: 'DELETE' });
-        setFavorites(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(hcpcs);
-          return newSet;
-        });
-      } else {
-        await fetch('/api/favorites', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ hcpcs }),
-        });
-        setFavorites(prev => new Set(prev).add(hcpcs));
-      }
-    } catch (error) {
-      console.error('Failed to toggle favorite:', error);
-    }
+    event.stopPropagation();
+    await toggleFavorite(hcpcs);
   };
 
   const displayResults = query.length >= 2 ? results : (showDropdown && popularCodes.length > 0 ? popularCodes : []);
@@ -145,7 +116,7 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
           <ul className="max-h-60 overflow-y-auto">
             {displayResults.map((rvuCode) => {
               const isAlreadySelected = selectedCodes.includes(rvuCode.hcpcs);
-              const isFavorite = favorites.has(rvuCode.hcpcs);
+              const fav = isFavorite(rvuCode.hcpcs);
               return (
                 <li
                   key={rvuCode.hcpcs}
@@ -167,10 +138,10 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
                         <span className="font-bold">{rvuCode.hcpcs}</span>
                         <button
                           onClick={(e) => handleToggleFavorite(rvuCode.hcpcs, e)}
-                          className={`text-lg ${isFavorite ? 'text-yellow-500' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
-                          title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                          className={`text-lg ${fav ? 'text-yellow-500' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
+                          title={fav ? 'Remove from favorites' : 'Add to favorites'}
                         >
-                          {isFavorite ? '★' : '☆'}
+                          {fav ? '★' : '☆'}
                         </button>
                       </div>
                       <div className="text-sm text-gray-600">

@@ -1,13 +1,12 @@
 import { sql } from '@/lib/db';
-import { getUserId } from '@/lib/mobile-auth';
+import { withAuth, apiError } from '@/lib/api-utils';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ hcpcs: string }> }) {
-  const userId = await getUserId(req);
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export const DELETE = withAuth(async (
+  _req: NextRequest,
+  userId: string,
+  { params }: { params: Promise<{ hcpcs: string }> }
+) => {
   const { hcpcs } = await params;
 
   try {
@@ -18,12 +17,12 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ h
     `;
 
     if (result.rows.length === 0) {
-      return NextResponse.json({ error: 'Favorite not found or user not authorized' }, { status: 404 });
+      return apiError('Favorite not found or user not authorized', 404);
     }
 
     return NextResponse.json({ message: 'Favorite removed successfully' });
   } catch (error) {
     console.error('Failed to remove favorite:', error);
-    return NextResponse.json({ error: 'Failed to remove favorite' }, { status: 500 });
+    return apiError('Failed to remove favorite', 500);
   }
-}
+});
