@@ -1,7 +1,7 @@
 'use client';
 
 import { VisitProcedure } from '@/types';
-import { useState, useEffect } from 'react';
+import { useFavorites } from '@/hooks/useFavorites';
 
 interface ProcedureListProps {
   procedures: VisitProcedure[];
@@ -12,45 +12,7 @@ interface ProcedureListProps {
 }
 
 export default function ProcedureList({ procedures, onRemove, onQuantityChange, editable = true, showFavorites = true }: ProcedureListProps) {
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
-    // Fetch user's favorites
-    if (showFavorites) {
-      fetch('/api/favorites')
-        .then(res => res.ok ? res.json() : [])
-        .then(data => {
-          if (Array.isArray(data)) {
-            setFavorites(new Set(data.map((fav: any) => fav.hcpcs)));
-          }
-        })
-        .catch(() => setFavorites(new Set()));
-    }
-  }, [showFavorites]);
-
-  const handleToggleFavorite = async (hcpcs: string) => {
-    const isFavorite = favorites.has(hcpcs);
-
-    try {
-      if (isFavorite) {
-        await fetch(`/api/favorites/${hcpcs}`, { method: 'DELETE' });
-        setFavorites(prev => {
-          const newSet = new Set(prev);
-          newSet.delete(hcpcs);
-          return newSet;
-        });
-      } else {
-        await fetch('/api/favorites', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ hcpcs }),
-        });
-        setFavorites(prev => new Set(prev).add(hcpcs));
-      }
-    } catch (error) {
-      console.error('Failed to toggle favorite:', error);
-    }
-  };
+  const { isFavorite, toggleFavorite } = useFavorites();
   if (procedures.length === 0) {
     return (
       <div className="text-gray-500 text-sm p-4 text-center border border-gray-200 rounded-md">
@@ -64,7 +26,7 @@ export default function ProcedureList({ procedures, onRemove, onQuantityChange, 
   return (
     <div className="space-y-3">
       {procedures.map((proc, index) => {
-        const isFavorite = favorites.has(proc.hcpcs);
+        const fav = isFavorite(proc.hcpcs);
         return (
           <div key={`${proc.hcpcs}-${index}`} className="p-3 border border-gray-300 rounded-md bg-white">
             <div className="flex justify-between items-start">
@@ -78,11 +40,11 @@ export default function ProcedureList({ procedures, onRemove, onQuantityChange, 
                   )}
                   {showFavorites && (
                     <button
-                      onClick={() => handleToggleFavorite(proc.hcpcs)}
-                      className={`text-lg ${isFavorite ? 'text-yellow-500' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
-                      title={isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                      onClick={() => toggleFavorite(proc.hcpcs)}
+                      className={`text-lg ${fav ? 'text-yellow-500' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
+                      title={fav ? 'Remove from favorites' : 'Add to favorites'}
                     >
-                      {isFavorite ? '★' : '☆'}
+                      {fav ? '★' : '☆'}
                     </button>
                   )}
                 </div>

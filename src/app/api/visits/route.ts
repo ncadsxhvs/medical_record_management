@@ -1,27 +1,19 @@
 import { sql } from '@/lib/db';
-import { getUserId } from '@/lib/mobile-auth';
+import { withAuth, apiError } from '@/lib/api-utils';
 import { NextRequest, NextResponse } from 'next/server';
 
-export async function POST(req: NextRequest) {
-  const userId = await getUserId(req);
-  if (!userId) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export const POST = withAuth(async (req: NextRequest, userId: string) => {
   const { date, time, notes, procedures, is_no_show } = await req.json();
 
-  // Validation
   if (!date) {
-    return NextResponse.json({ error: 'Date is required' }, { status: 400 });
+    return apiError('Date is required', 400);
   }
 
-  // Allow empty procedures only if is_no_show is true
   if (!is_no_show && (!procedures || !Array.isArray(procedures) || procedures.length === 0)) {
-    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    return apiError('Missing required fields', 400);
   }
 
   try {
-    // Insert visit with is_no_show flag and time
     const visitResult = await sql`
       INSERT INTO visits (user_id, date, time, notes, is_no_show)
       VALUES (${userId}, ${date}, ${time || null}, ${notes || null}, ${is_no_show || false})
@@ -30,7 +22,6 @@ export async function POST(req: NextRequest) {
 
     const visitId = visitResult.rows[0].id;
 
-    // Insert all procedures (skip for no-shows)
     const procedureResults = [];
     if (procedures && Array.isArray(procedures) && procedures.length > 0) {
       for (const proc of procedures) {
@@ -51,33 +42,22 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(result, { status: 201 });
   } catch (error) {
     console.error('Failed to create visit:', error);
-    return NextResponse.json({ error: 'Failed to create visit' }, { status: 500 });
+    return apiError('Failed to create visit', 500);
   }
-}
+});
 
-export async function GET(req: NextRequest) {
-  const userId = await getUserId(req);
-
-  if (!userId) {
-    console.log('[Visits API] Unauthorized - no user ID or email');
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
+export const GET = withAuth(async (_req: NextRequest, userId: string) => {
   try {
-    // Fetch all visits for the user
     const { rows: visits } = await sql`
       SELECT * FROM visits
       WHERE user_id = ${userId}
       ORDER BY created_at DESC;
     `;
 
-    // If no visits, return empty array
     if (visits.length === 0) {
       return NextResponse.json([]);
     }
 
-    // Fetch procedures for all visits
-    // Build a Postgres int[] literal for ANY() while keeping parameters sanitized
     const visitIds = visits.map(v => Number(v.id));
     const visitIdArray = `{${visitIds.join(',')}}`;
     const { rows: procedures } = await sql`
@@ -86,7 +66,6 @@ export async function GET(req: NextRequest) {
       ORDER BY id;
     `;
 
-    // Group procedures by visit
     const visitsWithProcedures = visits.map(visit => ({
       ...visit,
       procedures: procedures.filter(p => p.visit_id === visit.id)
@@ -95,6 +74,6 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(visitsWithProcedures);
   } catch (error) {
     console.error('Failed to fetch visits:', error);
-    return NextResponse.json({ error: 'Failed to fetch visits' }, { status: 500 });
+    return apiError('Failed to fetch visits', 500);
   }
-}
+});

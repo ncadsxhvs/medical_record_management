@@ -1,10 +1,11 @@
 'use client';
 
 import { useState } from 'react';
-import { Visit, VisitProcedure, RVUCode } from '@/types';
+import { Visit, RVUCode } from '@/types';
 import RVUPicker from './RVUPicker';
 import FavoritesPicker from './FavoritesPicker';
 import ProcedureList from './ProcedureList';
+import { rvuCodesToProcedures, fetchRvuCodeByHcpcs } from '@/lib/procedureUtils';
 
 interface EditVisitModalProps {
   visit: Visit;
@@ -23,16 +24,7 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
   );
 
   const handleAddProcedures = (rvuCodes: RVUCode[]) => {
-    const newProcedures: VisitProcedure[] = rvuCodes
-      .filter(code => !selectedCodes.includes(code.hcpcs))
-      .map(code => ({
-        hcpcs: code.hcpcs,
-        description: code.description,
-        status_code: code.status_code,
-        work_rvu: code.work_rvu,
-        quantity: 1,
-      }));
-
+    const newProcedures = rvuCodesToProcedures(rvuCodes, selectedCodes);
     if (newProcedures.length > 0) {
       setEditedVisit(prev => ({
         ...prev,
@@ -137,17 +129,11 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
             </div>
             <FavoritesPicker
               multiSelect
-              onMultiSelect={(hcpcsCodes) => {
-                fetch(`/api/rvu/search?q=${hcpcsCodes[0]}`)
-                  .then(res => res.json())
-                  .then(data => {
-                    if (Array.isArray(data) && data.length > 0) {
-                      const rvuCode = data.find(code => code.hcpcs === hcpcsCodes[0]) || data[0];
-                      if (rvuCode) {
-                        handleAddProcedures([rvuCode]);
-                      }
-                    }
-                  });
+              onMultiSelect={async (hcpcsCodes) => {
+                const rvuCode = await fetchRvuCodeByHcpcs(hcpcsCodes[0]);
+                if (rvuCode) {
+                  handleAddProcedures([rvuCode]);
+                }
               }}
               selectedCodes={selectedCodes}
             />
