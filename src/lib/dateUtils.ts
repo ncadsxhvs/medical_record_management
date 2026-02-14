@@ -55,6 +55,40 @@ export function calculateTotalRVU(procedures: Array<{ work_rvu: number; quantity
 }
 
 /**
+ * Format a time string (HH:MM or HH:MM:SS) to 12-hour display format
+ * "14:30" → "2:30 PM", "09:05" → "9:05 AM"
+ */
+export function formatTime(timeStr: string): string {
+  const [hours, minutes] = timeStr.split(':');
+  const hour = parseInt(hours, 10);
+  const ampm = hour >= 12 ? 'PM' : 'AM';
+  const displayHour = hour % 12 || 12;
+  return `${displayHour}:${minutes} ${ampm}`;
+}
+
+/**
+ * Format a date string with optional time for display
+ * Returns "Tue, Dec 2, 2025" or "Tue, Dec 2, 2025 at 2:30 PM" if time provided
+ */
+export function formatDateWithTime(dateStr: string, timeStr?: string | null): string {
+  const dateFormatted = formatDate(dateStr);
+  if (timeStr) {
+    return `${dateFormatted} at ${formatTime(timeStr)}`;
+  }
+  return dateFormatted;
+}
+
+/**
+ * Get the current time as HH:MM string
+ */
+export function getCurrentTimeString(): string {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}
+
+/**
  * Validate if a string is a valid date in YYYY-MM-DD format
  */
 export function isValidDateString(dateStr: string): boolean {
