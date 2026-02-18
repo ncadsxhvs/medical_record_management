@@ -1,27 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { OAuth2Client } from 'google-auth-library';
 import { sql } from '@/lib/db';
-import { SignJWT } from 'jose';
+import { generateSessionToken } from '@/lib/auth-token';
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
-// Generate a JWT token for the iOS app
-async function generateSessionToken(userId: string, email: string, name: string | null) {
-  const secret = new TextEncoder().encode(process.env.AUTH_SECRET);
-
-  const token = await new SignJWT({
-    sub: userId,
-    email: email,
-    name: name,
-    iat: Math.floor(Date.now() / 1000),
-  })
-    .setProtectedHeader({ alg: 'HS256' })
-    .setIssuedAt()
-    .setExpirationTime('30d') // Token expires in 30 days
-    .sign(secret);
-
-  return token;
-}
 
 export async function POST(req: NextRequest) {
   try {
