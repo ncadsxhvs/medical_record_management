@@ -6,7 +6,7 @@ info:
     with Google OAuth authentication, Postgres database, and comprehensive analytics.
 
     **Authentication:**
-    All endpoints (except `/api/auth/mobile/google`) require authentication via:
+    All endpoints (except `/api/auth/mobile/google` and `/api/auth/mobile/apple`) require authentication via:
     - Web: Next-Auth session cookie
     - Mobile: Bearer token in Authorization header
 
@@ -575,6 +575,84 @@ paths:
                 $ref: '#/components/schemas/Error'
               example:
                 error: "Invalid ID token"
+        '500':
+          $ref: '#/components/responses/InternalError'
+
+  /api/auth/mobile/apple:
+    post:
+      tags:
+        - Authentication
+      summary: Mobile Apple Sign-In authentication
+      description: |
+        Authenticates iOS app users via Apple identity token.
+        Returns a JWT session token valid for 30 days.
+
+        **Flow:**
+        1. Mobile app gets identity token from Apple Sign In SDK
+        2. Send identity token (and optional fullName on first sign-in) to this endpoint
+        3. Server verifies token against Apple's JWKS, creates/updates user, returns session token
+        4. Mobile app uses session token in Authorization header for API calls
+
+        **Note:** Apple only provides the user's name on the very first sign-in.
+        The iOS app must capture and forward it in the `fullName` field.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - identityToken
+              properties:
+                identityToken:
+                  type: string
+                  description: Apple identity token (JWT) from Sign In with Apple SDK
+                  example: "eyJraWQiOiJXNldjT0tCIiwiYWxnIjoiUlMyNTYifQ..."
+                fullName:
+                  type: object
+                  description: User's full name (only available on first Apple sign-in)
+                  nullable: true
+                  properties:
+                    givenName:
+                      type: string
+                      example: "John"
+                      nullable: true
+                    familyName:
+                      type: string
+                      example: "Doe"
+                      nullable: true
+      responses:
+        '200':
+          description: Authentication successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MobileAuthResponse'
+              example:
+                success: true
+                user:
+                  id: "apple_001234.abcdef1234567890"
+                  email: "user@privaterelay.appleid.com"
+                  name: "John Doe"
+                  image: null
+                sessionToken: "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhcHBsZV8w..."
+                expiresIn: 2592000
+        '400':
+          description: Missing or invalid request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Missing identityToken"
+        '401':
+          description: Invalid identity token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+              example:
+                error: "Invalid identity token"
         '500':
           $ref: '#/components/responses/InternalError'
 
