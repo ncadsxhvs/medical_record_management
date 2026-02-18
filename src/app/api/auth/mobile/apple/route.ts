@@ -17,9 +17,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const appleClientId = process.env.APPLE_CLIENT_ID;
-    if (!appleClientId) {
-      console.error('[Mobile Auth Apple] APPLE_CLIENT_ID not configured');
+    // Accept tokens from both Services ID and iOS bundle ID
+    const audiences = [
+      process.env.APPLE_CLIENT_ID,
+      process.env.APPLE_IOS_BUNDLE_ID,
+    ].filter(Boolean) as string[];
+
+    if (audiences.length === 0) {
+      console.error('[Mobile Auth Apple] APPLE_CLIENT_ID or APPLE_IOS_BUNDLE_ID not configured');
       return NextResponse.json(
         { error: 'Apple Sign-In not configured' },
         { status: 500 }
@@ -31,7 +36,7 @@ export async function POST(req: NextRequest) {
     try {
       const result = await jwtVerify(identityToken, appleJWKS, {
         issuer: 'https://appleid.apple.com',
-        audience: appleClientId,
+        audience: audiences,
       });
       payload = result.payload;
     } catch (error) {
