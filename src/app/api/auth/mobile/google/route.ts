@@ -3,7 +3,15 @@ import { OAuth2Client } from 'google-auth-library';
 import { sql } from '@/lib/db';
 import { generateSessionToken } from '@/lib/auth-token';
 
-const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
+const client = new OAuth2Client();
+
+// Accept tokens from both web and iOS client IDs
+function getAllowedAudiences(): string[] {
+  const audiences: string[] = [];
+  if (process.env.GOOGLE_CLIENT_ID) audiences.push(process.env.GOOGLE_CLIENT_ID);
+  if (process.env.GOOGLE_IOS_CLIENT_ID) audiences.push(process.env.GOOGLE_IOS_CLIENT_ID);
+  return audiences;
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -16,12 +24,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Verify the Google ID token
+    // Verify the Google ID token (accepts web or iOS audience)
     let ticket;
     try {
       ticket = await client.verifyIdToken({
         idToken,
-        audience: process.env.GOOGLE_CLIENT_ID,
+        audience: getAllowedAudiences(),
       });
     } catch (error) {
       console.error('[Mobile Auth] Token verification failed:', error);
