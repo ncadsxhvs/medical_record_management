@@ -39,23 +39,8 @@ async function verifyMobileToken(token: string): Promise<AuthUser | null> {
  * Supports:
  * 1. NextAuth web sessions (cookies)
  * 2. Mobile app JWT tokens (Authorization: Bearer <token>)
- * 3. Development bypass (DEV_BYPASS_AUTH=true)
  */
 export async function getAuthenticatedUser(req: NextRequest): Promise<AuthUser | null> {
-  // Check for dev bypass mode
-  const isDevelopment = process.env.NODE_ENV === 'development';
-  const devBypass = process.env.DEV_BYPASS_AUTH === 'true';
-
-  if (isDevelopment && devBypass) {
-    console.log('[Mobile Auth] DEV_BYPASS_AUTH enabled, returning mock user');
-    return {
-      id: process.env.DEV_USER_ID || 'dev-user-123',
-      email: process.env.DEV_USER_EMAIL || 'dev@example.com',
-      name: 'Dev User',
-      image: null,
-    };
-  }
-
   // Check for mobile JWT token in Authorization header
   const authHeader = req.headers.get('authorization');
   if (authHeader && authHeader.startsWith('Bearer ')) {

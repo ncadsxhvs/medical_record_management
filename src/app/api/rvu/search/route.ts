@@ -1,7 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { searchRVUCodes, getCacheStats } from '@/lib/rvu-cache';
+import { withAuth } from '@/lib/api-utils';
 
-export async function GET(req: NextRequest) {
+export const GET = withAuth(async (req: NextRequest) => {
   const { searchParams } = new URL(req.url);
   const q = searchParams.get('q');
 
@@ -24,4 +25,4 @@ export async function GET(req: NextRequest) {
     console.error('Failed to search RVU codes:', error);
     return NextResponse.json({ error: 'Failed to search RVU codes' }, { status: 500 });
   }
-}
+});
