@@ -42,3 +42,20 @@ One sentence describing what this feature does and why it exists.
 - Be specific enough that another agent can recreate identical UI without seeing the original code
 - Always include exact file paths
 - Update the summary whenever the feature changes
+
+# Git Rules
+
+## Commits
+- Write concise commit messages summarizing the "why"
+- Never amend published commits
+- Never force push to main
+
+## Pull Requests
+- Always create PRs — never merge directly to main
+- Never merge PRs automatically; only create them and let a human merge
+- Use `gh pr create`, never `gh pr merge` or `git merge` into main
+- Push feature branches with `git push -u origin <branch>`
+
+## Branches
+- Work on feature branches, not main
+- Branch names: `feat/<name>`, `fix/<name>`, `chore/<name>`
