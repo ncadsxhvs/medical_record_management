@@ -10,7 +10,8 @@ function validateProcedures(procedures: any[]): string | null {
   for (const proc of procedures) {
     if (!proc.hcpcs || !HCPCS_RE.test(proc.hcpcs)) return 'Invalid HCPCS code format';
     if (!proc.description || typeof proc.description !== 'string') return 'Invalid procedure description';
-    if (proc.work_rvu == null || typeof proc.work_rvu !== 'number') return 'Invalid work_rvu value';
+    const rvu = Number(proc.work_rvu);
+    if (proc.work_rvu == null || isNaN(rvu)) return 'Invalid work_rvu value';
     if (proc.quantity != null && (!Number.isInteger(proc.quantity) || proc.quantity < 1 || proc.quantity > 1000)) {
       return 'Quantity must be an integer between 1 and 1000';
     }
