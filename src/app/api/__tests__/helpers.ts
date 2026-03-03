@@ -23,9 +23,3 @@ export async function parseResponse(response: Response) {
   const json = await response.json();
   return { status, json };
 }
-
-export function createMockSql() {
-  const fn = jest.fn().mockResolvedValue({ rows: [] });
-  fn.query = jest.fn().mockResolvedValue({ rows: [] });
-  return fn;
-}
