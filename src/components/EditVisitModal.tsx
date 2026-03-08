@@ -16,6 +16,7 @@ interface EditVisitModalProps {
 export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModalProps) {
   const [editedVisit, setEditedVisit] = useState<Visit>({
     ...visit,
+    date: visit.date?.includes('T') ? visit.date.split('T')[0] : visit.date,
     procedures: [...visit.procedures],
   });
 
