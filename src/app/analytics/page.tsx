@@ -11,6 +11,7 @@ import { AnalyticsData, AnalyticsBreakdownData } from '@/types';
 import RVUChart from '@/components/analytics/RVUChart';
 import SummaryStats from '@/components/analytics/SummaryStats';
 import BreakdownTable from '@/components/analytics/BreakdownTable';
+import BonusProjection from '@/components/analytics/BonusProjection';
 
 export default function AnalyticsPage() {
   const { status } = useSession();
@@ -180,6 +181,7 @@ export default function AnalyticsPage() {
               }}
             />
             <SummaryStats data={data} />
+            <BonusProjection data={data} startDate={startDate} endDate={endDate} />
           </div>
         ) : (
           <BreakdownTable
