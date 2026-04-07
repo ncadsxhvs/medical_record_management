@@ -1,12 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { RVUCode, VisitFormData, Visit } from '@/types';
+import { RVUCode, VisitFormData, Visit, FavoriteGroupItem } from '@/types';
 import RVUPicker from './RVUPicker';
 import FavoritesPicker from './FavoritesPicker';
+import FavoriteGroupsPicker from './FavoriteGroupsPicker';
 import ProcedureList from './ProcedureList';
 import { getCurrentTimeString, getTodayString } from '@/lib/dateUtils';
-import { rvuCodesToProcedures, fetchRvuCodeByHcpcs } from '@/lib/procedureUtils';
+import { rvuCodesToProcedures, fetchRvuCodeByHcpcs, groupItemsToProcedures } from '@/lib/procedureUtils';
 
 interface EntryFormProps {
   onEntryAdded: () => void;
@@ -22,6 +23,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
     procedures: [],
   });
   const [isTimeManuallyEdited, setIsTimeManuallyEdited] = useState(false);
+  const [groupsRefreshKey, setGroupsRefreshKey] = useState(0);
 
   const selectedCodes = visitData.procedures.map(p => p.hcpcs);
 
@@ -58,6 +60,46 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
     const rvuCode = await fetchRvuCodeByHcpcs(hcpcsList[0]);
     if (rvuCode) {
       handleAddProcedures([rvuCode]);
+    }
+  };
+
+  const handleAddGroup = async (items: FavoriteGroupItem[], groupName: string) => {
+    const newProcedures = await groupItemsToProcedures(items, selectedCodes);
+    if (newProcedures.length === 0) {
+      alert(`All codes from "${groupName}" are already on this visit.`);
+      return;
+    }
+    setVisitData(prev => ({
+      ...prev,
+      procedures: [...prev.procedures, ...newProcedures],
+    }));
+  };
+
+  const handleSaveAsGroup = async () => {
+    if (visitData.procedures.length === 0) return;
+    const name = window.prompt('Name this favorite group:');
+    if (!name) return;
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const items = visitData.procedures.map(p => ({ hcpcs: p.hcpcs, quantity: p.quantity }));
+    try {
+      const res = await fetch('/api/favorite-groups', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: trimmed, items }),
+      });
+      if (res.status === 409) {
+        alert('A group with that name already exists.');
+        return;
+      }
+      if (!res.ok) {
+        alert('Failed to save group.');
+        return;
+      }
+      setGroupsRefreshKey(k => k + 1);
+    } catch (err) {
+      console.error('Failed to save favorite group:', err);
+      alert('Failed to save group.');
     }
   };
 
@@ -152,6 +194,9 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
         </div>
       )}
 
+      {/* Favorite Groups */}
+      <FavoriteGroupsPicker onAddGroup={handleAddGroup} refreshKey={groupsRefreshKey} />
+
       {/* Search and Favorites Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
@@ -175,9 +220,18 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
       {/* Selected Procedures Section */}
       {visitData.procedures.length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold mb-2">
-            Selected Procedures ({visitData.procedures.length})
-          </h3>
+          <div className="flex items-center justify-between mb-2">
+            <h3 className="text-lg font-semibold">
+              Selected Procedures ({visitData.procedures.length})
+            </h3>
+            <button
+              type="button"
+              onClick={handleSaveAsGroup}
+              className="px-3 py-1 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-md hover:bg-blue-100"
+            >
+              Save as group
+            </button>
+          </div>
           <ProcedureList
             procedures={visitData.procedures}
             onRemove={handleRemoveProcedure}

@@ -4,6 +4,7 @@
  */
 export const CACHE_KEYS = {
   visits: '/api/visits',
+  favoriteGroups: '/api/favorite-groups',
   analytics: (period: string, start: string, end: string) =>
     `/api/analytics?period=${period}&start=${start}&end=${end}`,
   analyticsBreakdown: (period: string, start: string, end: string) =>

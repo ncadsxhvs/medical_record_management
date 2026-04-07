@@ -52,6 +52,25 @@ export interface VisitFormData {
   procedures: VisitProcedure[];
 }
 
+// Favorite Group Types
+export interface FavoriteGroupItem {
+  hcpcs: string;
+  quantity: number;
+  description?: string;
+  status_code?: string;
+  work_rvu?: number;
+}
+
+export interface FavoriteGroup {
+  id: number;
+  user_id: string;
+  name: string;
+  sort_order: number;
+  items: FavoriteGroupItem[];
+  created_at: string;
+  updated_at: string;
+}
+
 // Analytics Types
 export interface AnalyticsData {
   period_start: string;
