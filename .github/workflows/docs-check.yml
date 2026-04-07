@@ -1,0 +1,56 @@
+name: Docs Check
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  docs-updated:
+    name: Verify docs are updated
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for source changes without doc updates
+        run: |
+          set -e
+          BASE="origin/${{ github.base_ref }}"
+          git fetch origin "${{ github.base_ref }}" --depth=1
+
+          CHANGED=$(git diff --name-only "$BASE"...HEAD)
+          echo "Changed files:"
+          echo "$CHANGED"
+          echo "---"
+
+          # Did source change?
+          SRC_CHANGED=$(echo "$CHANGED" | grep -E '^(src/|scripts/|data/)' || true)
+          if [ -z "$SRC_CHANGED" ]; then
+            echo "No source changes detected — docs check skipped."
+            exit 0
+          fi
+
+          # Was FEATURE_LOG updated?
+          LOG_CHANGED=$(echo "$CHANGED" | grep -E '^docs/FEATURE_LOG\.md$' || true)
+          # Was at least one feature doc updated/created?
+          FEATURE_CHANGED=$(echo "$CHANGED" | grep -E '^docs/features/[^/]+\.md$' || true)
+
+          if [ -z "$LOG_CHANGED" ]; then
+            echo "::error::Source files changed but docs/FEATURE_LOG.md was NOT updated."
+            echo "Append a new entry following the template at the top of docs/FEATURE_LOG.md."
+            exit 1
+          fi
+
+          if [ -z "$FEATURE_CHANGED" ]; then
+            echo "::error::Source files changed but no file under docs/features/*.md was added or updated."
+            echo "Create or update a feature doc using the template in .claude/rules.md."
+            echo "The doc must be detailed enough that another agent can reproduce the feature on iOS without seeing the source."
+            exit 1
+          fi
+
+          echo "Docs check passed."
+          echo "  FEATURE_LOG.md updated: yes"
+          echo "  feature doc(s) updated:"
+          echo "$FEATURE_CHANGED" | sed 's/^/    /'

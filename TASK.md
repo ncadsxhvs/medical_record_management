@@ -21,7 +21,7 @@ Full-stack application for tracking medical procedure RVUs (Relative Value Units
 - Multi-procedure visits with quantity tracking
 - Analytics dashboard (daily/weekly/monthly/yearly RVU summations)
 - Responsive, mobile-friendly UI
-- Comprehensive test coverage (57 tests)
+- Comprehensive test coverage (80 tests)
 - Timezone-independent date handling
 
 ---
@@ -554,7 +554,7 @@ if (visit.time) {
 
 ### Testing
 
-- ✅ All 57 existing tests still pass
+- ✅ All 80 tests pass
 - ✅ TypeScript compilation successful
 - ✅ Production build successful
 - ✅ Database migration applied successfully
@@ -1040,10 +1040,71 @@ CREATE INDEX idx_visits_no_show ON visits(user_id, is_no_show);
 
 ### Testing
 
-- ✅ All 57 existing tests still pass
+- ✅ All 80 tests pass
 - ✅ TypeScript compilation successful
 - ✅ Production build successful
 - ✅ Database migration applied successfully
+
+---
+
+## Bonus Projection Feature ✅ COMPLETED (2026-04-01)
+
+**Branch:** `feat/rvu-target`
+
+### Overview
+
+Added a Bonus Projection panel to the Analytics dashboard that lets users define
+an RVU target over a custom date range and forecasts their projected annual and
+prorated bonus based on the current pace of RVUs in the selected analytics range.
+
+### Plan
+
+1. Create `BonusProjection` component (collapsible card) with inputs for RVU target,
+   custom target start/end dates, and bonus rate ($/RVU).
+2. Calculate annualized pace from the analytics data range and normalize the target
+   to an annual figure via `rvuTarget * (365 / daysInTargetPeriod)`.
+3. Render a progress bar and result cards: Actual RVUs, Annualized Pace, Projected
+   Surplus, Annual Bonus, and prorated Period Bonus.
+4. Persist user settings in `localStorage` with migration from any legacy format.
+5. Integrate into `src/app/analytics/page.tsx` after `<SummaryStats>` in the summary view.
+6. Verify with `npm run build` and `npm test`.
+
+### Implementation
+
+- [x] **New Component:** `src/components/analytics/BonusProjection.tsx`
+  - [x] Collapsible card UI matching existing analytics design
+  - [x] Inputs: RVU target, target period start/end dates, bonus rate
+  - [x] Custom target period via two date pickers (replaces fixed monthly/quarterly/yearly)
+  - [x] localStorage persistence with migration from legacy format
+  - [x] Annualized pace calculation from analytics data range
+  - [x] Target normalization: `rvuTarget * (365 / daysInTargetPeriod)`
+  - [x] Progress bar showing % of annual target
+  - [x] 5 result cards: Actual RVUs, Annualized Pace, Projected Surplus, Annual Bonus, Period Bonus (prorated)
+
+- [x] **Analytics Page Integration:** `src/app/analytics/page.tsx`
+  - [x] Imported `BonusProjection` component
+  - [x] Rendered after `<SummaryStats>` within the summary view
+
+### Key Calculations
+
+```
+daysInRange     = endDate - startDate + 1
+annualizedRvus  = (actualRvus / daysInRange) * 365
+annualTarget    = rvuTarget * (365 / daysInTargetPeriod)
+surplus         = max(0, annualizedRvus - annualTarget)
+projectedBonus  = surplus * bonusRate                    // full year
+proratedBonus   = projectedBonus * (daysInTargetPeriod / 365)
+```
+
+### Files Modified
+
+- `src/components/analytics/BonusProjection.tsx` (new)
+- `src/app/analytics/page.tsx` (integration)
+
+### Testing
+
+- ✅ `npm run build` passes (no type errors)
+- ✅ `npm test` — all 80 tests pass
 
 ---
 
