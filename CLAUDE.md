@@ -172,10 +172,9 @@ npx tsx scripts/migrate-favorites-sort.ts
 - Metrics: Total RVUs, Total Encounters, Total No Shows, Avg RVU per Encounter
 
 ### Testing
-- **57 passing tests** covering date handling, RVU calculations, API logic
+- **80 passing tests** covering date handling, RVU calculations, API logic
 - Jest + React Testing Library
 - Timezone-independent date tests
-- See TESTING.md for details
 
 ## RVU Cache System
 
@@ -281,7 +280,7 @@ const date = parseLocalDate('2025-12-02');  // Local date, no shift
 - **TypeScript:** Strict mode enabled
 - **Dates:** ALWAYS use date utilities from `@/lib/dateUtils`
 - **Testing:** Write tests for date handling, RVU calculations, critical flows
-- **Documentation:** CRITICAL - Always update CLAUDE.md and TASK.md after changes
+- **Documentation:** ENFORCED — every PR touching `src/`/`scripts/`/`data/` must update both `docs/FEATURE_LOG.md` and a `docs/features/<name>.md` spec. See `.claude/rules.md`.
 
 ## Deployment
 
@@ -321,10 +320,9 @@ Required production environment variables:
 - Fixed remote code execution vulnerability in React Server Components
 
 ### Testing Implementation
-- Added comprehensive test suite (57 tests)
+- Added comprehensive test suite (80 tests)
 - Created date utility functions for timezone-safe operations
 - Tests cover: date parsing, RVU calculations, analytics, visits API
-- See TESTING.md for full documentation
 
 ### Date Fixes
 - Fixed timezone issues in main page visit cards
@@ -353,6 +351,32 @@ Required production environment variables:
 - Migration script: `scripts/add-visit-time.sql`
 - Database index: `idx_visits_user_date_time` for optimized queries
 
+### Apple Sign-In & Mobile Auth (2026-02-17)
+- Added Apple Sign-In support alongside Google
+- New mobile JWT exchange endpoints: `/api/auth/mobile/google`, `/api/auth/mobile/apple`
+- New `src/lib/mobile-auth.ts` token utility library
+
+### Privacy Policy Page (2026-02-18)
+- Public privacy policy at `/privacy`
+
+### Security Hardening (2026-02-21)
+- Input validation/sanitization on RVU search, visits, and visit detail API routes
+- Stricter request validation may reject previously accepted inputs
+
+### Account Deletion (2026-02-21)
+- New `DELETE /api/user` endpoint for GDPR-compliant account removal
+
+### API Test Suite (2026-02-28)
+- Expanded Jest coverage to 80 tests across visits, analytics, favorites, and date utils
+- Added API contract tests for all primary endpoints
+
+### Bonus Projection (2026-04-01)
+- New `BonusProjection` panel on the Analytics page
+- Inputs: RVU target, custom target start/end dates, bonus rate ($/RVU)
+- Calculates annualized pace, surplus over target, full-year bonus, and prorated period bonus
+- Settings persisted to localStorage
+- Component: `src/components/analytics/BonusProjection.tsx`
+
 ---
 
 ## Current Status
@@ -360,12 +384,14 @@ Required production environment variables:
 **✅ PRODUCTION READY**
 
 Full-stack RVU tracking application with:
-- Authentication ✅
-- Multi-procedure visits ✅
+- Authentication (Google + Apple, web + mobile JWT) ✅
+- Multi-procedure visits with time tracking ✅
 - No-show tracking ✅
 - Drag-and-drop favorites ✅
-- Analytics dashboard ✅
-- Comprehensive testing ✅
+- Analytics dashboard with bonus projection ✅
+- Account deletion (GDPR) ✅
+- Privacy policy ✅
+- Comprehensive testing (80 tests) ✅
 - Security patches applied ✅
 - Custom domain configured ✅
 
@@ -381,10 +407,16 @@ See TASK.md for detailed progress tracking.
 4. **Write tests** - Especially for date handling and calculations
 5. **Update documentation** - CRITICAL: Always update CLAUDE.md and TASK.md
 6. **Test timezone behavior** - Verify dates work on both localhost and production
-7. **Follow feature summary rule** - See `.claude/rules.md` for the template; after implementing or modifying a feature, create/update a summary in `docs/features/<feature-name>.md`
+7. **Documentation is enforced on every PR.** When you change anything under `src/`, `scripts/`, or `data/` you MUST also:
+   - Append a new entry at the top of `docs/FEATURE_LOG.md`
+   - Create or update `docs/features/<feature-name>.md` using the rich, platform-agnostic template in `.claude/rules.md`
+   - The feature spec must be detailed enough for another Claude Code agent on a **SwiftUI iOS project** to reproduce the feature without reading the web source code (data shapes, formulas, edge cases, acceptance criteria, iOS notes)
+   - CI (`.github/workflows/docs-check.yml`) will fail the PR if either file is missing
 
-## Feature Summaries
+## Feature Specs
 
-Detailed per-feature documentation lives in `docs/features/`. Format defined in `.claude/rules.md`.
+Platform-agnostic per-feature specs live in [`docs/features/`](docs/features/README.md). Format defined in [`.claude/rules.md`](.claude/rules.md).
+
+Each spec must allow a Claude Code agent on an iOS / SwiftUI project to recreate the feature using only the spec — no peeking at web source.
 
 - [Analytics Dashboard](docs/features/analytics.md)

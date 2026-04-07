@@ -4,6 +4,23 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 17
+
+- **Date:** 2026-04-01
+- **Title:** feat(analytics): Add Bonus Projection panel with custom target period
+- **Branch:** `feat/rvu-target`
+- **What changed:**
+  - New `BonusProjection` collapsible panel on the Analytics dashboard
+  - Inputs: RVU target, custom target period (two date pickers), bonus rate ($/RVU)
+  - Calculates annualized pace, surplus over target, full-year projected bonus, and prorated period bonus
+  - Progress bar showing % of annual target
+  - Settings persisted to `localStorage` (with migration from any legacy format)
+- **Files touched:**
+  - `src/components/analytics/BonusProjection.tsx` (new)
+  - `src/app/analytics/page.tsx` (integration after `<SummaryStats>`)
+- **Risk/Notes:** Frontend-only; no schema or API changes
+- **How to verify:** `npm run build` passes, `npm test` (80 passing); visit `/analytics`, expand "Bonus Projection", set target/dates/rate and confirm the projection cards update
+
 ## Entry 16
 
 - **Date:** 2026-02-21

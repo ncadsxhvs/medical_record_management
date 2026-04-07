@@ -29,8 +29,12 @@ See `docs/README.md` for details.
 ## Features
 
 - Multi-procedure visit tracking with HCPCS code search (16,852+ codes)
+- Visit time tracking (12-hour AM/PM)
 - No-show encounter tracking
 - Drag-and-drop favorites management
 - Analytics dashboard (daily/weekly/monthly/yearly)
+- Bonus projection panel with custom target period and prorated annual bonus
 - Mobile JWT authentication (Google & Apple Sign-In)
 - Account deletion (GDPR)
+- Privacy policy page
+- 80 automated tests (Jest + RTL)
