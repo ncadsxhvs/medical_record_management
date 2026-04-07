@@ -4,6 +4,29 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 18
+
+- **Date:** 2026-04-07
+- **Title:** feat(favorites): Add Favorite Groups (named HCPCS + quantity templates)
+- **Branch:** `feat/code-group`
+- **What changed:**
+  - New `favorite_groups` and `favorite_group_items` tables (migration: `scripts/add-favorite-groups.sql`)
+  - New API: `GET/POST/PATCH /api/favorite-groups` and `PUT/DELETE /api/favorite-groups/{id}`
+  - New `FavoriteGroupsPicker` component above the search/favorites pickers in the visit form
+  - "Save as group" button on the visit form persists current procedures (with quantities) as a named template
+  - Merge semantics on add: skip codes already on the visit, append the rest with their saved quantities
+  - Coexists with existing single-code favorites (no changes to `favorites` table or `FavoritesPicker`)
+- **Files touched:**
+  - `scripts/add-favorite-groups.sql` (new)
+  - `src/app/api/favorite-groups/route.ts` (new)
+  - `src/app/api/favorite-groups/[id]/route.ts` (new)
+  - `src/components/FavoriteGroupsPicker.tsx` (new)
+  - `src/components/EntryForm.tsx` (mount picker, save-as-group handler)
+  - `src/lib/procedureUtils.ts` (`groupItemsToProcedures`)
+  - `src/lib/cache-keys.ts`, `src/types/index.ts`
+- **Risk/Notes:** Requires running the migration before deploy. New tables only — no changes to existing schemas.
+- **How to verify:** Apply migration, sign in, add 3 codes with quantities, tap "Save as group", clear form, tap the new group tile and confirm all 3 codes reappear with original quantities; tap again to verify the "already on this visit" alert.
+
 ## Entry 17
 
 - **Date:** 2026-04-01
