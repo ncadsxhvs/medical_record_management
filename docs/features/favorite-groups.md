@@ -32,9 +32,22 @@ As a physician who repeatedly bills the same combination of HCPCS codes for a pa
    - If a code in the group no longer exists in the RVU master list (stale), it is silently skipped and a warning is logged.
 4. If **all** codes in the group are already on the visit, an alert is shown: `All codes from "<name>" are already on this visit.`
 
+### Editing a group
+1. Each group tile shows three always-visible action icons: edit (pencil), rename, and delete (trash).
+2. Tapping the **edit** icon loads the group's procedures into the visit form, replacing any existing procedures (with a confirmation warning if the form is not empty).
+3. A blue **"Editing group \<name\>"** banner appears at the top of the form.
+4. The user modifies procedures (add, remove, change quantities).
+5. Tapping **"Update \<name\>"** sends `PUT /api/favorite-groups/{id}` with the updated items, clears the form, and refreshes the group list.
+6. Tapping **Cancel** exits edit mode and clears the form.
+7. The editing state also clears if the user clicks "Clear All" or "Save Visit".
+
+### Renaming a group
+1. Tapping the **rename** icon shows a prompt pre-filled with the current name.
+2. On confirm, sends `PUT /api/favorite-groups/{id}` with `{ "name": "<new>" }`.
+3. If the new name conflicts with an existing group, the API returns 409 and the UI shows an alert.
+
 ### Deleting a group
-1. User hovers/long-presses a group tile; an `×` appears.
-2. Tapping `×` shows a confirm dialog. On confirm, the group is deleted.
+1. Tapping the **delete** (trash) icon shows a confirm dialog. On confirm, the group is deleted.
 
 ## Data Model
 
@@ -171,6 +184,11 @@ groupItemsToProcedures(items, existingHcpcs)
 | User clears the form then taps Save as group | Button hidden (procedures.length === 0) |
 | No-show visit form | "Save as group" hidden (no procedures to save) |
 | Two tabs creating same name simultaneously | UNIQUE constraint → second one gets 409 |
+| Edit clicked with unsaved procedures in form | Confirmation dialog warns before replacing |
+| Rename to same name (no change) | No API call, silently ignored |
+| Rename to duplicate name | API returns 409, UI shows alert |
+| Save Visit while in edit mode | Editing state clears, visit is saved normally |
+| Clear All while in edit mode | Editing state clears, form resets |
 
 ## Acceptance Criteria
 1. Migration creates `favorite_groups` and `favorite_group_items` tables with the FK and unique constraints.
@@ -182,6 +200,10 @@ groupItemsToProcedures(items, existingHcpcs)
 7. Tapping a group tile appends the codes to the visit form, **preserving each item's saved quantity** and **skipping** any HCPCS already present.
 8. If every code in a group is already on the visit, the user sees the "All codes already on this visit" alert.
 9. Existing single-code `favorites` table, API, and `FavoritesPicker` UI are unchanged.
+10. Tapping the edit icon on a group tile loads its procedures into the form with a blue editing banner.
+11. Updating a group via the edit flow replaces its items and refreshes the tile.
+12. Renaming a group to a duplicate name shows a 409 alert.
+13. Edit/rename/delete icons are always visible (not hover-only) for mobile/touch accessibility.
 
 ## iOS / SwiftUI Reproduction Notes
 
