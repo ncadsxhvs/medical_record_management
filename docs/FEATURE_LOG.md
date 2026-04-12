@@ -4,6 +4,24 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 19
+
+- **Date:** 2026-04-11
+- **Title:** feat(favorites): Edit, rename, and delete favorite groups
+- **Branch:** `feat/update-fav-group`
+- **What changed:**
+  - Always-visible edit (pencil), rename, and delete (trash) action icons on each group tile
+  - Edit loads group procedures into the form with a blue "Editing group" banner and Update/Cancel buttons
+  - Rename prompts for a new name with duplicate-name validation (409 conflict)
+  - Delete confirms before removing
+  - Unsaved-changes warning when editing over existing procedures in the form
+  - Editing state clears on form clear or visit save
+- **Files touched:**
+  - `src/components/FavoriteGroupsPicker.tsx` (action icons, rename handler, edit highlight)
+  - `src/components/EntryForm.tsx` (edit/update/cancel handlers, editing banner, state cleanup)
+- **Risk/Notes:** No schema or API changes — uses existing `PUT /api/favorite-groups/{id}` and `DELETE` endpoints.
+- **How to verify:** Sign in, create a group, verify edit/rename/delete icons appear on tile. Edit a group, modify procedures, tap Update. Rename with a duplicate name and verify error. Delete and confirm removal.
+
 ## Entry 18
 
 - **Date:** 2026-04-07

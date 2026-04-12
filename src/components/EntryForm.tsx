@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { RVUCode, VisitFormData, Visit, FavoriteGroupItem } from '@/types';
+import { RVUCode, VisitFormData, Visit, FavoriteGroupItem, FavoriteGroup } from '@/types';
 import RVUPicker from './RVUPicker';
 import FavoritesPicker from './FavoritesPicker';
 import FavoriteGroupsPicker from './FavoriteGroupsPicker';
@@ -24,6 +24,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
   });
   const [isTimeManuallyEdited, setIsTimeManuallyEdited] = useState(false);
   const [groupsRefreshKey, setGroupsRefreshKey] = useState(0);
+  const [editingGroup, setEditingGroup] = useState<FavoriteGroup | null>(null);
 
   const selectedCodes = visitData.procedures.map(p => p.hcpcs);
 
@@ -103,6 +104,45 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
     }
   };
 
+  const handleEditGroup = async (group: FavoriteGroup) => {
+    if (visitData.procedures.length > 0 && !confirm('You have unsaved procedures. Replace them to edit this group?')) {
+      return;
+    }
+    const procs = await groupItemsToProcedures(group.items, []);
+    setVisitData(prev => ({
+      ...prev,
+      procedures: procs,
+    }));
+    setEditingGroup(group);
+  };
+
+  const handleUpdateGroup = async () => {
+    if (!editingGroup || visitData.procedures.length === 0) return;
+    const items = visitData.procedures.map(p => ({ hcpcs: p.hcpcs, quantity: p.quantity }));
+    try {
+      const res = await fetch(`/api/favorite-groups/${editingGroup.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ items }),
+      });
+      if (!res.ok) {
+        alert('Failed to update group.');
+        return;
+      }
+      setEditingGroup(null);
+      setGroupsRefreshKey(k => k + 1);
+      handleClearAll();
+    } catch (err) {
+      console.error('Failed to update favorite group:', err);
+      alert('Failed to update group.');
+    }
+  };
+
+  const handleCancelEdit = () => {
+    setEditingGroup(null);
+    handleClearAll();
+  };
+
   const handleRemoveProcedure = (hcpcs: string) => {
     setVisitData(prev => ({
       ...prev,
@@ -126,7 +166,8 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
       notes: '',
       procedures: [],
     });
-    setIsTimeManuallyEdited(false); // Reset flag when clearing
+    setIsTimeManuallyEdited(false);
+    setEditingGroup(null);
     if (onClearCopy) {
       onClearCopy();
     }
@@ -194,8 +235,38 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
         </div>
       )}
 
+      {/* Editing Group Banner */}
+      {editingGroup && (
+        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-between">
+          <div className="flex items-center gap-3">
+            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <div>
+              <p className="text-sm font-semibold text-blue-900">
+                Editing group &quot;{editingGroup.name}&quot;
+              </p>
+              <p className="text-xs text-blue-700 mt-0.5">
+                Modify procedures below, then tap &quot;Update&quot; to save changes
+              </p>
+            </div>
+          </div>
+          <button
+            onClick={handleCancelEdit}
+            className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+          >
+            Cancel
+          </button>
+        </div>
+      )}
+
       {/* Favorite Groups */}
-      <FavoriteGroupsPicker onAddGroup={handleAddGroup} refreshKey={groupsRefreshKey} />
+      <FavoriteGroupsPicker
+        onAddGroup={handleAddGroup}
+        onEditGroup={handleEditGroup}
+        editingGroupId={editingGroup?.id ?? null}
+        refreshKey={groupsRefreshKey}
+      />
 
       {/* Search and Favorites Section */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -224,13 +295,32 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy }: En
             <h3 className="text-lg font-semibold">
               Selected Procedures ({visitData.procedures.length})
             </h3>
-            <button
-              type="button"
-              onClick={handleSaveAsGroup}
-              className="px-3 py-1 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-md hover:bg-blue-100"
-            >
-              Save as group
-            </button>
+            {editingGroup ? (
+              <div className="flex gap-2">
+                <button
+                  type="button"
+                  onClick={handleUpdateGroup}
+                  className="px-3 py-1 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                >
+                  Update &quot;{editingGroup.name}&quot;
+                </button>
+                <button
+                  type="button"
+                  onClick={handleCancelEdit}
+                  className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                >
+                  Cancel
+                </button>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={handleSaveAsGroup}
+                className="px-3 py-1 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-md hover:bg-blue-100"
+              >
+                Save as group
+              </button>
+            )}
           </div>
           <ProcedureList
             procedures={visitData.procedures}
