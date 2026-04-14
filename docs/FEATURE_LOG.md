@@ -4,6 +4,26 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 20
+
+- **Date:** 2026-04-11
+- **Title:** feat(favorites): Add/delete buttons, green selected state, Playwright e2e
+- **Branch:** `feat/addbutton-for-fav`
+- **Spec:** [docs/features/favorites.md](features/favorites.md)
+- **What changed:**
+  - New "+ Add Favorite" button with inline HCPCS search for adding multiple favorites
+  - Delete button restyled to match VisitCard (red pill with trash icon + "Delete" label)
+  - Selected favorites highlight green with "✓ added" instead of grayed out
+  - Playwright config, JWT auth setup, and 11 e2e tests for favorites and groups UI
+- **Files touched:**
+  - `src/components/FavoritesPicker.tsx` (add search, delete style, green selection)
+  - `playwright.config.ts` (new)
+  - `e2e/auth.setup.ts` (new — JWT session cookie for tests)
+  - `e2e/favorites.spec.ts` (new — 11 tests)
+  - `.gitignore` (playwright artifacts)
+- **Risk/Notes:** Playwright tests require `AUTH_SECRET` from `.env.development`. Tests auto-skip if unauthenticated.
+- **How to verify:** `npm run test:e2e` — 12 tests pass (1 setup + 11 specs). Visually confirm green selection, red pill delete, and add-favorite search on localhost:3001.
+
 ## Entry 19
 
 - **Date:** 2026-04-11
