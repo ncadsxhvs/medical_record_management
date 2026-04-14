@@ -4,6 +4,31 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 21
+
+- **Date:** 2026-04-14
+- **Title:** refactor(favorites): Isolated group edit mode within FavoriteGroupsPicker
+- **Branch:** `feat/addbutton-for-fav`
+- **Spec:** [docs/features/favorite-groups.md](features/favorite-groups.md)
+- **What changed:**
+  - Moved all group edit/rename/delete logic out of EntryForm into FavoriteGroupsPicker
+  - Added management mode toggle ("Edit" / "Done" button) next to the Favorite Groups header
+  - Normal mode: clean tiles with no action icons, click adds to visit
+  - Management mode: tiles show red pill "Delete" buttons (matching FavoritesPicker style), clicking tile selects for inline editing
+  - Inline editor: HCPCS search + editable ProcedureList + Rename button + Save/Cancel — no visit form fields
+  - Rename moved from tile icons into the inline editor section
+  - Removed "Save as group" button from EntryForm
+  - Added "+ Add Group" button to create new groups with inline editor (prompt for name, then add codes)
+  - Added security guard: visit form (search, favorites, procedures, save) is blocked while a group is being edited
+  - Component now renders even with 0 groups (so users can create their first)
+  - Updated Playwright e2e tests for new management mode UI
+- **Files touched:**
+  - `src/components/FavoriteGroupsPicker.tsx` (rewritten — management mode, inline editor, onEditingChange callback)
+  - `src/components/EntryForm.tsx` (simplified — removed group editing, removed save-as-group, added edit guard)
+  - `e2e/favorites.spec.ts` (updated tests for management mode, edit blocking)
+- **Risk/Notes:** No API changes. Pure UI refactor. Removed "Save as group" feature.
+- **How to verify:** Click "Edit" → management mode → click group → inline editor (visit form blocked) → add/remove codes → Rename → Save Changes → Done → back to normal mode → visit form unblocked
+
 ## Entry 20
 
 - **Date:** 2026-04-11

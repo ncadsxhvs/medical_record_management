@@ -51,54 +51,91 @@ test.describe('Favorite Groups', () => {
     await page.waitForLoadState('networkidle');
   });
 
-  test('group tiles show edit, rename, and delete icons', async ({ page }) => {
-    const editBtns = page.locator('[title="Edit group"]');
-    const count = await editBtns.count();
-    if (count > 0) {
-      await expect(editBtns.first()).toBeVisible();
-      await expect(page.locator('[title="Rename group"]').first()).toBeVisible();
-      await expect(page.locator('[title="Delete group"]').first()).toBeVisible();
-    }
-  });
-
-  test('clicking edit shows blue editing banner', async ({ page }) => {
-    const editBtn = page.locator('[title="Edit group"]').first();
+  test('management mode shows delete buttons on tiles', async ({ page }) => {
+    const editBtn = page.locator('button:has-text("Edit")').first();
     if (await editBtn.isVisible().catch(() => false)) {
       await editBtn.click();
-      await expect(page.locator('text=Editing group')).toBeVisible();
-      await expect(page.locator('text=Cancel')).toBeVisible();
+      const deleteBtn = page.locator('[title="Delete group"]').first();
+      if (await deleteBtn.isVisible().catch(() => false)) {
+        await expect(deleteBtn).toBeVisible();
+        // Delete button should have red pill style with "Delete" label
+        await expect(deleteBtn).toContainText('Delete');
+      }
     }
   });
 
-  test('cancel exits edit mode', async ({ page }) => {
-    const editBtn = page.locator('[title="Edit group"]').first();
+  test('clicking group in management mode shows inline editor with rename', async ({ page }) => {
+    const editBtn = page.locator('button:has-text("Edit")').first();
     if (await editBtn.isVisible().catch(() => false)) {
       await editBtn.click();
-      await expect(page.locator('text=Editing group')).toBeVisible();
-      await page.locator('.bg-blue-50 button:has-text("Cancel")').click();
-      await expect(page.locator('text=Editing group')).not.toBeVisible();
+      const groupTile = page.locator('[title="Select to edit procedures"]').first();
+      if (await groupTile.isVisible().catch(() => false)) {
+        await groupTile.click();
+        await expect(page.locator('text=Editing')).toBeVisible();
+        await expect(page.locator('text=Save Changes')).toBeVisible();
+        await expect(page.locator('text=Cancel')).toBeVisible();
+        // Rename button is in the inline editor
+        await expect(page.locator('[title="Rename group"]')).toBeVisible();
+      }
     }
   });
 
-  test('rename prompts for new name', async ({ page }) => {
-    const renameBtn = page.locator('[title="Rename group"]').first();
-    if (await renameBtn.isVisible().catch(() => false)) {
-      page.on('dialog', async (dialog) => {
-        expect(dialog.type()).toBe('prompt');
-        await dialog.dismiss();
-      });
-      await renameBtn.click();
+  test('editing group blocks visit form', async ({ page }) => {
+    const editBtn = page.locator('button:has-text("Edit")').first();
+    if (await editBtn.isVisible().catch(() => false)) {
+      await editBtn.click();
+      const groupTile = page.locator('[title="Select to edit procedures"]').first();
+      if (await groupTile.isVisible().catch(() => false)) {
+        await groupTile.click();
+        // Visit form should be blocked
+        await expect(page.locator('text=Finish editing the group before adding visits')).toBeVisible();
+        // Search section should not be visible
+        await expect(page.locator('text=Search HCPCS Codes')).not.toBeVisible();
+      }
+    }
+  });
+
+  test('Done exits management mode', async ({ page }) => {
+    const editBtn = page.locator('button:has-text("Edit")').first();
+    if (await editBtn.isVisible().catch(() => false)) {
+      await editBtn.click();
+      await expect(page.locator('button:has-text("Done")')).toBeVisible();
+      await page.locator('button:has-text("Done")').click();
+      await expect(page.locator('button:has-text("Edit")').first()).toBeVisible();
+    }
+  });
+
+  test('rename prompts for new name from inline editor', async ({ page }) => {
+    const editBtn = page.locator('button:has-text("Edit")').first();
+    if (await editBtn.isVisible().catch(() => false)) {
+      await editBtn.click();
+      const groupTile = page.locator('[title="Select to edit procedures"]').first();
+      if (await groupTile.isVisible().catch(() => false)) {
+        await groupTile.click();
+        const renameBtn = page.locator('[title="Rename group"]');
+        if (await renameBtn.isVisible().catch(() => false)) {
+          page.on('dialog', async (dialog) => {
+            expect(dialog.type()).toBe('prompt');
+            await dialog.dismiss();
+          });
+          await renameBtn.click();
+        }
+      }
     }
   });
 
   test('delete prompts for confirmation', async ({ page }) => {
-    const deleteBtn = page.locator('[title="Delete group"]').first();
-    if (await deleteBtn.isVisible().catch(() => false)) {
-      page.on('dialog', async (dialog) => {
-        expect(dialog.type()).toBe('confirm');
-        await dialog.dismiss();
-      });
-      await deleteBtn.click();
+    const editBtn = page.locator('button:has-text("Edit")').first();
+    if (await editBtn.isVisible().catch(() => false)) {
+      await editBtn.click();
+      const deleteBtn = page.locator('[title="Delete group"]').first();
+      if (await deleteBtn.isVisible().catch(() => false)) {
+        page.on('dialog', async (dialog) => {
+          expect(dialog.type()).toBe('confirm');
+          await dialog.dismiss();
+        });
+        await deleteBtn.click();
+      }
     }
   });
 });

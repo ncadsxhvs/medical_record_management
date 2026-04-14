@@ -56,7 +56,7 @@ function SortableItem({ fav, isAlreadySelected, onSelect, onRemove, multiSelect 
     <div
       ref={setNodeRef}
       style={style}
-      className={`relative p-2 border rounded-md group transition-all duration-200 ${
+      className={`flex items-center gap-2 p-2 border rounded-md transition-all duration-200 ${
         isAlreadySelected ? 'bg-green-50 border-green-300' : 'bg-white'
       } ${isDragging ? 'opacity-40 scale-95 shadow-lg z-50' : ''}`}
     >
@@ -65,7 +65,7 @@ function SortableItem({ fav, isAlreadySelected, onSelect, onRemove, multiSelect 
         <div
           {...attributes}
           {...listeners}
-          className="absolute left-1 top-1/2 -translate-y-1/2 text-gray-400 cursor-grab active:cursor-grabbing touch-none"
+          className="flex-shrink-0 text-gray-400 cursor-grab active:cursor-grabbing touch-none"
           title="Drag to reorder"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -75,38 +75,28 @@ function SortableItem({ fav, isAlreadySelected, onSelect, onRemove, multiSelect 
       )}
 
       {/* Content */}
-      {multiSelect ? (
-        <button
-          onClick={onSelect}
-          disabled={isAlreadySelected}
-          className="w-full text-left pl-5 pr-16"
-        >
-          <span className={isAlreadySelected ? 'text-green-700 font-medium' : ''}>
-            {fav.hcpcs}
-            {isAlreadySelected && (
-              <span className="ml-1 text-xs text-green-600">✓ added</span>
-            )}
-          </span>
-        </button>
-      ) : (
-        <button
-          onClick={onSelect}
-          className="w-full text-left pl-5 pr-16"
-        >
+      <button
+        onClick={onSelect}
+        disabled={multiSelect && isAlreadySelected}
+        className="flex-1 text-left min-w-0 truncate"
+      >
+        <span className={`font-medium ${isAlreadySelected ? 'text-green-700' : 'text-gray-900'}`}>
           {fav.hcpcs}
-        </button>
-      )}
+        </span>
+        {isAlreadySelected && (
+          <span className="ml-1 text-xs text-green-600">✓ added</span>
+        )}
+      </button>
 
-      {/* Remove Button - matches VisitCard delete style */}
+      {/* Delete Button — icon only */}
       <button
         onClick={onRemove}
-        className="absolute top-1/2 -translate-y-1/2 right-2 flex items-center gap-1 px-2 py-1 bg-red-50 text-red-600 text-xs font-semibold rounded-lg hover:bg-red-100 active:bg-red-200 transition-all duration-150 z-10"
+        className="flex-shrink-0 p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 active:bg-red-200 transition-all duration-150"
         title="Remove from favorites"
       >
         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
         </svg>
-        Delete
       </button>
     </div>
   );
@@ -305,7 +295,7 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
           items={favorites.map(fav => fav.hcpcs)}
           strategy={rectSortingStrategy}
         >
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+          <div className="grid grid-cols-2 gap-2">
             {favorites.map((fav) => {
               const isAlreadySelected = selectedCodes.includes(fav.hcpcs);
               return (
