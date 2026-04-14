@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { Favorite } from '@/types';
+import { useState, useEffect, useCallback } from 'react';
+import { Favorite, RVUCode } from '@/types';
 import { useSession } from 'next-auth/react';
+import { debounce } from 'lodash';
 import {
   DndContext,
   closestCenter,
@@ -56,7 +57,7 @@ function SortableItem({ fav, isAlreadySelected, onSelect, onRemove, multiSelect 
       ref={setNodeRef}
       style={style}
       className={`relative p-2 border rounded-md group transition-all duration-200 ${
-        isAlreadySelected ? 'bg-gray-100 opacity-50' : 'bg-white'
+        isAlreadySelected ? 'bg-green-50 border-green-300' : 'bg-white'
       } ${isDragging ? 'opacity-40 scale-95 shadow-lg z-50' : ''}`}
     >
       {/* Drag Handle */}
@@ -78,29 +79,34 @@ function SortableItem({ fav, isAlreadySelected, onSelect, onRemove, multiSelect 
         <button
           onClick={onSelect}
           disabled={isAlreadySelected}
-          className="w-full text-left pl-5"
+          className="w-full text-left pl-5 pr-16"
         >
-          <span className={isAlreadySelected ? 'text-gray-400' : ''}>
+          <span className={isAlreadySelected ? 'text-green-700 font-medium' : ''}>
             {fav.hcpcs}
-            {isAlreadySelected && <span className="ml-1 text-xs">(added)</span>}
+            {isAlreadySelected && (
+              <span className="ml-1 text-xs text-green-600">✓ added</span>
+            )}
           </span>
         </button>
       ) : (
         <button
           onClick={onSelect}
-          className="w-full text-left pl-5"
+          className="w-full text-left pl-5 pr-16"
         >
           {fav.hcpcs}
         </button>
       )}
 
-      {/* Remove Button */}
+      {/* Remove Button - matches VisitCard delete style */}
       <button
         onClick={onRemove}
-        className="absolute top-1 right-1 text-red-500 opacity-0 group-hover:opacity-100 transition-opacity z-10"
+        className="absolute top-1/2 -translate-y-1/2 right-2 flex items-center gap-1 px-2 py-1 bg-red-50 text-red-600 text-xs font-semibold rounded-lg hover:bg-red-100 active:bg-red-200 transition-all duration-150 z-10"
         title="Remove from favorites"
       >
-        &times;
+        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+        </svg>
+        Delete
       </button>
     </div>
   );
@@ -110,6 +116,10 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
   const { data: session } = useSession();
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showAddSearch, setShowAddSearch] = useState(false);
+  const [addQuery, setAddQuery] = useState('');
+  const [addResults, setAddResults] = useState<RVUCode[]>([]);
+  const [addLoading, setAddLoading] = useState(false);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -194,10 +204,96 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
     }
   };
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const searchFavorites = useCallback(
+    debounce((q: string) => {
+      if (q.length < 2) {
+        setAddResults([]);
+        return;
+      }
+      setAddLoading(true);
+      fetch(`/api/rvu/search?q=${encodeURIComponent(q)}&limit=20`)
+        .then(res => res.ok ? res.json() : [])
+        .then(data => setAddResults(Array.isArray(data) ? data : []))
+        .catch(() => setAddResults([]))
+        .finally(() => setAddLoading(false));
+    }, 300),
+    []
+  );
+
+  const handleAddFavorite = async (hcpcs: string) => {
+    const res = await fetch('/api/favorites', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hcpcs }),
+    });
+    if (res.ok) fetchFavorites();
+  };
+
   return (
     <div>
+      {/* Add Favorites Button / Search */}
+      <div className="mb-2">
+        {showAddSearch ? (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <input
+                type="text"
+                value={addQuery}
+                onChange={(e) => {
+                  setAddQuery(e.target.value);
+                  searchFavorites(e.target.value);
+                }}
+                placeholder="Add favorite by code or name..."
+                className="flex-1 px-3 py-1.5 border border-gray-300 rounded-md text-sm"
+                autoFocus
+              />
+              <button
+                onClick={() => {
+                  setShowAddSearch(false);
+                  setAddQuery('');
+                  setAddResults([]);
+                }}
+                className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800"
+              >
+                Done
+              </button>
+            </div>
+            {addLoading && <div className="text-xs text-gray-400">Searching...</div>}
+            {addResults.length > 0 && (
+              <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-md">
+                {addResults.map(code => {
+                  const alreadyFav = favorites.some(f => f.hcpcs === code.hcpcs);
+                  return (
+                    <button
+                      key={code.hcpcs}
+                      onClick={() => !alreadyFav && handleAddFavorite(code.hcpcs)}
+                      disabled={alreadyFav}
+                      className={`w-full text-left px-3 py-1.5 text-sm border-b border-gray-100 last:border-b-0 ${
+                        alreadyFav ? 'bg-gray-50 text-gray-400' : 'hover:bg-blue-50'
+                      }`}
+                    >
+                      <span className="font-medium">{code.hcpcs}</span>
+                      <span className="text-gray-500 ml-2">{code.description}</span>
+                      {alreadyFav && <span className="ml-1 text-xs">(already added)</span>}
+                    </button>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        ) : (
+          <button
+            onClick={() => setShowAddSearch(true)}
+            className="px-3 py-1.5 text-sm bg-green-50 text-green-700 border border-green-200 rounded-md hover:bg-green-100"
+          >
+            + Add Favorite
+          </button>
+        )}
+      </div>
+
       {loading && <div>Loading favorites...</div>}
-      {!loading && favorites.length === 0 && (
+      {!loading && favorites.length === 0 && !showAddSearch && (
         <div className="text-gray-500 text-sm">No favorites yet</div>
       )}
       <DndContext
