@@ -16,12 +16,14 @@ As a physician who repeatedly bills the same combination of HCPCS codes for a pa
 
 ## User Flow
 
-### Saving a group
-1. User opens the visit form and adds 1+ procedures (HCPCS codes) via the search picker, the favorites picker, or the favorite groups picker. They set quantities as needed.
-2. A **"Save as group"** button appears next to the "Selected Procedures" header.
-3. User taps the button. A prompt asks for a group name (1–100 characters, must be unique per user).
-4. On confirm, the group is persisted with the current `procedures` (each entry's `hcpcs` + `quantity`). The visit form itself is unchanged.
-5. The new group immediately appears in the **Favorite Groups** picker at the top of the form.
+### Creating a new group
+1. An **"+ Add Group"** button is always visible next to the "Favorite Groups" header.
+2. Tapping it shows a prompt asking for a group name (1–100 characters, must be unique per user).
+3. On confirm, management mode activates and an inline editor opens with the group name and an empty procedure list.
+4. The user searches and adds HCPCS codes, sets quantities.
+5. Tapping **"Create Group"** sends `POST /api/favorite-groups` with the name and items.
+6. If the name conflicts, the API returns 409 and the UI shows an alert.
+7. On success, the editor closes, the new group appears in the grid, and normal mode resumes.
 
 ### Adding a group to a visit
 1. User opens the visit form (fresh or partially populated).
@@ -32,19 +34,30 @@ As a physician who repeatedly bills the same combination of HCPCS codes for a pa
    - If a code in the group no longer exists in the RVU master list (stale), it is silently skipped and a warning is logged.
 4. If **all** codes in the group are already on the visit, an alert is shown: `All codes from "<name>" are already on this visit.`
 
-### Editing a group
-1. Each group tile shows three always-visible action icons: edit (pencil), rename, and delete (trash).
-2. Tapping the **edit** icon loads the group's procedures into the visit form, replacing any existing procedures (with a confirmation warning if the form is not empty).
-3. A blue **"Editing group \<name\>"** banner appears at the top of the form.
-4. The user modifies procedures (add, remove, change quantities).
-5. Tapping **"Update \<name\>"** sends `PUT /api/favorite-groups/{id}` with the updated items, clears the form, and refreshes the group list.
-6. Tapping **Cancel** exits edit mode and clears the form.
-7. The editing state also clears if the user clicks "Clear All" or "Save Visit".
+### Editing a group (isolated management mode)
+1. An **"Edit"** button appears next to the "Favorite Groups" header.
+2. Tapping **Edit** enters **management mode**:
+   - Group tiles switch from "click to add to visit" to "click to select for editing".
+   - Each tile shows **rename** and **delete** icons (no icons in normal mode).
+   - The header button changes to **"Done"**.
+3. Tapping a group tile in management mode **selects** it for editing:
+   - The tile highlights blue with a "▼ SELECTED" indicator.
+   - An **inline editor** expands below the grid showing:
+     - An HCPCS search picker to add new codes to the group.
+     - The group's procedures displayed with editable quantities and remove buttons (reuses `ProcedureList`).
+     - **"Save Changes"** and **"Cancel"** buttons.
+   - No date/time/notes fields or "Save Visit" button — editing is fully self-contained.
+4. Tapping **"Save Changes"** sends `PUT /api/favorite-groups/{id}` with the updated items, closes the editor, and refreshes the group list.
+5. Tapping **Cancel** closes the editor without saving.
+6. Tapping **"Done"** exits management mode and returns to normal mode (also closes any open editor).
 
 ### Renaming a group
-1. Tapping the **rename** icon shows a prompt pre-filled with the current name.
-2. On confirm, sends `PUT /api/favorite-groups/{id}` with `{ "name": "<new>" }`.
-3. If the new name conflicts with an existing group, the API returns 409 and the UI shows an alert.
+1. In management mode, select a group to open the inline editor.
+2. A **"Rename"** button appears in the editor header next to the group name.
+3. Tapping it shows a prompt pre-filled with the current name.
+4. On confirm, sends `PUT /api/favorite-groups/{id}` with `{ "name": "<new>" }`.
+5. If the new name conflicts with an existing group, the API returns 409 and the UI shows an alert.
+6. On success, the editor title and group tile update immediately.
 
 ### Deleting a group
 1. Tapping the **delete** (trash) icon shows a confirm dialog. On confirm, the group is deleted.
@@ -184,11 +197,13 @@ groupItemsToProcedures(items, existingHcpcs)
 | User clears the form then taps Save as group | Button hidden (procedures.length === 0) |
 | No-show visit form | "Save as group" hidden (no procedures to save) |
 | Two tabs creating same name simultaneously | UNIQUE constraint → second one gets 409 |
-| Edit clicked with unsaved procedures in form | Confirmation dialog warns before replacing |
+| Edit mode is fully isolated | Group editing never touches the visit form procedures |
 | Rename to same name (no change) | No API call, silently ignored |
 | Rename to duplicate name | API returns 409, UI shows alert |
-| Save Visit while in edit mode | Editing state clears, visit is saved normally |
-| Clear All while in edit mode | Editing state clears, form resets |
+| Click group in normal mode | Adds to visit form (unchanged behavior) |
+| Click group in management mode | Selects for inline editing (does not add to visit) |
+| Group editor open | Visit form (search, favorites, procedures, save) is hidden; amber banner shown: "Finish editing the group before adding visits." |
+| Group editor closed (Done / Cancel / Save) | Visit form re-appears |
 
 ## Acceptance Criteria
 1. Migration creates `favorite_groups` and `favorite_group_items` tables with the FK and unique constraints.
@@ -196,14 +211,16 @@ groupItemsToProcedures(items, existingHcpcs)
 3. `GET /api/favorite-groups` returns hydrated groups for the user, ordered by `sort_order, created_at`.
 4. Duplicate names for the same user return `409`; same name for a different user is allowed.
 5. `DELETE /api/favorite-groups/{id}` removes the group and cascades item rows.
-6. From the visit form, **Save as group** with N codes (and their quantities) creates a group of size N where each item's quantity matches what the user set.
+6. Groups can be created via `POST /api/favorite-groups` with a name + items array.
 7. Tapping a group tile appends the codes to the visit form, **preserving each item's saved quantity** and **skipping** any HCPCS already present.
 8. If every code in a group is already on the visit, the user sees the "All codes already on this visit" alert.
 9. Existing single-code `favorites` table, API, and `FavoritesPicker` UI are unchanged.
-10. Tapping the edit icon on a group tile loads its procedures into the form with a blue editing banner.
-11. Updating a group via the edit flow replaces its items and refreshes the tile.
-12. Renaming a group to a duplicate name shows a 409 alert.
-13. Edit/rename/delete icons are always visible (not hover-only) for mobile/touch accessibility.
+10. Tapping "Edit" next to the header enters management mode; group tiles show red pill "Delete" buttons and "Done" replaces "Edit".
+11. Tapping a group tile in management mode selects it and opens an inline editor with HCPCS search, editable procedure list, Rename button, Save Changes, and Cancel — no visit form fields.
+12. While a group is being edited, the visit form is blocked with an amber banner.
+13. Saving changes via the inline editor replaces the group's items and refreshes the tile.
+14. Renaming a group to a duplicate name shows a 409 alert.
+15. In normal mode, group tiles have no action icons — click adds to visit.
 
 ## iOS / SwiftUI Reproduction Notes
 
@@ -242,8 +259,11 @@ JSON keys are `snake_case` — use `JSONDecoder.keyDecodingStrategy = .convertFr
 Authenticate the same way the rest of the iOS app does (mobile JWT — see `src/lib/mobile-auth.ts` on the web side).
 
 ### View
-- A `FavoriteGroupsView` showing a horizontal `LazyHGrid` (or vertical list) of `GroupChip` cards with `name`, `"\(items.count) codes · \(totalRvu, specifier: "%.2f") RVU"`, and a swipe-to-delete action.
+- A `FavoriteGroupsView` showing a horizontal `LazyHGrid` (or vertical list) of `GroupChip` cards with `name`, `"\(items.count) codes · \(totalRvu, specifier: "%.2f") RVU"`.
 - Embed it at the **top** of the visit composer (above the search picker and the favorites picker).
+- An **"Edit"** button in the section header toggles management mode (`@State var isManaging = false`).
+- In management mode: tapping a tile selects it (`@State var selectedGroup: FavoriteGroup?`) and shows an inline editor (HCPCS search + editable procedure list + Save/Cancel). Swipe-to-delete and rename (via context menu or long press) available on each tile.
+- In normal mode: no icons on tiles, tapping adds to visit. "Done" button exits management mode.
 - A `Save as group` button in the procedures section toolbar, disabled when `procedures.isEmpty`. Tapping it presents a `TextField` alert for the name; on submit, POST and refresh.
 
 ### Merge behavior helper (Swift)
