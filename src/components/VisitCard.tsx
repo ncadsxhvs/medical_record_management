@@ -1,10 +1,10 @@
 'use client';
 
 import { Visit } from '@/types';
-import { formatDateWithTime } from '@/lib/dateUtils';
 
 interface VisitCardProps {
   visit: Visit;
+  accentColor?: string;
   isExpanded: boolean;
   onToggleExpand: () => void;
   onEdit: () => void;
@@ -12,108 +12,109 @@ interface VisitCardProps {
   onDelete: () => void;
 }
 
-export default function VisitCard({ visit, isExpanded, onToggleExpand, onEdit, onCopy, onDelete }: VisitCardProps) {
+function formatTime(time?: string): string {
+  if (!time) return '';
+  const [h, m] = time.split(':').map(Number);
+  const ampm = h >= 12 ? 'PM' : 'AM';
+  const hour = h % 12 || 12;
+  return `${hour}:${String(m).padStart(2, '0')} ${ampm}`;
+}
+
+export default function VisitCard({ visit, accentColor, isExpanded, onToggleExpand, onEdit, onCopy, onDelete }: VisitCardProps) {
   const totalRVU = visit.procedures.reduce((sum, proc) => sum + (Number(proc.work_rvu) * (proc.quantity || 1)), 0);
 
-  return (
-    <div className={`bg-white rounded-xl shadow-sm border ${visit.is_no_show ? 'border-orange-300 bg-orange-50' : 'border-gray-200'} hover:shadow-md transition-shadow duration-200`}>
-      <div className="p-5">
-        {visit.is_no_show && (
-          <div className="mb-3 inline-block px-3 py-1 bg-orange-500 text-white text-xs font-bold rounded-full uppercase tracking-wide">
-            🚫 No Show
-          </div>
-        )}
-        <div className="flex justify-between items-start mb-4">
-          <div className="flex-1">
-            <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Visit Date & Time</p>
-            <p className="text-lg font-semibold text-gray-900">
-              {formatDateWithTime(visit.date, visit.time)}
-            </p>
-          </div>
-          {!visit.is_no_show && (
-            <div className="text-right">
-              <p className="text-xs font-medium text-gray-400 uppercase tracking-wider mb-1">Total RVU</p>
-              <p className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-blue-500 bg-clip-text text-transparent">{totalRVU.toFixed(2)}</p>
-            </div>
+  if (visit.is_no_show) {
+    return (
+      <div className="flex items-center bg-orange-50 rounded-xl border border-orange-200 px-4 py-3 group">
+        <div className="w-1 h-8 bg-orange-400 rounded-full mr-3 flex-shrink-0" />
+        <div className="flex-1 min-w-0">
+          <span className="text-sm font-semibold text-zinc-900">{formatTime(visit.time)}</span>
+          <span className="inline-block ml-2 px-2 py-0.5 bg-orange-500 text-white text-[10px] font-bold rounded-full uppercase">No Show</span>
+          {visit.notes && visit.notes !== 'No Show' && (
+            <span className="text-xs text-zinc-400 ml-2">{visit.notes}</span>
           )}
         </div>
+        <button
+          onClick={onDelete}
+          className="opacity-0 group-hover:opacity-100 p-1.5 text-red-400 hover:text-red-600 transition-all"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+        </button>
+      </div>
+    );
+  }
 
-        {visit.notes && (
-          <div className="mb-4 p-3 bg-blue-50 border border-blue-100 rounded-lg">
-            <p className="text-xs font-medium text-blue-600 uppercase tracking-wider mb-1">Notes</p>
-            <p className="text-sm text-gray-700">{visit.notes}</p>
-          </div>
-        )}
+  const accentBg = accentColor?.replace('border-l-', 'bg-') || 'bg-zinc-300';
 
-        {!visit.is_no_show && (
-          <>
-            <div className="mb-3">
-              <button
-                onClick={onToggleExpand}
-                className="flex items-center gap-2 text-sm font-medium text-blue-600 hover:text-blue-700 transition-colors"
-              >
-                <span className="text-lg">{isExpanded ? '▼' : '▶'}</span>
-                <span>{isExpanded ? 'Hide' : 'Show'} Procedures ({visit.procedures.length})</span>
-              </button>
-            </div>
-
-            {isExpanded && (
-              <div className="space-y-2 mb-4 pl-4 border-l-2 border-blue-200">
-                {visit.procedures.map((proc, idx) => (
-                  <div key={idx} className="p-3 bg-gray-50 rounded-lg border border-gray-100">
-                    <div className="flex justify-between items-start">
-                      <div className="flex-1">
-                        <div>
-                          <span className="font-semibold text-gray-900">{proc.hcpcs}</span>
-                          <span className="text-gray-600 text-sm ml-2">{proc.description}</span>
-                        </div>
-                        <div className="text-xs text-gray-500 mt-1 font-medium">
-                          Qty: {proc.quantity || 1} × {Number(proc.work_rvu).toFixed(2)} RVU = {(Number(proc.work_rvu) * (proc.quantity || 1)).toFixed(2)} RVU
-                        </div>
-                      </div>
-                      <span className="font-bold text-blue-600 ml-3 text-sm">{(Number(proc.work_rvu) * (proc.quantity || 1)).toFixed(2)}</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </>
-        )}
-
-        <div className="flex gap-2 pt-3 border-t border-gray-100">
-          {!visit.is_no_show && (
+  return (
+    <div className="bg-white rounded-xl border border-zinc-200/80 group">
+      {/* Compact row */}
+      <div className="flex items-center px-4 py-3 cursor-pointer" onClick={onToggleExpand}>
+        <div className={`w-1 h-8 ${accentBg} rounded-full mr-3 flex-shrink-0`} />
+        <div className="flex-1 min-w-0">
+          <span className="text-sm font-semibold text-zinc-900">{formatTime(visit.time)}</span>
+          <span className="text-xs text-zinc-400 ml-2 truncate">
+            {visit.procedures.map(p => p.quantity && p.quantity > 1 ? `${p.hcpcs} x${p.quantity}` : p.hcpcs).join(', ')}
+          </span>
+          {visit.notes && (
+            <span className="text-xs text-zinc-400 ml-1">· {visit.notes}</span>
+          )}
+        </div>
+        <div className="flex items-center gap-1 flex-shrink-0 ml-3">
+          <div className="flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
             <button
-              onClick={onEdit}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-50 text-blue-600 text-sm font-semibold rounded-lg hover:bg-blue-100 active:bg-blue-200 transition-all duration-150"
+              onClick={(e) => { e.stopPropagation(); onEdit(); }}
+              className="p-1.5 text-zinc-400 hover:text-zinc-700 transition-colors"
+              title="Edit"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
               </svg>
-              Edit
             </button>
-          )}
-          {!visit.is_no_show && (
             <button
-              onClick={onCopy}
-              className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 text-sm font-semibold rounded-lg hover:bg-green-100 active:bg-green-200 transition-all duration-150"
+              onClick={(e) => { e.stopPropagation(); onCopy(); }}
+              className="p-1.5 text-zinc-400 hover:text-zinc-700 transition-colors"
+              title="Copy"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
               </svg>
-              Copy
             </button>
-          )}
-          <button
-            onClick={onDelete}
-            className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 text-sm font-semibold rounded-lg hover:bg-red-100 active:bg-red-200 transition-all duration-150"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-            </svg>
-            Delete
-          </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onDelete(); }}
+              className="p-1.5 text-zinc-400 hover:text-red-500 transition-colors"
+              title="Delete"
+            >
+              <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+          <span className="font-mono text-lg font-bold text-zinc-900 ml-2 w-16 text-right">{totalRVU.toFixed(2)}</span>
         </div>
       </div>
+
+      {/* Expanded procedures */}
+      {isExpanded && (
+        <div className="px-4 pb-3 pt-0 border-t border-zinc-100">
+          <div className="space-y-1.5 mt-2 pl-4 border-l-2 border-zinc-200">
+            {visit.procedures.map((proc, idx) => (
+              <div key={idx} className="flex items-center justify-between text-xs py-1">
+                <div className="min-w-0">
+                  <span className="font-mono font-semibold text-zinc-900">{proc.hcpcs}</span>
+                  <span className="text-zinc-500 ml-1.5 truncate">{proc.description}</span>
+                </div>
+                <span className="font-mono text-zinc-600 flex-shrink-0 ml-2">
+                  {proc.quantity && proc.quantity > 1 ? `${proc.quantity} x ` : ''}{Number(proc.work_rvu).toFixed(2)}
+                  {proc.quantity && proc.quantity > 1 ? ` = ${(Number(proc.work_rvu) * proc.quantity).toFixed(2)}` : ''}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

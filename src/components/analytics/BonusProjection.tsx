@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { AnalyticsData } from '@/types';
 import { parseLocalDate } from '@/lib/dateUtils';
+import { BonusSettings, loadBonusSettings, saveBonusSettings } from '@/lib/bonusSettings';
 
 interface BonusProjectionProps {
   data: AnalyticsData[];
@@ -10,50 +11,12 @@ interface BonusProjectionProps {
   endDate: string;
 }
 
-interface BonusSettings {
-  rvuTarget: number;
-  targetStartDate: string;
-  targetEndDate: string;
-  bonusRate: number;
-}
-
-const STORAGE_KEY = 'rvu-bonus-settings';
-
-function getDefaultSettings(): BonusSettings {
-  const now = new Date();
-  const year = now.getFullYear();
-  return {
-    rvuTarget: 0,
-    targetStartDate: `${year}-01-01`,
-    targetEndDate: `${year}-12-31`,
-    bonusRate: 0,
-  };
-}
-
-function loadSettings(): BonusSettings {
-  if (typeof window === 'undefined') return getDefaultSettings();
-  try {
-    const stored = localStorage.getItem(STORAGE_KEY);
-    if (stored) {
-      const parsed = JSON.parse(stored);
-      // Migrate old format
-      if (parsed.targetPeriod && !parsed.targetStartDate) {
-        return getDefaultSettings();
-      }
-      return { ...getDefaultSettings(), ...parsed };
-    }
-  } catch {}
-  return getDefaultSettings();
-}
-
 export default function BonusProjection({ data, startDate, endDate }: BonusProjectionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [settings, setSettings] = useState<BonusSettings>(loadSettings);
+  const [settings, setSettings] = useState<BonusSettings>(loadBonusSettings);
 
   useEffect(() => {
-    try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
-    } catch {}
+    saveBonusSettings(settings);
   }, [settings]);
 
   const results = useMemo(() => {

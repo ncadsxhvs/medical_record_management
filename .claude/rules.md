@@ -1,28 +1,68 @@
-# Documentation Rules (ENFORCED)
-
-Every PR that touches `src/`, `scripts/`, or `data/` MUST update **both**:
-
-1. `docs/FEATURE_LOG.md` — append a new entry at the top.
-2. `docs/features/<feature-name>.md` — create or update the spec.
-
-CI (`.github/workflows/docs-check.yml`) blocks merges that violate this rule.
-The PR template (`.github/pull_request_template.md`) carries the checklist.
+# Project Rules (ENFORCED)
 
 ---
 
-## Why Platform-Agnostic?
+## PR Summary to Brain Base (MANDATORY)
 
-The feature spec must be detailed enough that **another Claude Code agent on a SwiftUI iOS project** can reproduce the feature **without reading the web source code**.
+Every PR — before pushing — MUST write a summary file to:
 
-That means:
-- Describe **behavior, contracts, and UX**, not React/Tailwind code.
-- Use plain English, pseudocode, and platform-neutral terms ("primary button", "modal sheet", "list row", "date picker").
-- Provide exact data shapes, formulas, validation rules, and acceptance criteria.
-- Mention iOS-specific notes (SwiftUI control mapping, persistence equivalents) at the end.
+```
+/Users/ddctu/git/brain_base/raw/trackmyrvu/<YYYY-MM-DD>-<slug>.md
+```
+
+**Slug:** lowercase, hyphens, max 60 chars (e.g. `ux-redesign-split-panel`, `bonus-projection`, `no-show-tracking`).
+
+### Format
+
+```md
+# <PR Title>
+
+- **Date:** YYYY-MM-DD
+- **Branch:** <branch name>
+- **PR:** <PR URL or "pending">
+
+## What Changed
+Bullet list of user-facing and technical changes.
+
+## Why
+One paragraph: the problem or need this addresses.
+
+## Key Decisions
+Bullets: non-obvious choices made and why.
+
+## Files Changed
+- `path/to/file.tsx` — what changed
+- `path/to/file.ts` — what changed
+
+## How to Verify
+Exact steps to test the changes work.
+```
+
+### Rules
+- Write the file BEFORE `git push` or `gh pr create`
+- One file per PR — update it if the PR changes
+- Do NOT delete old entries — they form the project history
+- If the PR is trivial (typo, dependency bump), still write the file but keep it short
 
 ---
 
-## Feature Spec Template — `docs/features/<feature-name>.md`
+## Documentation on Code Changes
+
+Every PR that touches `src/`, `scripts/`, or `data/` MUST also update:
+
+1. **`docs/FEATURE_LOG.md`** — append a new entry at the top
+2. **`docs/features/<feature-name>.md`** — create or update the spec
+
+CI (`.github/workflows/docs-check.yml`) blocks merges without these.
+
+### Feature Spec Requirements
+The spec must be detailed enough that another Claude Code agent on a **SwiftUI iOS project** can reproduce the feature without reading the web source code:
+- Describe behavior, contracts, and UX — not React/Tailwind code
+- Use platform-neutral terms ("primary button", "modal sheet", "list row")
+- Provide exact data shapes, formulas, validation rules, and acceptance criteria
+- Include iOS/SwiftUI mapping notes at the end
+
+### Feature Spec Template — `docs/features/<feature-name>.md`
 
 ```md
 # <Feature Name>
@@ -30,163 +70,87 @@ That means:
 ## Status
 - **Branch:** feat/<name>
 - **Shipped:** YYYY-MM-DD
-- **Owner:** <agent or person>
-- **Related:** <links to FEATURE_LOG entry, PRs, issues>
+- **Related:** links to FEATURE_LOG entry, PRs
 
 ## Purpose
-One paragraph: what this feature does and why a user wants it.
-
-## User Story
-As a <role>, I want to <action>, so that <outcome>.
+What this feature does and why a user wants it.
 
 ## User Flow
-Numbered, step-by-step, from entry point to completion. Include alternate paths.
 1. User opens <screen>.
 2. User taps <control>.
 3. System shows <result>.
-4. ...
 
-## UI Specification (platform-agnostic)
-List EVERY visible element. For each:
-- **Type:** button / text input / number input / date picker / toggle / list row / modal / card / chart
-- **Label:** exact display text
-- **Placeholder / default:**
-- **Validation:** allowed values, min/max, required/optional
-- **States:** default, focused, disabled, loading, error, success
-- **Layout hints:** grouping, ordering, responsive behavior
-
-Describe screen hierarchy as a tree:
-```
-Screen
-└── Section
-    ├── Control A
-    └── Control B
-```
+## UI Specification
+List every visible element with type, label, default, validation, states.
 
 ## Data Model
-TypeScript-style or JSON Schema. NOT framework-specific.
 ```ts
-type ExampleSettings = {
-  rvuTarget: number;        // RVUs, >= 0
-  targetStartDate: string;  // ISO YYYY-MM-DD
-  targetEndDate: string;    // ISO YYYY-MM-DD, >= targetStartDate
-  bonusRate: number;        // dollars per RVU, >= 0
-};
+type Example = { field: type; };
 ```
 
 ## Persistence
-- **Where:** localStorage / Postgres table / UserDefaults / Core Data / file
-- **Key / table:** exact name
-- **Lifetime:** session / permanent / N days
-- **Migration rules:** how to handle older formats
+Where, key/table, lifetime, migration rules.
 
 ## API Contracts
-For each endpoint touched (omit if pure client-side):
-- **Method + Path:** `POST /api/visits`
-- **Auth:** session cookie / JWT / none
-- **Request body:**
-  ```json
-  { "date": "2026-04-01", "procedures": [...] }
-  ```
-- **Response 200:**
-  ```json
-  { "id": 123, ... }
-  ```
-- **Errors:** status codes + meanings
+Method, path, auth, request/response, errors.
 
-## Business Logic / Algorithms
-Pseudocode for any non-trivial computation. Be exact.
-```
-daysInRange    = (endDate - startDate) + 1
-annualizedRvu  = (actualRvus / daysInRange) * 365
-annualTarget   = rvuTarget * (365 / daysInTargetPeriod)
-surplus        = max(0, annualizedRvu - annualTarget)
-projectedBonus = surplus * bonusRate
-proratedBonus  = projectedBonus * (daysInTargetPeriod / 365)
-```
+## Business Logic
+Pseudocode for non-trivial computation.
 
-## Edge Cases & Error States
-- Empty data set
-- Single-day range (avoid divide-by-zero)
-- End date before start date (validate, show error)
-- Negative or non-numeric input
-- Network failure / unauthenticated user
-- ...
+## Edge Cases
+Empty data, divide-by-zero, invalid input, network failure.
 
 ## Acceptance Criteria
-Concrete, testable. A reviewer can check each one.
-- [ ] User can set RVU target via numeric input
-- [ ] Default target period is Jan 1 – Dec 31 of current year
-- [ ] Annualized pace updates live as target changes
-- [ ] Settings survive page reload
-- [ ] ...
-
-## Test Plan
-- **Unit:** what to test in isolation
-- **Integration:** what API/DB flows to test
-- **Manual:** exact steps to reproduce in the running app
+- [ ] Concrete, testable checklist items
 
 ## iOS / SwiftUI Notes
-Mapping for an iOS engineer recreating this feature:
-- Web `<input type="date">` → SwiftUI `DatePicker`
-- Web `localStorage` → `@AppStorage` or `UserDefaults`
-- Web `useState` → `@State`
-- Web SWR → `URLSession` + `@Observable` or async/await
-- Web modal → `.sheet` modifier
-- Tailwind `grid grid-cols-3` → `LazyVGrid(columns: 3)`
-- Hex / Tailwind colors → SwiftUI `Color` equivalents
-- Animations → `.animation(.easeInOut)`
+Platform mapping for recreation.
 
-## Files (web reference, for traceability only)
-- `src/components/...`
-- `src/app/...`
-- `src/lib/...`
+## Files (web reference)
+- `src/...`
 ```
 
----
+### Feature Log Entry — `docs/FEATURE_LOG.md`
 
-## Feature Log Entry Template — `docs/FEATURE_LOG.md`
-
-Append at the top, immediately after the `---` header.
+Append at top:
 
 ```md
 ## Entry <N>
-
 - **Date:** YYYY-MM-DD
-- **Title:** <type>(<scope>): <imperative summary>
+- **Title:** <type>(<scope>): <summary>
 - **Branch:** feat/<name>
-- **Spec:** [docs/features/<feature-name>.md](features/<feature-name>.md)
-- **What changed:**
-  - Bullet 1
-  - Bullet 2
-- **Files touched:** `path/one.tsx`, `path/two.ts`
-- **Risk/Notes:** breaking change? migration? perf?
-- **How to verify:** exact commands or click path
+- **Spec:** [docs/features/<name>.md](features/<name>.md)
+- **What changed:** bullets
+- **Files touched:** paths
+- **How to verify:** steps
 ```
 
 ---
 
-## Rules
+## Git Rules
 
-- Keep prose minimal — bullets and short phrases.
-- Be exact about file paths, formulas, and validation.
-- A SwiftUI engineer who has never seen this codebase must be able to ship the same feature using only the spec.
-- Update the spec on every behavioral change, not just on initial creation.
-
----
-
-# Git Rules
-
-## Commits
+### Commits
 - Concise messages summarizing the "why"
 - Never amend published commits
 - Never force push to main
 
-## Pull Requests
+### Pull Requests
 - Always open PRs — never merge directly to main
 - Use `gh pr create`, never `gh pr merge` or `git merge` into main
 - Push feature branches with `git push -u origin <branch>`
-- CI must pass (`docs-check` included) before merge
+- CI must pass before merge
 
-## Branches
+### Branches
 - `feat/<name>`, `fix/<name>`, `chore/<name>`
+
+---
+
+## Pre-Push Checklist
+
+Before every `git push`:
+
+1. Brain base summary written to `/Users/ddctu/git/brain_base/raw/trackmyrvu/`
+2. `docs/FEATURE_LOG.md` updated (if `src/`/`scripts/`/`data/` changed)
+3. `docs/features/<name>.md` created or updated (if applicable)
+4. Build passes (`npm run build`)
+5. Tests pass (`npm test`)

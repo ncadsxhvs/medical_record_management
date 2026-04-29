@@ -4,6 +4,23 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 22
+
+- **Date:** 2026-04-29
+- **Title:** feat(ux): Split panel layout, KPI strip, toast/dialog system
+- **Branch:** `feat/addbutton-for-fav`
+- **Spec:** [docs/features/ux-redesign.md](features/ux-redesign.md)
+- **What changed:**
+  - Restructured main page to two-panel split layout (form left, feed right)
+  - Added KPIStrip with Today / This Week / Month to Date + On Track indicator
+  - Replaced all browser alert()/confirm() with Toast and ConfirmDialog components
+  - Compact visit card rows with hover actions and click-to-expand
+  - Inline procedure list with qty controls and running total
+  - Extracted shared bonusSettings.ts utility
+  - Mobile responsive fallback to stacked layout
+- **Files touched:** `src/app/(main)/page.tsx`, `src/components/EntryForm.tsx`, `src/components/VisitCard.tsx`, `src/components/KPIStrip.tsx`, `src/components/Toast.tsx`, `src/components/ConfirmDialog.tsx`, `src/lib/bonusSettings.ts`, `src/app/layout.tsx`, `src/app/globals.css`
+- **How to verify:** `npm run build`, `npm run dev` → split panel on desktop, stacked on mobile
+
 ## Entry 21
 
 - **Date:** 2026-04-14
