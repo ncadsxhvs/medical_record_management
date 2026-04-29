@@ -5,6 +5,8 @@ import { useSession } from 'next-auth/react';
 import { FavoriteGroup, FavoriteGroupItem, RVUCode, VisitProcedure } from '@/types';
 import RVUPicker from './RVUPicker';
 import ProcedureList from './ProcedureList';
+import ConfirmDialog from './ConfirmDialog';
+import { useToast } from './Toast';
 import { groupItemsToProcedures, rvuCodesToProcedures } from '@/lib/procedureUtils';
 
 interface FavoriteGroupsPickerProps {
@@ -25,6 +27,8 @@ export default function FavoriteGroupsPicker({
   const [editingGroup, setEditingGroup] = useState<FavoriteGroup | null>(null);
   const [editProcedures, setEditProcedures] = useState<VisitProcedure[]>([]);
   const [creatingGroupName, setCreatingGroupName] = useState<string | null>(null);
+  const [deletingGroup, setDeletingGroup] = useState<{ id: number; name: string } | null>(null);
+  const { toast } = useToast();
 
   const setEditingState = (group: FavoriteGroup | null, procs: VisitProcedure[], creating: string | null = null) => {
     setEditingGroup(group);
@@ -54,14 +58,21 @@ export default function FavoriteGroupsPicker({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, refreshKey]);
 
-  const handleDelete = async (id: number, name: string) => {
-    if (!confirm(`Delete group "${name}"?`)) return;
+  const handleDelete = (id: number, name: string) => {
+    setDeletingGroup({ id, name });
+  };
+
+  const confirmDeleteGroup = async () => {
+    if (!deletingGroup) return;
+    const { id } = deletingGroup;
+    setDeletingGroup(null);
     const res = await fetch(`/api/favorite-groups/${id}`, { method: 'DELETE' });
     if (res.ok) {
       if (editingGroup?.id === id) {
         setEditingState(null, []);
       }
       fetchGroups();
+      toast('Group deleted', 'success');
     }
   };
 
@@ -77,7 +88,7 @@ export default function FavoriteGroupsPicker({
       body: JSON.stringify({ name: trimmed }),
     });
     if (res.status === 409) {
-      alert('A group with that name already exists.');
+      toast('A group with that name already exists.', 'error');
       return;
     }
     if (res.ok) {
@@ -119,14 +130,14 @@ export default function FavoriteGroupsPicker({
         body: JSON.stringify({ items }),
       });
       if (!res.ok) {
-        alert('Failed to update group.');
+        toast('Failed to update group.', 'error');
         return;
       }
       setEditingState(null, []);
       fetchGroups();
     } catch (err) {
       console.error('Failed to update favorite group:', err);
-      alert('Failed to update group.');
+      toast('Failed to update group.', 'error');
     }
   };
 
@@ -153,18 +164,18 @@ export default function FavoriteGroupsPicker({
         body: JSON.stringify({ name: creatingGroupName, items }),
       });
       if (res.status === 409) {
-        alert('A group with that name already exists.');
+        toast('A group with that name already exists.', 'error');
         return;
       }
       if (!res.ok) {
-        alert('Failed to create group.');
+        toast('Failed to create group.', 'error');
         return;
       }
       setEditingState(null, []);
       fetchGroups();
     } catch (err) {
       console.error('Failed to create favorite group:', err);
-      alert('Failed to create group.');
+      toast('Failed to create group.', 'error');
     }
   };
 
@@ -336,6 +347,16 @@ export default function FavoriteGroupsPicker({
           </div>
         </div>
       )}
+
+      <ConfirmDialog
+        open={deletingGroup !== null}
+        title="Delete Group"
+        message={`Delete group "${deletingGroup?.name}"? This cannot be undone.`}
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={confirmDeleteGroup}
+        onCancel={() => setDeletingGroup(null)}
+      />
     </div>
   );
 }

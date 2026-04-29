@@ -8,6 +8,9 @@ import UserProfile from '@/components/UserProfile';
 import EntryForm from '@/components/EntryForm';
 import EditVisitModal from '@/components/EditVisitModal';
 import VisitCard from '@/components/VisitCard';
+import KPIStrip from '@/components/KPIStrip';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import { useToast } from '@/components/Toast';
 import { Visit } from '@/types';
 import { fetcher } from '@/lib/fetcher';
 import { CACHE_KEYS } from '@/lib/cache-keys';
@@ -21,6 +24,8 @@ export default function Home() {
   const [editingVisit, setEditingVisit] = useState<Visit | null>(null);
   const [addingNoShow, setAddingNoShow] = useState(false);
   const [copiedVisit, setCopiedVisit] = useState<Visit | null>(null);
+  const [deletingVisitId, setDeletingVisitId] = useState<number | null>(null);
+  const { toast } = useToast();
 
   const { data: visits = [], error, isLoading } = useSWR<Visit[]>(
     status === 'authenticated' ? CACHE_KEYS.visits : null,
@@ -38,17 +43,23 @@ export default function Home() {
     }
   }, [status, router]);
 
-  const handleRemove = async (id: number) => {
-    if (confirm('Are you sure you want to delete this visit?')) {
-      mutate(CACHE_KEYS.visits, visits.filter(v => v.id !== id), false);
+  const handleRemove = (id: number) => {
+    setDeletingVisitId(id);
+  };
 
-      try {
-        await fetch(`/api/visits/${id}`, { method: 'DELETE' });
-        mutate(CACHE_KEYS.visits);
-      } catch (error) {
-        console.error('Failed to delete visit:', error);
-        mutate(CACHE_KEYS.visits);
-      }
+  const confirmDelete = async () => {
+    if (deletingVisitId === null) return;
+    const id = deletingVisitId;
+    setDeletingVisitId(null);
+    mutate(CACHE_KEYS.visits, visits.filter(v => v.id !== id), false);
+    try {
+      await fetch(`/api/visits/${id}`, { method: 'DELETE' });
+      mutate(CACHE_KEYS.visits);
+      toast('Visit deleted', 'success');
+    } catch (error) {
+      console.error('Failed to delete visit:', error);
+      mutate(CACHE_KEYS.visits);
+      toast('Failed to delete visit', 'error');
     }
   };
 
@@ -83,9 +94,10 @@ export default function Home() {
       }
 
       mutate(CACHE_KEYS.visits);
+      toast('No-show visit added', 'success');
     } catch (error) {
       console.error('Failed to add no-show:', error);
-      alert('Failed to add no-show visit. Please try again.');
+      toast('Failed to add no-show visit', 'error');
     } finally {
       setAddingNoShow(false);
     }
@@ -96,22 +108,37 @@ export default function Home() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  const DATE_ACCENT_COLORS = [
+    'border-l-sky-400',
+    'border-l-emerald-400',
+    'border-l-amber-400',
+    'border-l-rose-400',
+    'border-l-violet-400',
+    'border-l-teal-400',
+    'border-l-orange-300',
+  ];
+
+  const dateColorMap = (() => {
+    const uniqueDates = [...new Set(visits.map(v => v.date))];
+    return Object.fromEntries(uniqueDates.map((d, i) => [d, DATE_ACCENT_COLORS[i % DATE_ACCENT_COLORS.length]]));
+  })();
+
   if (status === 'loading' || isLoading) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
+        <p className="text-zinc-500">Loading...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-100 flex items-center justify-center">
+      <div className="min-h-screen bg-stone-50 flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-2">Failed to load visits</p>
           <button
             onClick={() => mutate(CACHE_KEYS.visits)}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="px-4 py-2 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 active:scale-[0.98] transition-all duration-150"
           >
             Retry
           </button>
@@ -121,63 +148,75 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex items-center justify-between mb-8">
+    <div className="min-h-screen bg-stone-50">
+      {/* Header */}
+      <div className="border-b border-zinc-200/60 bg-white px-6 py-3">
+        <div className="max-w-7xl mx-auto flex items-center gap-3">
+          <h1 className="text-lg font-bold text-zinc-900 tracking-tight">RVU Tracker</h1>
+          <div className="flex-1" />
           <a
             href="/analytics"
-            className="px-5 py-2.5 bg-blue-500 text-white text-sm font-semibold rounded-lg hover:bg-blue-600 transition-all duration-200 shadow-sm hover:shadow-md"
+            className="px-3 py-1.5 bg-zinc-100 text-zinc-700 text-xs font-semibold rounded-lg hover:bg-zinc-200 active:scale-[0.98] transition-all duration-150"
           >
             Analytics
           </a>
           <UserProfile />
         </div>
+      </div>
 
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 tracking-tight">RVU Tracker</h1>
-          <p className="text-sm text-gray-500 mt-1">Track and manage medical procedure RVUs</p>
-        </div>
-
-        <div className="mb-6">
-          <EntryForm
-            onEntryAdded={() => mutate(CACHE_KEYS.visits)}
-            copiedVisit={copiedVisit}
-            onClearCopy={() => setCopiedVisit(null)}
-          />
-        </div>
-
-        <div className="mb-6 flex justify-end">
-          <button
-            onClick={handleAddNoShow}
-            disabled={addingNoShow}
-            className="flex items-center gap-2 px-4 py-2 bg-red-50 text-red-600 text-sm font-semibold rounded-lg hover:bg-red-100 active:bg-red-200 transition-all duration-150 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
-            </svg>
-            {addingNoShow ? 'Adding...' : 'Add No Show'}
-          </button>
-        </div>
-
-        <div className="space-y-4">
-          <h2 className="text-xl font-semibold text-gray-900">Visits ({visits.length})</h2>
-          {visits.length === 0 && (
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-8 text-center text-gray-500">
-              <div className="text-4xl mb-3">📋</div>
-              <p className="text-base">No visits yet. Add your first visit above!</p>
-            </div>
-          )}
-          {visits.map((visit) => (
-            <VisitCard
-              key={visit.id}
-              visit={visit}
-              isExpanded={expandedVisits.has(visit.id!)}
-              onToggleExpand={() => toggleVisitExpansion(visit.id!)}
-              onEdit={() => setEditingVisit(visit)}
-              onCopy={() => handleCopyVisit(visit)}
-              onDelete={() => handleRemove(visit.id!)}
+      {/* Split Panel */}
+      <div className="max-w-7xl mx-auto flex flex-col lg:flex-row" style={{ minHeight: 'calc(100vh - 57px)' }}>
+        {/* Left Panel — Entry Form */}
+        <div className="lg:w-[420px] xl:w-[460px] flex-shrink-0 border-r border-zinc-200/60 bg-white lg:overflow-y-auto lg:sticky lg:top-[57px]" style={{ maxHeight: 'calc(100vh - 57px)' }}>
+          <div className="p-5">
+            <EntryForm
+              onEntryAdded={() => mutate(CACHE_KEYS.visits)}
+              copiedVisit={copiedVisit}
+              onClearCopy={() => setCopiedVisit(null)}
+              onAddNoShow={handleAddNoShow}
+              addingNoShow={addingNoShow}
             />
-          ))}
+          </div>
+        </div>
+
+        {/* Right Panel — Feed */}
+        <div className="flex-1 p-5 lg:p-6">
+          {/* KPI Strip */}
+          <KPIStrip visits={visits} />
+
+          {/* Visit Feed */}
+          <div className="mt-5 space-y-2">
+            {visits.length === 0 && (
+              <div className="bg-white rounded-xl border border-zinc-200/80 p-8 text-center text-zinc-400">
+                <p className="text-sm">No visits yet. Add your first visit using the form.</p>
+              </div>
+            )}
+            {(() => {
+              let lastDate = '';
+              return visits.map((visit) => {
+                const showDateHeader = visit.date !== lastDate;
+                lastDate = visit.date;
+                return (
+                  <div key={visit.id}>
+                    {showDateHeader && (
+                      <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider pt-3 pb-1 first:pt-0">
+                        {visit.date === getTodayString() ? 'Today' : new Date(visit.date + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
+                      </p>
+                    )}
+                    <VisitCard
+                      visit={visit}
+                      accentColor={dateColorMap[visit.date]}
+                      isExpanded={expandedVisits.has(visit.id!)}
+                      onToggleExpand={() => toggleVisitExpansion(visit.id!)}
+                      onEdit={() => setEditingVisit(visit)}
+                      onCopy={() => handleCopyVisit(visit)}
+                      onDelete={() => handleRemove(visit.id!)}
+                    />
+                  </div>
+                );
+              });
+            })()}
+          </div>
         </div>
       </div>
 
@@ -188,6 +227,16 @@ export default function Home() {
           onSave={() => mutate(CACHE_KEYS.visits)}
         />
       )}
+
+      <ConfirmDialog
+        open={deletingVisitId !== null}
+        title="Delete Visit"
+        message="Are you sure you want to delete this visit? This action cannot be undone."
+        confirmLabel="Delete"
+        variant="danger"
+        onConfirm={confirmDelete}
+        onCancel={() => setDeletingVisitId(null)}
+      />
     </div>
   );
 }

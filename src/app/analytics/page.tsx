@@ -87,22 +87,22 @@ export default function AnalyticsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div className="min-h-screen bg-stone-50 p-6">
       <div className="max-w-7xl mx-auto">
         <div className="flex justify-between items-center mb-6">
-          <h1 className="text-2xl font-bold text-gray-900">Analytics Dashboard</h1>
-          <a href="/" className="text-blue-600 hover:underline">Back to Home</a>
+          <h1 className="text-2xl font-bold text-zinc-900 tracking-tight">Analytics Dashboard</h1>
+          <a href="/" className="text-zinc-600 hover:text-zinc-900 text-sm font-medium transition-colors">Back to Home</a>
         </div>
 
         {/* Controls */}
-        <div className="bg-white p-4 rounded-lg shadow mb-6">
+        <div className="bg-white p-5 rounded-2xl border border-zinc-200/80 shadow-sm shadow-zinc-900/5 mb-6">
           <div className="flex flex-wrap gap-6 items-end">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Period</label>
+              <label className="block text-sm font-medium text-zinc-600 mb-1">Period</label>
               <select
                 value={period}
                 onChange={(e) => setPeriod(e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-200 rounded-lg focus:ring-zinc-400 focus:border-zinc-400"
               >
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
@@ -111,21 +111,21 @@ export default function AnalyticsPage() {
               </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
+              <label className="block text-sm font-medium text-zinc-600 mb-1">Start Date</label>
               <input
                 type="date"
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-200 rounded-lg focus:ring-zinc-400 focus:border-zinc-400"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
+              <label className="block text-sm font-medium text-zinc-600 mb-1">End Date</label>
               <input
                 type="date"
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-200 rounded-lg focus:ring-zinc-400 focus:border-zinc-400"
               />
             </div>
             <button
@@ -133,30 +133,30 @@ export default function AnalyticsPage() {
                 mutate(CACHE_KEYS.analytics(period, startDate, endDate));
                 mutate(CACHE_KEYS.analyticsBreakdown(period, startDate, endDate));
               }}
-              className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition"
+              className="px-6 py-2 bg-zinc-900 text-white rounded-lg hover:bg-zinc-800 active:scale-[0.98] transition-all duration-150"
             >
               Refresh
             </button>
           </div>
 
           {/* View Mode Tabs */}
-          <div className="flex gap-2 mt-4 border-b border-gray-200">
+          <div className="flex gap-2 mt-4 border-b border-zinc-200">
             <button
               onClick={() => setViewMode('summary')}
-              className={`px-4 py-2 font-medium ${
+              className={`px-4 py-2 text-sm font-medium ${
                 viewMode === 'summary'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-zinc-900 border-b-2 border-zinc-900'
+                  : 'text-zinc-400 hover:text-zinc-600'
               }`}
             >
               Summary View
             </button>
             <button
               onClick={() => setViewMode('breakdown')}
-              className={`px-4 py-2 font-medium ${
+              className={`px-4 py-2 text-sm font-medium ${
                 viewMode === 'breakdown'
-                  ? 'text-blue-600 border-b-2 border-blue-600'
-                  : 'text-gray-500 hover:text-gray-700'
+                  ? 'text-zinc-900 border-b-2 border-zinc-900'
+                  : 'text-zinc-400 hover:text-zinc-600'
               }`}
             >
               HCPCS Breakdown
@@ -165,8 +165,8 @@ export default function AnalyticsPage() {
         </div>
 
         {loading ? (
-          <div className="bg-white p-8 rounded-lg shadow text-center">
-            <p className="text-gray-500">Loading analytics...</p>
+          <div className="bg-white p-8 rounded-2xl border border-zinc-200/80 text-center">
+            <p className="text-zinc-400">Loading analytics...</p>
           </div>
         ) : viewMode === 'summary' ? (
           <div className="space-y-6">

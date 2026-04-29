@@ -6,6 +6,7 @@ import RVUPicker from './RVUPicker';
 import FavoritesPicker from './FavoritesPicker';
 import ProcedureList from './ProcedureList';
 import { rvuCodesToProcedures, fetchRvuCodeByHcpcs } from '@/lib/procedureUtils';
+import { useToast } from './Toast';
 
 interface EditVisitModalProps {
   visit: Visit;
@@ -23,6 +24,7 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
   const [selectedCodes, setSelectedCodes] = useState<string[]>(
     visit.procedures.map(p => p.hcpcs)
   );
+  const { toast } = useToast();
 
   const handleAddProcedures = (rvuCodes: RVUCode[]) => {
     const newProcedures = rvuCodesToProcedures(rvuCodes, selectedCodes);
@@ -53,10 +55,7 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
   };
 
   const handleSave = async () => {
-    if (editedVisit.procedures.length === 0) {
-      alert('Please add at least one procedure');
-      return;
-    }
+    if (editedVisit.procedures.length === 0) return;
 
     try {
       const response = await fetch(`/api/visits/${visit.id}`, {
@@ -76,9 +75,10 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
 
       onSave();
       onClose();
+      toast('Visit updated', 'success');
     } catch (error) {
       console.error('Error updating visit:', error);
-      alert('Failed to update visit. Please try again.');
+      toast('Failed to update visit. Please try again.', 'error');
     }
   };
 
