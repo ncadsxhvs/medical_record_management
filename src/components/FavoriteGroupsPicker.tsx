@@ -205,7 +205,7 @@ export default function FavoriteGroupsPicker({
             managementMode ? (
               <button
                 onClick={handleExitManagement}
-                className="px-3 py-1 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+                className="px-3 py-1 text-sm bg-zinc-200 text-zinc-700 rounded-md hover:bg-zinc-300"
               >
                 Done
               </button>
@@ -245,8 +245,8 @@ export default function FavoriteGroupsPicker({
                   className="w-full text-left pr-16"
                   title="Select to edit procedures"
                 >
-                  <div className="font-medium text-gray-900 truncate">{g.name}</div>
-                  <div className="text-xs text-gray-500">
+                  <div className="font-medium text-zinc-900 truncate">{g.name}</div>
+                  <div className="text-xs text-zinc-500">
                     {g.items.length} code{g.items.length !== 1 ? 's' : ''} · {totalRvu.toFixed(2)} RVU
                   </div>
                   {isSelected && (
@@ -279,8 +279,8 @@ export default function FavoriteGroupsPicker({
                 className="w-full text-left"
                 title="Add all codes in this group to the visit"
               >
-                <div className="font-medium text-gray-900 truncate">{g.name}</div>
-                <div className="text-xs text-gray-500">
+                <div className="font-medium text-zinc-900 truncate">{g.name}</div>
+                <div className="text-xs text-zinc-500">
                   {g.items.length} code{g.items.length !== 1 ? 's' : ''} · {totalRvu.toFixed(2)} RVU
                 </div>
               </button>
@@ -303,7 +303,7 @@ export default function FavoriteGroupsPicker({
             {editingGroup && (
               <button
                 onClick={handleRename}
-                className="px-3 py-1 text-sm bg-white text-gray-700 border border-gray-300 rounded-md hover:bg-gray-50 flex items-center gap-1"
+                className="px-3 py-1 text-sm bg-white text-zinc-700 border border-zinc-300 rounded-md hover:bg-zinc-50 flex items-center gap-1"
                 title="Rename group"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -340,7 +340,7 @@ export default function FavoriteGroupsPicker({
             </button>
             <button
               onClick={handleCancelEdit}
-              className="px-4 py-2 text-sm bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300"
+              className="px-4 py-2 text-sm bg-zinc-200 text-zinc-700 rounded-md hover:bg-zinc-300"
             >
               Cancel
             </button>

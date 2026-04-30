@@ -4,6 +4,28 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 23
+
+- **Date:** 2026-04-29
+- **Title:** feat(ux): Accessibility, touch targets, mobile FAB, color unification, undo
+- **Branch:** `feat/addbutton-for-fav`
+- **Spec:** [docs/features/ux-improvements.md](features/ux-improvements.md)
+- **What changed:**
+  - Global focus-visible rings (sky-500, 3px), reduced-motion media query, skip-to-content link
+  - ARIA `role="dialog"`, `aria-modal`, focus trap on ConfirmDialog; Escape key on EditVisitModal
+  - `role="alert"` + `aria-live="assertive"` on all toasts; timeout scales with message length
+  - `aria-label` on all icon-only buttons (VisitCard edit/copy/delete, ProcedureList favorite/remove)
+  - 44px minimum touch targets on all interactive buttons (VisitCard, ProcedureList, EntryForm qty)
+  - Actions always visible on mobile (sm: breakpoint for hover-reveal)
+  - Mobile FAB (bottom-right, +) with slide-up bottom sheet for entry form; desktop sidebar unchanged
+  - Unified color system: replaced all 110 `gray-*` occurrences with `zinc-*` across 11 files
+  - Skeleton loading screens replacing "Loading..." text
+  - Improved empty state with clipboard SVG icon and descriptive copy
+  - Toast action button support; delete uses 5s undo window before API call
+  - Keyboard shortcuts: Cmd+K (focus search), Cmd+N (new visit)
+
+---
+
 ## Entry 22
 
 - **Date:** 2026-04-29

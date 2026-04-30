@@ -4,16 +4,16 @@ import { signIn } from "next-auth/react";
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center bg-zinc-50">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">RVU Tracker</h1>
-          <p className="text-gray-600 mt-2">Track and analyze medical procedure RVUs</p>
+          <h1 className="text-3xl font-bold text-zinc-900">RVU Tracker</h1>
+          <p className="text-zinc-600 mt-2">Track and analyze medical procedure RVUs</p>
         </div>
-        <div className="bg-white p-8 rounded-lg shadow">
+        <div className="bg-white p-8 rounded-lg shadow space-y-3">
           <button
             onClick={() => signIn("google", { callbackUrl: "/" })}
-            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition"
+            className="w-full flex items-center justify-center gap-3 px-4 py-3 border border-zinc-300 rounded-lg hover:bg-zinc-50 transition"
           >
             <svg className="w-5 h-5" viewBox="0 0 24 24">
               <path
@@ -33,8 +33,16 @@ export default function SignInPage() {
                 d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               />
             </svg>
-            <span className="text-sm font-medium text-gray-700">Sign in with Google</span>
+            <span className="text-sm font-medium text-zinc-700">Sign in with Google</span>
           </button>
+          {process.env.NEXT_PUBLIC_DEV_BYPASS_AUTH === 'true' && (
+            <button
+              onClick={() => signIn("credentials", { callbackUrl: "/" })}
+              className="w-full px-4 py-3 bg-amber-50 border border-amber-300 rounded-lg hover:bg-amber-100 transition text-sm font-medium text-amber-800"
+            >
+              Dev Login (Sandbox)
+            </button>
+          )}
         </div>
       </div>
     </div>

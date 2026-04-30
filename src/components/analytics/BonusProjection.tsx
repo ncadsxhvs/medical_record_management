@@ -48,11 +48,11 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 hover:bg-gray-50 transition"
+        className="w-full flex items-center justify-between p-4 hover:bg-zinc-50 transition"
       >
-        <h2 className="text-lg font-semibold text-gray-900">Bonus Projection</h2>
+        <h2 className="text-lg font-semibold text-zinc-900">Bonus Projection</h2>
         <svg
-          className={`w-5 h-5 text-gray-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
+          className={`w-5 h-5 text-zinc-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
           fill="none" viewBox="0 0 24 24" stroke="currentColor"
         >
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -64,7 +64,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
           {/* Inputs */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">RVU Target</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1">RVU Target</label>
               <input
                 type="number"
                 min="0"
@@ -72,29 +72,29 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 value={settings.rvuTarget || ''}
                 onChange={(e) => setSettings(s => ({ ...s, rvuTarget: parseFloat(e.target.value) || 0 }))}
                 placeholder="e.g. 4000"
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Target Period Start</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1">Target Period Start</label>
               <input
                 type="date"
                 value={settings.targetStartDate}
                 onChange={(e) => setSettings(s => ({ ...s, targetStartDate: e.target.value }))}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Target Period End</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1">Target Period End</label>
               <input
                 type="date"
                 value={settings.targetEndDate}
                 onChange={(e) => setSettings(s => ({ ...s, targetEndDate: e.target.value }))}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Bonus Rate ($/RVU)</label>
+              <label className="block text-sm font-medium text-zinc-700 mb-1">Bonus Rate ($/RVU)</label>
               <input
                 type="number"
                 min="0"
@@ -102,22 +102,22 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 value={settings.bonusRate || ''}
                 onChange={(e) => setSettings(s => ({ ...s, bonusRate: parseFloat(e.target.value) || 0 }))}
                 placeholder="e.g. 35"
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
           </div>
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-zinc-500">
             Target: {settings.rvuTarget.toLocaleString()} RVUs over {results.daysInTargetPeriod} days ({settings.targetStartDate} to {settings.targetEndDate})
           </p>
 
           {/* Progress Bar */}
           {results.annualTarget > 0 && (
             <div>
-              <div className="flex justify-between text-sm text-gray-600 mb-1">
+              <div className="flex justify-between text-sm text-zinc-600 mb-1">
                 <span>Annualized Pace: {results.annualizedRvus.toFixed(1)} RVUs</span>
                 <span>Target: {results.annualTarget.toFixed(1)} RVUs/yr</span>
               </div>
-              <div className="w-full bg-gray-200 rounded-full h-3">
+              <div className="w-full bg-zinc-200 rounded-full h-3">
                 <div
                   className={`h-3 rounded-full transition-all ${
                     results.progressPct >= 100 ? 'bg-emerald-500' : 'bg-blue-500'
@@ -125,7 +125,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                   style={{ width: `${Math.min(100, results.progressPct)}%` }}
                 />
               </div>
-              <p className="text-xs text-gray-500 mt-1">{results.progressPct.toFixed(1)}% of annual target</p>
+              <p className="text-xs text-zinc-500 mt-1">{results.progressPct.toFixed(1)}% of annual target</p>
             </div>
           )}
 

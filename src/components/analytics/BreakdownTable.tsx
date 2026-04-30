@@ -17,7 +17,7 @@ export default function BreakdownTable({ data, selectedPeriod, formatPeriod, onC
 
   return (
     <div className="bg-white rounded-lg shadow">
-      <div className="p-6 border-b border-gray-200">
+      <div className="p-6 border-b border-zinc-200">
         <div className="flex justify-between items-center">
           <h2 className="text-lg font-semibold">
             HCPCS Breakdown {selectedPeriod && `- ${formatPeriod(selectedPeriod)}`}
@@ -35,7 +35,7 @@ export default function BreakdownTable({ data, selectedPeriod, formatPeriod, onC
 
       <div className="overflow-x-auto">
         {filteredData.length === 0 ? (
-          <div className="px-6 py-12 text-center text-gray-500">
+          <div className="px-6 py-12 text-center text-zinc-500">
             No data available
           </div>
         ) : (
@@ -50,14 +50,14 @@ export default function BreakdownTable({ data, selectedPeriod, formatPeriod, onC
             }, {} as Record<string, typeof filteredData>);
 
             return (
-              <table className="min-w-full divide-y divide-gray-200">
-                <thead className="bg-gray-100">
+              <table className="min-w-full divide-y divide-zinc-200">
+                <thead className="bg-zinc-100">
                   <tr>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">HCPCS</th>
-                    <th className="px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider">Description</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Count</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Total RVU</th>
-                    <th className="px-4 py-3 text-right text-xs font-semibold text-gray-700 uppercase tracking-wider">Avg RVU</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-700 uppercase tracking-wider">HCPCS</th>
+                    <th className="px-4 py-3 text-left text-xs font-semibold text-zinc-700 uppercase tracking-wider">Description</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-zinc-700 uppercase tracking-wider">Count</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-zinc-700 uppercase tracking-wider">Total RVU</th>
+                    <th className="px-4 py-3 text-right text-xs font-semibold text-zinc-700 uppercase tracking-wider">Avg RVU</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white">
@@ -79,20 +79,20 @@ export default function BreakdownTable({ data, selectedPeriod, formatPeriod, onC
                         </td>
                       </tr>
                       {items.map((item, idx) => (
-                        <tr key={`${period}-${idx}`} className={`hover:bg-blue-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-gray-50'}`}>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">
+                        <tr key={`${period}-${idx}`} className={`hover:bg-blue-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-zinc-50'}`}>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm font-semibold text-zinc-900">
                             {item.hcpcs}
                           </td>
-                          <td className="px-4 py-3 text-sm text-gray-700 max-w-xs truncate" title={item.description}>
+                          <td className="px-4 py-3 text-sm text-zinc-700 max-w-xs truncate" title={item.description}>
                             {item.description}
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right font-medium">
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-zinc-600 text-right font-medium">
                             {item.total_quantity}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-blue-900 text-right">
                             {item.total_work_rvu.toFixed(2)}
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm text-gray-600 text-right">
+                          <td className="px-4 py-3 whitespace-nowrap text-sm text-zinc-600 text-right">
                             {(item.total_work_rvu / item.total_quantity).toFixed(2)}
                           </td>
                         </tr>
