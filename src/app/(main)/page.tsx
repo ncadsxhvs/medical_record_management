@@ -4,11 +4,10 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import useSWR, { mutate } from 'swr';
-import UserProfile from '@/components/UserProfile';
 import EntryForm from '@/components/EntryForm';
+import AppHeader, { AppHeaderSkeleton } from '@/components/AppHeader';
 import EditVisitModal from '@/components/EditVisitModal';
 import VisitCard from '@/components/VisitCard';
-import KPIStrip from '@/components/KPIStrip';
 import SelectedProceduresCard from '@/components/SelectedProceduresCard';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useToast } from '@/components/Toast';
@@ -167,25 +166,30 @@ export default function Home() {
     return Object.fromEntries(uniqueDates.map((d, i) => [d, DATE_ACCENT_COLORS[i % DATE_ACCENT_COLORS.length]]));
   })();
 
+  const todayVisitCount = visits.filter(v => v.date === getTodayString()).length;
+
   if (status === 'loading' || isLoading) {
     return (
       <div className="min-h-screen bg-stone-50">
-        <div className="border-b border-zinc-200/60 bg-white px-5 py-4 flex items-center justify-between">
-          <Skeleton className="h-6 w-32" />
-          <Skeleton className="h-8 w-8 rounded-full" />
-        </div>
-        <div className="flex flex-col lg:flex-row gap-4 p-5 max-w-7xl mx-auto">
-          <div className="hidden lg:block w-[420px] space-y-4">
+        <AppHeaderSkeleton />
+        <div className="flex flex-col lg:flex-row max-w-[1400px] mx-auto" style={{ minHeight: 'calc(100vh - 57px)' }}>
+          <div className="hidden lg:block w-[300px] p-5 space-y-4">
             <Skeleton className="h-10 w-full rounded-lg" />
             <Skeleton className="h-32 w-full rounded-lg" />
-            <Skeleton className="h-20 w-full rounded-lg" />
+            <Skeleton className="h-48 w-full rounded-lg" />
           </div>
-          <div className="flex-1 space-y-4">
-            <div className="grid grid-cols-3 gap-3">
-              <Skeleton className="h-20 rounded-xl" />
-              <Skeleton className="h-20 rounded-xl" />
-              <Skeleton className="h-20 rounded-xl" />
+          <div className="flex-1 p-5 space-y-4">
+            <Skeleton className="h-8 w-48" />
+            <Skeleton className="h-40 rounded-xl" />
+            <div className="grid grid-cols-4 gap-3">
+              <Skeleton className="h-24 rounded-xl" />
+              <Skeleton className="h-24 rounded-xl" />
+              <Skeleton className="h-24 rounded-xl" />
+              <Skeleton className="h-24 rounded-xl" />
             </div>
+          </div>
+          <div className="hidden lg:block w-[380px] p-5 space-y-3">
+            <Skeleton className="h-6 w-24" />
             <Skeleton className="h-16 rounded-xl" />
             <Skeleton className="h-16 rounded-xl" />
             <Skeleton className="h-16 rounded-xl" />
@@ -213,26 +217,14 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-stone-50">
-      {/* Header */}
-      <div className="border-b border-zinc-200/60 bg-white px-6 py-3">
-        <div className="max-w-7xl mx-auto flex items-center gap-3">
-          <h1 className="text-lg font-bold text-zinc-900 tracking-tight">RVU Tracker</h1>
-          <div className="flex-1" />
-          <a
-            href="/analytics"
-            className="px-3 py-1.5 bg-zinc-100 text-zinc-700 text-xs font-semibold rounded-lg hover:bg-zinc-200 active:scale-[0.98] transition-all duration-150"
-          >
-            Analytics
-          </a>
-          <UserProfile />
-        </div>
-      </div>
+      <AppHeader activePage="log" />
 
-      {/* Split Panel */}
-      <div id="main-content" className="max-w-7xl mx-auto flex flex-col lg:flex-row" style={{ minHeight: 'calc(100vh - 57px)' }}>
-        {/* Left Panel — Entry Form (desktop only) */}
-        <div className="hidden lg:block lg:w-[420px] xl:w-[460px] flex-shrink-0 border-r border-zinc-200/60 bg-white lg:overflow-y-auto lg:sticky lg:top-[57px]" style={{ maxHeight: 'calc(100vh - 57px)' }}>
-          <div className="p-5">
+      {/* 3-Column Layout */}
+      <div id="main-content" className="max-w-[1400px] mx-auto flex flex-col lg:flex-row" style={{ minHeight: 'calc(100vh - 57px)' }}>
+
+        {/* Left Column — Search + Groups + Favorites */}
+        <div className="hidden lg:block lg:w-[300px] flex-shrink-0 border-r border-zinc-200/60 bg-white lg:overflow-y-auto lg:sticky lg:top-[57px]" style={{ maxHeight: 'calc(100vh - 57px)' }}>
+          <div className="p-4">
             <EntryForm
               onEntryAdded={() => { mutate(CACHE_KEYS.visits); setSelectedData(null); }}
               copiedVisit={copiedVisit}
@@ -245,54 +237,65 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Right Panel — Feed */}
-        <div className="flex-1 p-5 lg:p-6">
-          {/* Selected Procedures + Form Controls (desktop only, mobile uses FAB) */}
-          <div className="hidden lg:block">
+        {/* Center Column — Log Visit Form + KPI */}
+        <div className="flex-1 p-5 lg:p-8">
+          <div className="max-w-[640px] mx-auto">
+            {/* Log Visit Header */}
+            <h2 className="text-2xl font-bold text-zinc-900 tracking-tight">Log Visit</h2>
+            <p className="text-sm text-zinc-400 mt-1 mb-6">Pick from favorites or search, then save.</p>
+
+            {/* Selected Procedures Card + Form */}
             <SelectedProceduresCard data={selectedData} />
-          </div>
 
-          {/* KPI Strip */}
-          <div className="mt-4">
-            <KPIStrip visits={visits} />
           </div>
+        </div>
 
-          {/* Visit Feed */}
-          <div className="mt-5 space-y-2">
-            {visits.length === 0 && (
-              <div className="bg-white rounded-xl border border-zinc-200/80 shadow-sm p-8 text-center">
-                <svg className="w-12 h-12 text-zinc-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
-                </svg>
-                <p className="text-sm font-semibold text-zinc-700">No visits yet today</p>
-                <p className="text-xs text-zinc-400 mt-1">Search for HCPCS codes or use your favorites to log your first visit.</p>
-              </div>
-            )}
-            {(() => {
-              let lastDate = '';
-              return visits.map((visit) => {
-                const showDateHeader = visit.date !== lastDate;
-                lastDate = visit.date;
-                return (
-                  <div key={visit.id}>
-                    {showDateHeader && (
-                      <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider pt-3 pb-1 first:pt-0">
-                        {visit.date === getTodayString() ? 'Today' : formatDate(visit.date, { month: 'short', day: 'numeric' })}
-                      </p>
-                    )}
-                    <VisitCard
-                      visit={visit}
-                      accentColor={dateColorMap[visit.date]}
-                      isExpanded={expandedVisits.has(visit.id!)}
-                      onToggleExpand={() => toggleVisitExpansion(visit.id!)}
-                      onEdit={() => setEditingVisit(visit)}
-                      onCopy={() => handleCopyVisit(visit)}
-                      onDelete={() => handleRemove(visit.id!)}
-                    />
-                  </div>
-                );
-              });
-            })()}
+        {/* Right Column — Visit Log */}
+        <div className="lg:w-[380px] flex-shrink-0 lg:border-l border-zinc-200/60 bg-white lg:overflow-y-auto lg:sticky lg:top-[57px]" style={{ maxHeight: 'calc(100vh - 57px)' }}>
+          <div className="p-4 lg:p-5">
+            {/* Visit Log Header */}
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-bold text-zinc-900 tracking-tight">Visit Log</h2>
+              <span className="text-xs text-zinc-400 font-medium">{todayVisitCount} today</span>
+            </div>
+
+            {/* Visit Feed */}
+            <div className="space-y-2">
+              {visits.length === 0 && (
+                <div className="bg-zinc-50 rounded-xl border border-zinc-200/80 p-8 text-center">
+                  <svg className="w-12 h-12 text-zinc-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
+                  </svg>
+                  <p className="text-sm font-semibold text-zinc-700">No visits yet today</p>
+                  <p className="text-xs text-zinc-400 mt-1">Search for HCPCS codes or use your favorites to log your first visit.</p>
+                </div>
+              )}
+              {(() => {
+                let lastDate = '';
+                return visits.map((visit) => {
+                  const showDateHeader = visit.date !== lastDate;
+                  lastDate = visit.date;
+                  return (
+                    <div key={visit.id}>
+                      {showDateHeader && (
+                        <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider pt-3 pb-1 first:pt-0">
+                          {visit.date === getTodayString() ? `Today \u2014 ${formatDate(visit.date, { month: 'long', day: 'numeric' })}` : formatDate(visit.date, { month: 'short', day: 'numeric' })}
+                        </p>
+                      )}
+                      <VisitCard
+                        visit={visit}
+                        accentColor={dateColorMap[visit.date]}
+                        isExpanded={expandedVisits.has(visit.id!)}
+                        onToggleExpand={() => toggleVisitExpansion(visit.id!)}
+                        onEdit={() => setEditingVisit(visit)}
+                        onCopy={() => handleCopyVisit(visit)}
+                        onDelete={() => handleRemove(visit.id!)}
+                      />
+                    </div>
+                  );
+                });
+              })()}
+            </div>
           </div>
         </div>
       </div>

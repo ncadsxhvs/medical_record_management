@@ -33,8 +33,32 @@ export function loadBonusSettings(): BonusSettings {
   return getDefaultSettings();
 }
 
-export function saveBonusSettings(settings: BonusSettings): void {
+export function saveBonusSettingsLocal(settings: BonusSettings): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(settings));
+  } catch {}
+}
+
+export async function fetchBonusSettings(): Promise<BonusSettings> {
+  try {
+    const res = await fetch('/api/settings');
+    if (res.ok) {
+      const data = await res.json();
+      const settings = { ...getDefaultSettings(), ...data };
+      saveBonusSettingsLocal(settings);
+      return settings;
+    }
+  } catch {}
+  return loadBonusSettings();
+}
+
+export async function saveBonusSettings(settings: BonusSettings): Promise<void> {
+  saveBonusSettingsLocal(settings);
+  try {
+    await fetch('/api/settings', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(settings),
+    });
   } catch {}
 }

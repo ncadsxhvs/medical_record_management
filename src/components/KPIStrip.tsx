@@ -1,9 +1,13 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
+import { useMemo } from 'react';
+import useSWR from 'swr';
+import { useSession } from 'next-auth/react';
 import { Visit } from '@/types';
 import { getTodayString, parseLocalDate } from '@/lib/dateUtils';
-import { loadBonusSettings, BonusSettings } from '@/lib/bonusSettings';
+import { BonusSettings, getDefaultSettings } from '@/lib/bonusSettings';
+import { fetcher } from '@/lib/fetcher';
+import { CACHE_KEYS } from '@/lib/cache-keys';
 
 interface KPIStripProps {
   visits: Visit[];
@@ -37,12 +41,38 @@ function sumRVUs(visits: Visit[], startDate: string, endDate: string): number {
     .reduce((sum, v) => sum + v.procedures.reduce((s, p) => s + Number(p.work_rvu) * (p.quantity || 1), 0), 0);
 }
 
-export default function KPIStrip({ visits }: KPIStripProps) {
-  const [settings, setSettings] = useState<BonusSettings | null>(null);
+function countEncounters(visits: Visit[], startDate: string, endDate: string): number {
+  return visits.filter(v => !v.is_no_show && v.date >= startDate && v.date <= endDate).length;
+}
 
-  useEffect(() => {
-    setSettings(loadBonusSettings());
-  }, []);
+function MiniSparkline({ data, color }: { data: number[]; color: string }) {
+  if (data.length < 2) return null;
+  const max = Math.max(...data, 1);
+  const w = 80;
+  const h = 20;
+  const points = data.map((v, i) => `${(i / (data.length - 1)) * w},${h - (v / max) * h}`).join(' ');
+  return (
+    <svg width={w} height={h} viewBox={`0 0 ${w} ${h}`} className="mt-2">
+      <polyline points={points} fill="none" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function MiniProgressBar({ pct, color }: { pct: number; color: string }) {
+  return (
+    <div className="h-1 bg-zinc-100 rounded-full mt-2 overflow-hidden">
+      <div className="h-full rounded-full transition-all duration-500" style={{ width: `${Math.min(pct, 100)}%`, background: color }} />
+    </div>
+  );
+}
+
+export default function KPIStrip({ visits }: KPIStripProps) {
+  const { status } = useSession();
+  const { data: dbSettings } = useSWR<BonusSettings>(
+    status === 'authenticated' ? CACHE_KEYS.settings : null,
+    fetcher,
+  );
+  const settings = dbSettings || getDefaultSettings();
 
   const today = getTodayString();
   const week = useMemo(() => getWeekBounds(today), [today]);
@@ -51,43 +81,72 @@ export default function KPIStrip({ visits }: KPIStripProps) {
   const todayRVU = useMemo(() => sumRVUs(visits, today, today), [visits, today]);
   const weekRVU = useMemo(() => sumRVUs(visits, week.start, week.end), [visits, week]);
   const monthRVU = useMemo(() => sumRVUs(visits, month.start, month.end), [visits, month]);
+  const todayEncounters = useMemo(() => countEncounters(visits, today, today), [visits, today]);
 
-  const onTrack = useMemo(() => {
-    if (!settings || settings.rvuTarget <= 0) return null;
-    const start = parseLocalDate(settings.targetStartDate);
-    const end = parseLocalDate(settings.targetEndDate);
-    const now = parseLocalDate(today);
-    const totalDays = (end.getTime() - start.getTime()) / 86400000;
-    const elapsed = (now.getTime() - start.getTime()) / 86400000;
-    if (totalDays <= 0 || elapsed < 0) return null;
-    const expected = settings.rvuTarget * (elapsed / totalDays);
-    const actual = sumRVUs(visits, settings.targetStartDate, today);
-    return actual >= expected;
-  }, [settings, visits, today]);
+  const monthlyTarget = settings.rvuTarget || 480;
+  const dailyTarget = monthlyTarget / 22;
+  const weeklyTarget = dailyTarget * 5;
 
-  const metrics = [
-    { label: 'Today', value: todayRVU },
-    { label: 'This Week', value: weekRVU },
-    { label: 'Month to Date', value: monthRVU, trackingPill: onTrack },
-  ];
+  const last7Encounters = useMemo(() => {
+    const counts: number[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(parseLocalDate(today));
+      d.setDate(d.getDate() - i);
+      const ds = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+      counts.push(countEncounters(visits, ds, ds));
+    }
+    return counts;
+  }, [visits, today]);
+
+  const avgEncounters = useMemo(() => {
+    const sum = last7Encounters.reduce((a, b) => a + b, 0);
+    const workdays = last7Encounters.filter(c => c > 0).length || 1;
+    return sum / workdays;
+  }, [last7Encounters]);
+
+  const encounterDelta = todayEncounters - Math.round(avgEncounters);
 
   return (
-    <div className="grid grid-cols-3 gap-3">
-      {metrics.map((m) => (
-        <div key={m.label} className="bg-white rounded-xl border border-zinc-200/80 px-4 py-3">
-          <div className="flex items-center gap-2">
-            <p className="text-xs font-medium text-zinc-500 uppercase tracking-wider">{m.label}</p>
-            {m.trackingPill !== undefined && m.trackingPill !== null && (
-              <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${
-                m.trackingPill ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'
-              }`}>
-                {m.trackingPill ? 'On Track' : 'Below Target'}
-              </span>
-            )}
-          </div>
-          <p className="text-lg font-bold font-mono text-zinc-900 mt-1">{m.value.toFixed(2)}</p>
+    <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <div className="bg-white rounded-xl border border-zinc-200/80 px-4 py-3">
+        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Today</p>
+        <div className="flex items-baseline gap-1 mt-1">
+          <span className="text-2xl font-bold font-mono text-zinc-900">{todayRVU.toFixed(2)}</span>
+          <span className="text-xs text-zinc-400">RVU</span>
         </div>
-      ))}
+        <MiniProgressBar pct={(todayRVU / dailyTarget) * 100} color="#22c55e" />
+      </div>
+
+      <div className="bg-white rounded-xl border border-zinc-200/80 px-4 py-3">
+        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">This Week</p>
+        <div className="flex items-baseline gap-1 mt-1">
+          <span className="text-2xl font-bold font-mono text-zinc-900">{weekRVU.toFixed(2)}</span>
+          <span className="text-xs text-zinc-400">RVU</span>
+        </div>
+        <MiniProgressBar pct={(weekRVU / weeklyTarget) * 100} color="#3b82f6" />
+      </div>
+
+      <div className="bg-white rounded-xl border border-zinc-200/80 px-4 py-3">
+        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">MTD</p>
+        <div className="flex items-baseline gap-1 mt-1">
+          <span className="text-2xl font-bold font-mono text-zinc-900">{monthRVU.toFixed(1)}</span>
+          <span className="text-xs text-zinc-400">/ {monthlyTarget}</span>
+        </div>
+        <MiniProgressBar pct={(monthRVU / monthlyTarget) * 100} color="#3b82f6" />
+      </div>
+
+      <div className="bg-white rounded-xl border border-zinc-200/80 px-4 py-3">
+        <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Encounters</p>
+        <div className="flex items-baseline gap-1.5 mt-1">
+          <span className="text-2xl font-bold font-mono text-zinc-900">{todayEncounters}</span>
+          {encounterDelta !== 0 && (
+            <span className={`text-xs font-semibold ${encounterDelta > 0 ? 'text-green-600' : 'text-red-500'}`}>
+              {encounterDelta > 0 ? '+' : ''}{encounterDelta} vs avg
+            </span>
+          )}
+        </div>
+        <MiniSparkline data={last7Encounters} color="#3b82f6" />
+      </div>
     </div>
   );
 }
