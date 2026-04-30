@@ -77,6 +77,12 @@ No API changes.
 ## Business Logic
 None. Presentational changes only.
 
+## Edge Runtime Auth Split
+Middleware runs in the Edge Runtime, which does not support Node.js `crypto`. The auth config was split into two files:
+- `src/auth.config.ts` — edge-safe: providers, session strategy, pages, cookies, `authorized` callback. No DB imports.
+- `src/auth.ts` — Node-only: imports `auth.config`, adds `jwt` and `session` callbacks that use `@/lib/db`.
+- `middleware.ts` — imports only from `auth.config.ts`.
+
 ## Edge Cases
 - Pages must render identically when navigating between them (no header flash/layout shift).
 - Loading skeleton must match the same header width and structure.

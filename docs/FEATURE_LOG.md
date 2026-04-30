@@ -17,11 +17,15 @@ Append-only log of implemented features. Newest first.
   - Productivity: replaced oklch() inline colors with Tailwind hex equivalents (emerald-600, amber-600, blue-600)
   - All pages now use max-w-[1400px] container (was max-w-7xl on analytics/productivity)
   - Created 3 HTML design templates at `docs/templates/` with Tailwind CDN + Google Fonts
+  - Split auth config into edge-safe `auth.config.ts` and Node-only `auth.ts` to fix Edge Runtime crypto error in middleware
 - **Files touched:**
   - `src/components/AppHeader.tsx` (new)
   - `src/app/(main)/page.tsx` (header swap)
   - `src/app/analytics/page.tsx` (header swap, blue accent)
   - `src/app/productivity/page.tsx` (header swap, hex colors)
+  - `src/auth.config.ts` (new — edge-safe auth providers, callbacks)
+  - `src/auth.ts` (refactored — imports auth.config, adds DB-only callbacks)
+  - `middleware.ts` (imports from auth.config instead of auth)
   - `docs/templates/home.html` (new)
   - `docs/templates/analytics.html` (new)
   - `docs/templates/productivity.html` (new)
