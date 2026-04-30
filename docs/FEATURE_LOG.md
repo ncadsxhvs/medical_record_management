@@ -4,6 +4,35 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 25
+
+- **Date:** 2026-04-30
+- **Title:** feat(ux): unified design system and HTML templates
+- **Branch:** `feat/addbutton-for-fav`
+- **Spec:** [docs/features/ui-consistency.md](features/ui-consistency.md)
+- **What changed:**
+  - Extracted shared `AppHeader` component with blue-500 nav pills, "R" logo, 1400px container
+  - Replaced inline headers on all 3 pages with `<AppHeader activePage="..." />`
+  - Analytics: active preset chip changed from zinc-900 to blue-500
+  - Productivity: replaced oklch() inline colors with Tailwind hex equivalents (emerald-600, amber-600, blue-600)
+  - All pages now use max-w-[1400px] container (was max-w-7xl on analytics/productivity)
+  - Created 3 HTML design templates at `docs/templates/` with Tailwind CDN + Google Fonts
+- **Files touched:**
+  - `src/components/AppHeader.tsx` (new)
+  - `src/app/(main)/page.tsx` (header swap)
+  - `src/app/analytics/page.tsx` (header swap, blue accent)
+  - `src/app/productivity/page.tsx` (header swap, hex colors)
+  - `docs/templates/home.html` (new)
+  - `docs/templates/analytics.html` (new)
+  - `docs/templates/productivity.html` (new)
+- **How to verify:**
+  - Navigate between all 3 pages — headers should be identical
+  - Analytics preset chips show blue active state
+  - Productivity page: inspect elements, confirm no oklch() in styles
+  - Open HTML templates in browser
+
+---
+
 ## Entry 24
 
 - **Date:** 2026-04-30

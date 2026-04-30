@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RVU Tracker - Log</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Figtree', 'sans-serif'],
+            body: ['Noto Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>body { font-family: 'Noto Sans', sans-serif; } h1,h2,h3 { font-family: 'Figtree', sans-serif; }</style>
+</head>
+<body class="min-h-screen bg-stone-50">
+
+  <!-- Header -->
+  <div class="border-b border-zinc-200/60 bg-white px-6 py-3">
+    <div class="max-w-[1400px] mx-auto flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">R</div>
+      <h1 class="text-lg font-bold text-zinc-900 tracking-tight">RVU Tracker</h1>
+      <div class="flex items-center gap-1 ml-4">
+        <span class="px-3 py-1.5 bg-blue-500 text-white text-xs font-semibold rounded-lg">Log</span>
+        <a href="analytics.html" class="px-3 py-1.5 text-zinc-500 text-xs font-semibold rounded-lg hover:bg-zinc-100 transition-colors">Analytics</a>
+        <a href="productivity.html" class="px-3 py-1.5 text-zinc-500 text-xs font-semibold rounded-lg hover:bg-zinc-100 transition-colors">Productivity</a>
+      </div>
+      <div class="flex-1"></div>
+      <div class="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-500 text-xs font-bold">U</div>
+    </div>
+  </div>
+
+  <!-- 3-Column Layout -->
+  <div class="max-w-[1400px] mx-auto flex flex-col lg:flex-row" style="min-height: calc(100vh - 57px)">
+
+    <!-- Left Column: Search + Groups + Favorites -->
+    <div class="hidden lg:block lg:w-[300px] flex-shrink-0 border-r border-zinc-200/60 bg-white lg:overflow-y-auto lg:sticky lg:top-[57px]" style="max-height: calc(100vh - 57px)">
+      <div class="p-4 space-y-4">
+
+        <!-- Search -->
+        <div class="relative">
+          <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <input type="text" placeholder="Search HCPCS codes..." class="w-full pl-10 pr-12 py-2.5 bg-zinc-50 border border-zinc-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+          <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] text-zinc-400 bg-zinc-100 px-1.5 py-0.5 rounded font-mono">&#8984;K</span>
+        </div>
+
+        <!-- Favorite Groups -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Groups</p>
+            <div class="flex gap-2">
+              <button class="text-xs font-semibold text-blue-500 hover:text-blue-700">+ Add</button>
+              <button class="text-xs font-semibold text-blue-500 hover:text-blue-700 border border-blue-300 rounded-md px-2.5 py-0.5">Edit</button>
+            </div>
+          </div>
+          <div class="space-y-1.5">
+            <button class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-zinc-50 transition-colors text-left">
+              <span class="w-2.5 h-2.5 rounded-full bg-sky-400 flex-shrink-0"></span>
+              <span class="text-sm font-medium text-zinc-700 truncate">New Patient Visit</span>
+              <span class="text-xs text-zinc-400 ml-auto">3 codes</span>
+            </button>
+            <button class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-zinc-50 transition-colors text-left">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 flex-shrink-0"></span>
+              <span class="text-sm font-medium text-zinc-700 truncate">Follow-Up</span>
+              <span class="text-xs text-zinc-400 ml-auto">2 codes</span>
+            </button>
+            <button class="w-full flex items-center gap-2.5 px-3 py-2 rounded-lg hover:bg-zinc-50 transition-colors text-left">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-400 flex-shrink-0"></span>
+              <span class="text-sm font-medium text-zinc-700 truncate">Procedures</span>
+              <span class="text-xs text-zinc-400 ml-auto">5 codes</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Favorites -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Favorites</p>
+            <div class="flex gap-2">
+              <button class="text-xs font-semibold text-blue-500 hover:text-blue-700">+ Add</button>
+              <button class="text-xs font-semibold text-blue-500 hover:text-blue-700 border border-blue-300 rounded-md px-2.5 py-0.5">Edit</button>
+            </div>
+          </div>
+          <div class="grid grid-cols-2 gap-2">
+            <button class="p-2.5 border border-zinc-200 rounded-xl hover:border-blue-300 hover:bg-blue-50/30 transition-all text-left">
+              <div class="font-mono font-bold text-sm text-zinc-900">99213</div>
+              <div class="text-[11px] text-zinc-400 truncate mt-0.5">Office visit, est.</div>
+              <div class="text-xs font-mono font-semibold text-blue-600 mt-1">1.30 RVU</div>
+            </button>
+            <button class="p-2.5 border border-zinc-200 rounded-xl hover:border-blue-300 hover:bg-blue-50/30 transition-all text-left">
+              <div class="font-mono font-bold text-sm text-zinc-900">99214</div>
+              <div class="text-[11px] text-zinc-400 truncate mt-0.5">Office visit, est.</div>
+              <div class="text-xs font-mono font-semibold text-blue-600 mt-1">1.92 RVU</div>
+            </button>
+            <button class="p-2.5 bg-green-50 border border-green-300 rounded-xl text-left">
+              <div class="font-mono font-bold text-sm text-green-700">99215</div>
+              <div class="text-[11px] text-zinc-400 truncate mt-0.5">Office visit, est.</div>
+              <div class="text-xs font-mono font-semibold text-blue-600 mt-1">2.80 RVU <span class="text-green-600 ml-1">&#10003;</span></div>
+            </button>
+            <button class="p-2.5 border border-zinc-200 rounded-xl hover:border-blue-300 hover:bg-blue-50/30 transition-all text-left">
+              <div class="font-mono font-bold text-sm text-zinc-900">G2211</div>
+              <div class="text-[11px] text-zinc-400 truncate mt-0.5">Complexity add-on</div>
+              <div class="text-xs font-mono font-semibold text-blue-600 mt-1">0.33 RVU</div>
+            </button>
+            <button class="p-2.5 border border-zinc-200 rounded-xl hover:border-blue-300 hover:bg-blue-50/30 transition-all text-left">
+              <div class="font-mono font-bold text-sm text-zinc-900">99203</div>
+              <div class="text-[11px] text-zinc-400 truncate mt-0.5">Office visit, new</div>
+              <div class="text-xs font-mono font-semibold text-blue-600 mt-1">1.60 RVU</div>
+            </button>
+            <button class="p-2.5 border border-zinc-200 rounded-xl hover:border-blue-300 hover:bg-blue-50/30 transition-all text-left">
+              <div class="font-mono font-bold text-sm text-zinc-900">99204</div>
+              <div class="text-[11px] text-zinc-400 truncate mt-0.5">Office visit, new</div>
+              <div class="text-xs font-mono font-semibold text-blue-600 mt-1">2.60 RVU</div>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Center Column: Log Visit -->
+    <div class="flex-1 p-5 lg:p-8">
+      <div class="max-w-[640px] mx-auto">
+        <h2 class="text-2xl font-bold text-zinc-900 tracking-tight">Log Visit</h2>
+        <p class="text-sm text-zinc-400 mt-1 mb-6">Pick from favorites or search, then save.</p>
+
+        <!-- Selected Codes Card -->
+        <div class="space-y-5">
+          <div class="bg-white border border-zinc-200 rounded-xl p-5">
+            <div class="flex items-start justify-between mb-4">
+              <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Selected Codes</p>
+              <div class="text-right">
+                <span class="text-3xl font-bold text-zinc-900 font-mono tracking-tight">5.60</span>
+                <span class="text-sm text-zinc-400 ml-1.5">RVU</span>
+              </div>
+            </div>
+            <div class="space-y-2">
+              <!-- Procedure row -->
+              <div class="flex items-center justify-between bg-zinc-50 border border-zinc-200 rounded-lg px-4 py-2.5">
+                <div class="flex items-center gap-3 min-w-0">
+                  <span class="font-mono font-bold text-sm text-zinc-900">99215</span>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  <div class="flex items-center gap-0.5">
+                    <button class="w-7 h-7 flex items-center justify-center rounded-md bg-zinc-200 text-zinc-600 text-sm font-bold hover:bg-zinc-300 disabled:opacity-30">&minus;</button>
+                    <span class="font-mono text-xs text-zinc-500 w-6 text-center">1</span>
+                    <button class="w-7 h-7 flex items-center justify-center rounded-md bg-zinc-200 text-zinc-600 text-sm font-bold hover:bg-zinc-300">+</button>
+                  </div>
+                  <span class="font-mono text-sm text-zinc-600 w-14 text-right">2.80</span>
+                  <button class="w-6 h-6 flex items-center justify-center text-red-400 hover:text-red-600 rounded-full hover:bg-red-50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="flex items-center justify-between bg-zinc-50 border border-zinc-200 rounded-lg px-4 py-2.5">
+                <div class="flex items-center gap-3 min-w-0">
+                  <span class="font-mono font-bold text-sm text-zinc-900">99213</span>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  <div class="flex items-center gap-0.5">
+                    <button class="w-7 h-7 flex items-center justify-center rounded-md bg-zinc-200 text-zinc-600 text-sm font-bold hover:bg-zinc-300 disabled:opacity-30">&minus;</button>
+                    <span class="font-mono text-xs text-zinc-500 w-6 text-center">1</span>
+                    <button class="w-7 h-7 flex items-center justify-center rounded-md bg-zinc-200 text-zinc-600 text-sm font-bold hover:bg-zinc-300">+</button>
+                  </div>
+                  <span class="font-mono text-sm text-zinc-600 w-14 text-right">1.30</span>
+                  <button class="w-6 h-6 flex items-center justify-center text-red-400 hover:text-red-600 rounded-full hover:bg-red-50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              </div>
+              <div class="flex items-center justify-between bg-zinc-50 border border-zinc-200 rounded-lg px-4 py-2.5">
+                <div class="flex items-center gap-3 min-w-0">
+                  <span class="font-mono font-bold text-sm text-zinc-900">G2211</span>
+                </div>
+                <div class="flex items-center gap-2 flex-shrink-0">
+                  <div class="flex items-center gap-0.5">
+                    <button class="w-7 h-7 flex items-center justify-center rounded-md bg-zinc-200 text-zinc-600 text-sm font-bold hover:bg-zinc-300 disabled:opacity-30" disabled>&minus;</button>
+                    <span class="font-mono text-xs text-zinc-500 w-6 text-center">2</span>
+                    <button class="w-7 h-7 flex items-center justify-center rounded-md bg-zinc-200 text-zinc-600 text-sm font-bold hover:bg-zinc-300">+</button>
+                  </div>
+                  <span class="font-mono text-sm text-zinc-600 w-14 text-right">0.66</span>
+                  <button class="w-6 h-6 flex items-center justify-center text-red-400 hover:text-red-600 rounded-full hover:bg-red-50">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Date / Time -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm font-medium text-zinc-600 mb-1.5">Date</label>
+              <input type="date" value="2026-04-30" class="w-full px-4 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+            </div>
+            <div>
+              <label class="block text-sm font-medium text-zinc-600 mb-1.5">Time</label>
+              <input type="time" value="14:30" class="w-full px-4 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div>
+            <label class="block text-sm font-medium text-zinc-600 mb-1.5">Notes (optional)</label>
+            <input type="text" placeholder="" class="w-full px-4 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" />
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="flex gap-3">
+            <button class="flex-1 py-3 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-600 active:scale-[0.98] transition-all duration-150">Save Visit</button>
+            <button class="py-3 px-5 text-zinc-500 text-sm font-semibold rounded-xl border border-zinc-200 hover:bg-zinc-50 active:scale-[0.98] transition-all duration-150">Clear</button>
+            <button class="py-3 px-5 text-red-500 text-sm font-semibold rounded-xl border border-red-200 hover:bg-red-50 active:scale-[0.98] transition-all duration-150">No Show</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Visit Log -->
+    <div class="lg:w-[380px] flex-shrink-0 lg:border-l border-zinc-200/60 bg-white lg:overflow-y-auto lg:sticky lg:top-[57px]" style="max-height: calc(100vh - 57px)">
+      <div class="p-4 lg:p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="text-lg font-bold text-zinc-900 tracking-tight">Visit Log</h2>
+          <span class="text-xs text-zinc-400 font-medium">3 today</span>
+        </div>
+
+        <div class="space-y-2">
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider pb-1">Today &mdash; April 30</p>
+
+          <!-- Visit card -->
+          <div class="bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 py-3 cursor-pointer hover:border-zinc-300 transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-1 h-8 rounded-full bg-sky-400 flex-shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-semibold text-zinc-900">2:30 PM</span>
+                  <span class="font-mono text-sm font-bold text-zinc-900">4.76</span>
+                </div>
+                <div class="flex items-center justify-between mt-0.5">
+                  <span class="text-xs text-zinc-500">99215, G2211</span>
+                  <span class="text-xs text-zinc-400">RVU</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 py-3 cursor-pointer hover:border-zinc-300 transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-1 h-8 rounded-full bg-sky-400 flex-shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-semibold text-zinc-900">11:15 AM</span>
+                  <span class="font-mono text-sm font-bold text-zinc-900">1.92</span>
+                </div>
+                <div class="flex items-center justify-between mt-0.5">
+                  <span class="text-xs text-zinc-500">99214</span>
+                  <span class="text-xs text-zinc-400">RVU</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 py-3 cursor-pointer hover:border-zinc-300 transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-1 h-8 rounded-full bg-sky-400 flex-shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-semibold text-zinc-900">9:00 AM</span>
+                  <span class="font-mono text-sm font-bold text-zinc-900">1.30</span>
+                </div>
+                <div class="flex items-center justify-between mt-0.5">
+                  <span class="text-xs text-zinc-500">99213</span>
+                  <span class="text-xs text-zinc-400">RVU</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <p class="text-xs font-semibold text-zinc-400 uppercase tracking-wider pt-3 pb-1">Apr 29</p>
+
+          <div class="bg-zinc-50 rounded-xl border border-zinc-200/80 px-4 py-3 cursor-pointer hover:border-zinc-300 transition-colors">
+            <div class="flex items-center gap-3">
+              <div class="w-1 h-8 rounded-full bg-emerald-400 flex-shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-semibold text-zinc-900">3:45 PM</span>
+                  <span class="font-mono text-sm font-bold text-zinc-900">2.80</span>
+                </div>
+                <div class="flex items-center justify-between mt-0.5">
+                  <span class="text-xs text-zinc-500">99215</span>
+                  <span class="text-xs text-zinc-400">RVU</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- No-show card -->
+          <div class="bg-orange-50 rounded-xl border border-orange-200/80 px-4 py-3">
+            <div class="flex items-center gap-3">
+              <div class="w-1 h-8 rounded-full bg-orange-400 flex-shrink-0"></div>
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center justify-between">
+                  <span class="text-sm font-semibold text-orange-800">No Show</span>
+                  <span class="text-xs bg-orange-200 text-orange-700 px-2 py-0.5 rounded-full font-medium">No Show</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FAB (mobile) -->
+  <button class="fixed bottom-6 right-4 w-14 h-14 bg-zinc-900 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-zinc-800 active:scale-95 transition-all z-30 lg:hidden">
+    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+  </button>
+
+</body>
+</html>

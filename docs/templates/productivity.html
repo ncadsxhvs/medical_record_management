@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RVU Tracker - Productivity</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Noto+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            heading: ['Figtree', 'sans-serif'],
+            body: ['Noto Sans', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+  <style>body { font-family: 'Noto Sans', sans-serif; } h1,h2,h3 { font-family: 'Figtree', sans-serif; }</style>
+</head>
+<body class="min-h-screen bg-stone-50">
+
+  <!-- Header -->
+  <div class="border-b border-zinc-200/60 bg-white px-6 py-3">
+    <div class="max-w-[1400px] mx-auto flex items-center gap-3">
+      <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">R</div>
+      <h1 class="text-lg font-bold text-zinc-900 tracking-tight">RVU Tracker</h1>
+      <div class="flex items-center gap-1 ml-4">
+        <a href="home.html" class="px-3 py-1.5 text-zinc-500 text-xs font-semibold rounded-lg hover:bg-zinc-100 transition-colors">Log</a>
+        <a href="analytics.html" class="px-3 py-1.5 text-zinc-500 text-xs font-semibold rounded-lg hover:bg-zinc-100 transition-colors">Analytics</a>
+        <span class="px-3 py-1.5 bg-blue-500 text-white text-xs font-semibold rounded-lg">Productivity</span>
+      </div>
+      <div class="flex-1"></div>
+      <div class="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center text-zinc-500 text-xs font-bold">U</div>
+    </div>
+  </div>
+
+  <div class="max-w-[1400px] mx-auto p-5 lg:p-8">
+
+    <!-- Editorial Headline -->
+    <div class="mb-7">
+      <h2 class="text-3xl lg:text-5xl font-bold text-zinc-900 tracking-tight leading-none">
+        You're having <em class="not-italic font-bold text-emerald-600">a strong week</em>.
+      </h2>
+      <p class="text-sm text-zinc-500 mt-2.5">April 30, 2026 &middot; 3 visits today, 5 yesterday</p>
+    </div>
+
+    <!-- Score Rings -->
+    <div class="bg-white rounded-xl border border-zinc-200/80 p-6 lg:p-9 mb-6 grid grid-cols-1 lg:grid-cols-3 gap-8 lg:gap-0">
+      <!-- Today RVU -->
+      <div class="flex flex-col items-center lg:border-r lg:border-zinc-200/80 lg:pr-8">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="68" fill="none" stroke="#e4e4e7" stroke-width="8"/>
+          <circle cx="80" cy="80" r="68" fill="none" stroke="#059669" stroke-width="8"
+            stroke-dasharray="427.3" stroke-dashoffset="128" stroke-linecap="round"
+            transform="rotate(-90 80 80)"/>
+          <text x="80" y="72" text-anchor="middle" class="text-4xl font-bold" font-family="monospace" font-size="32" fill="#18181b">15.2</text>
+          <text x="80" y="96" text-anchor="middle" font-family="Noto Sans" font-size="11" fill="#71717a" text-transform="uppercase" letter-spacing="1">RVU TODAY</text>
+        </svg>
+        <p class="text-xs text-zinc-500 mt-4 text-center">70% of 21.8 daily target</p>
+      </div>
+
+      <!-- Monthly Pace -->
+      <div class="flex flex-col items-center lg:border-r lg:border-zinc-200/80 lg:px-8">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="68" fill="none" stroke="#e4e4e7" stroke-width="8"/>
+          <circle cx="80" cy="80" r="68" fill="none" stroke="#2563eb" stroke-width="8"
+            stroke-dasharray="427.3" stroke-dashoffset="85" stroke-linecap="round"
+            transform="rotate(-90 80 80)"/>
+          <text x="80" y="72" text-anchor="middle" font-family="monospace" font-size="32" fill="#18181b" font-weight="bold">80%</text>
+          <text x="80" y="96" text-anchor="middle" font-family="Noto Sans" font-size="11" fill="#71717a" letter-spacing="1">MONTHLY PACE</text>
+        </svg>
+        <p class="text-xs text-zinc-500 mt-4 text-center">384.0 of 480 &middot; projected 495</p>
+      </div>
+
+      <!-- Productivity Score -->
+      <div class="flex flex-col items-center lg:pl-8">
+        <svg width="160" height="160" viewBox="0 0 160 160">
+          <circle cx="80" cy="80" r="68" fill="none" stroke="#e4e4e7" stroke-width="8"/>
+          <circle cx="80" cy="80" r="68" fill="none" stroke="#059669" stroke-width="8"
+            stroke-dasharray="427.3" stroke-dashoffset="64" stroke-linecap="round"
+            transform="rotate(-90 80 80)"/>
+          <text x="80" y="72" text-anchor="middle" font-family="monospace" font-size="32" fill="#18181b" font-weight="bold">85</text>
+          <text x="80" y="96" text-anchor="middle" font-family="Noto Sans" font-size="11" fill="#71717a" letter-spacing="1">SCORE</text>
+        </svg>
+        <p class="text-xs text-zinc-500 mt-4 text-center">Composite of pace, volume &amp; consistency</p>
+      </div>
+    </div>
+
+    <!-- Rhythm + Streak -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-5 mb-6">
+      <!-- Today's Rhythm -->
+      <div class="lg:col-span-3 bg-white rounded-xl border border-zinc-200/80 p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-semibold text-zinc-900">Today's rhythm</h3>
+          <span class="text-xs text-zinc-400">Peak: 10 AM &middot; 15.2 total &middot; 1.9 avg/hr</span>
+        </div>
+        <div class="flex items-end gap-1.5 h-32">
+          <div class="flex-1 flex flex-col items-center gap-1">
+            <div class="w-full bg-zinc-900 rounded-t transition-all" style="height: 25%"></div>
+            <span class="text-[10px] text-zinc-400">8</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-1">
+            <div class="w-full bg-zinc-900 rounded-t transition-all" style="height: 45%"></div>
+            <span class="text-[10px] text-zinc-400">9</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-1">
+            <div class="w-full bg-emerald-500 rounded-t transition-all" style="height: 85%"></div>
+            <span class="text-[10px] text-zinc-400">10</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-1">
+            <div class="w-full bg-emerald-500 rounded-t transition-all" style="height: 70%"></div>
+            <span class="text-[10px] text-zinc-400">11</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-1">
+            <div class="w-full bg-zinc-200 rounded-t transition-all" style="height: 10%"></div>
+            <span class="text-[10px] text-zinc-400">12</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-1">
+            <div class="w-full bg-zinc-900 rounded-t transition-all" style="height: 40%"></div>
+            <span class="text-[10px] text-zinc-400">1</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-1">
+            <div class="w-full bg-emerald-500 rounded-t transition-all" style="height: 60%"></div>
+            <span class="text-[10px] text-zinc-400">2</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-1">
+            <div class="w-full bg-zinc-200 rounded-t opacity-40 transition-all" style="height: 5%"></div>
+            <span class="text-[10px] text-zinc-400">3</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-1">
+            <div class="w-full bg-zinc-200 rounded-t opacity-40 transition-all" style="height: 5%"></div>
+            <span class="text-[10px] text-zinc-400">4</span>
+          </div>
+          <div class="flex-1 flex flex-col items-center gap-1">
+            <div class="w-full bg-zinc-200 rounded-t opacity-40 transition-all" style="height: 5%"></div>
+            <span class="text-[10px] text-zinc-400">5</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Streak Grid -->
+      <div class="lg:col-span-2 bg-white rounded-xl border border-zinc-200/80 p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-semibold text-zinc-900">Hit-target streak</h3>
+        </div>
+        <div class="text-center mb-4">
+          <span class="text-5xl font-bold text-zinc-900 font-mono">7</span>
+          <p class="text-xs text-zinc-500 mt-1">day streak &middot; best 12</p>
+        </div>
+        <div class="grid grid-cols-7 gap-1.5">
+          <div class="w-full aspect-square rounded-md bg-emerald-500"></div>
+          <div class="w-full aspect-square rounded-md bg-zinc-200"></div>
+          <div class="w-full aspect-square rounded-md bg-emerald-500"></div>
+          <div class="w-full aspect-square rounded-md bg-emerald-500"></div>
+          <div class="w-full aspect-square rounded-md bg-zinc-200"></div>
+          <div class="w-full aspect-square rounded-md bg-emerald-500"></div>
+          <div class="w-full aspect-square rounded-md bg-emerald-500"></div>
+          <div class="w-full aspect-square rounded-md bg-emerald-500"></div>
+          <div class="w-full aspect-square rounded-md bg-emerald-500"></div>
+          <div class="w-full aspect-square rounded-md bg-emerald-500"></div>
+          <div class="w-full aspect-square rounded-md bg-emerald-500"></div>
+          <div class="w-full aspect-square rounded-md bg-emerald-500"></div>
+          <div class="w-full aspect-square rounded-md bg-emerald-500"></div>
+          <div class="w-full aspect-square rounded-md bg-blue-600 border-2 border-blue-400"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Trend + Peers -->
+    <div class="grid grid-cols-1 lg:grid-cols-5 gap-5 mb-6">
+      <!-- Weekly Trend -->
+      <div class="lg:col-span-3 bg-white rounded-xl border border-zinc-200/80 p-5">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="text-sm font-semibold text-zinc-900">12-week trend</h3>
+          <span class="text-xs text-emerald-600 font-semibold">+8% trending</span>
+        </div>
+        <div class="relative h-36">
+          <!-- Target line -->
+          <div class="absolute left-0 right-0 border-t-2 border-dashed border-zinc-300" style="top: 35%"></div>
+          <div class="flex items-end gap-1 h-full">
+            <div class="flex-1 bg-zinc-900 rounded-t" style="height: 55%"></div>
+            <div class="flex-1 bg-zinc-900 rounded-t" style="height: 50%"></div>
+            <div class="flex-1 bg-zinc-900 rounded-t" style="height: 62%"></div>
+            <div class="flex-1 bg-emerald-500 rounded-t" style="height: 72%"></div>
+            <div class="flex-1 bg-zinc-900 rounded-t" style="height: 58%"></div>
+            <div class="flex-1 bg-zinc-900 rounded-t" style="height: 45%"></div>
+            <div class="flex-1 bg-emerald-500 rounded-t" style="height: 78%"></div>
+            <div class="flex-1 bg-zinc-900 rounded-t" style="height: 60%"></div>
+            <div class="flex-1 bg-emerald-500 rounded-t" style="height: 75%"></div>
+            <div class="flex-1 bg-emerald-500 rounded-t" style="height: 82%"></div>
+            <div class="flex-1 bg-emerald-500 rounded-t" style="height: 88%"></div>
+            <div class="flex-1 bg-blue-600 rounded-t" style="height: 68%"></div>
+          </div>
+        </div>
+        <div class="flex justify-between mt-2">
+          <span class="text-[10px] text-zinc-400">W1</span>
+          <span class="text-[10px] text-zinc-400">W6</span>
+          <span class="text-[10px] text-zinc-400">W12</span>
+        </div>
+      </div>
+
+      <!-- Peer Comparison -->
+      <div class="lg:col-span-2 bg-white rounded-xl border border-zinc-200/80 p-5">
+        <h3 class="text-sm font-semibold text-zinc-900 mb-4">Peer comparison</h3>
+        <div class="space-y-5">
+          <div>
+            <div class="flex justify-between text-xs mb-1.5">
+              <span class="text-zinc-600">RVU / workday</span>
+              <span class="font-mono font-semibold text-zinc-900">7.9</span>
+            </div>
+            <div class="relative h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+              <div class="absolute inset-y-0 left-0 bg-zinc-300 rounded-full" style="width: 60%"></div>
+              <div class="absolute top-0 bottom-0 left-0 bg-blue-600 rounded-full" style="width: 72%; height: 10px"></div>
+            </div>
+            <p class="text-[10px] text-zinc-400 mt-1">Peer avg: 6.2</p>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1.5">
+              <span class="text-zinc-600">Avg / encounter</span>
+              <span class="font-mono font-semibold text-zinc-900">2.10</span>
+            </div>
+            <div class="relative h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+              <div class="absolute inset-y-0 left-0 bg-zinc-300 rounded-full" style="width: 55%"></div>
+              <div class="absolute top-0 bottom-0 left-0 bg-blue-600 rounded-full" style="width: 65%; height: 10px"></div>
+            </div>
+            <p class="text-[10px] text-zinc-400 mt-1">Peer avg: 1.85</p>
+          </div>
+          <div>
+            <div class="flex justify-between text-xs mb-1.5">
+              <span class="text-zinc-600">Days to goal</span>
+              <span class="font-mono font-semibold text-zinc-900">18</span>
+            </div>
+            <div class="relative h-2.5 bg-zinc-100 rounded-full overflow-hidden">
+              <div class="absolute inset-y-0 left-0 bg-zinc-300 rounded-full" style="width: 70%"></div>
+              <div class="absolute top-0 bottom-0 left-0 bg-blue-600 rounded-full" style="width: 50%; height: 10px"></div>
+            </div>
+            <p class="text-[10px] text-zinc-400 mt-1">Peer avg: 20</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coaching Suggestions -->
+    <div class="bg-zinc-50 rounded-xl border border-zinc-200/80 p-5 lg:p-6">
+      <h3 class="text-sm font-semibold text-zinc-900 mb-4">Coaching suggestions</h3>
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div class="bg-white rounded-lg border border-zinc-200 p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+            <span class="text-xs font-semibold text-zinc-700">Peak day</span>
+          </div>
+          <p class="text-sm text-zinc-600">Tuesday is your most productive day at 9.2 RVU avg. Consider scheduling complex cases then.</p>
+        </div>
+        <div class="bg-white rounded-lg border border-zinc-200 p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+            <span class="text-xs font-semibold text-zinc-700">G2211 opportunity</span>
+          </div>
+          <p class="text-sm text-zinc-600">You're adding G2211 to 65% of E/M visits. Consider if remaining 35% qualify.</p>
+        </div>
+        <div class="bg-white rounded-lg border border-zinc-200 p-4">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="w-2.5 h-2.5 rounded-full bg-blue-600"></span>
+            <span class="text-xs font-semibold text-zinc-700">Afternoon drop</span>
+          </div>
+          <p class="text-sm text-zinc-600">RVU drops 40% after 2 PM. A mid-afternoon break may help sustain output.</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>
