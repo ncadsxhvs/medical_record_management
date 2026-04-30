@@ -13,11 +13,16 @@ type AuthenticatedHandler = (
  */
 export function withAuth(handler: AuthenticatedHandler) {
   return async (req: NextRequest, context?: any) => {
-    const userId = await getUserId(req);
-    if (!userId) {
-      return apiError('Unauthorized', 401);
+    try {
+      const userId = await getUserId(req);
+      if (!userId) {
+        return apiError('Unauthorized', 401);
+      }
+      return await handler(req, userId, context);
+    } catch (error) {
+      console.error(`[API] ${req.method} ${req.nextUrl.pathname} error:`, error);
+      return apiError('Internal server error', 500);
     }
-    return handler(req, userId, context);
   };
 }
 

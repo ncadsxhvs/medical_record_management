@@ -28,6 +28,7 @@ export interface VisitFormControls {
   onTimeChange: (time: string) => void;
   onNotesChange: (notes: string) => void;
   onSave: () => void;
+  onClear: () => void;
   onAddNoShow?: () => void;
   addingNoShow?: boolean;
   canSave: boolean;
@@ -164,8 +165,8 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
     }
   }, [visitData, isTimeManuallyEdited, handleClearAll, onClearCopy, onEntryAdded, toast]);
 
-  const callbackRefs = useRef({ onSelectedUpdate, handleSaveVisit, handleQuantityChange, handleRemoveProcedure, onAddNoShow, addingNoShow });
-  callbackRefs.current = { onSelectedUpdate, handleSaveVisit, handleQuantityChange, handleRemoveProcedure, onAddNoShow, addingNoShow };
+  const callbackRefs = useRef({ onSelectedUpdate, handleSaveVisit, handleClearAll, handleQuantityChange, handleRemoveProcedure, onAddNoShow, addingNoShow });
+  callbackRefs.current = { onSelectedUpdate, handleSaveVisit, handleClearAll, handleQuantityChange, handleRemoveProcedure, onAddNoShow, addingNoShow };
 
   const prevDataKey = useRef('');
   useEffect(() => {
@@ -185,6 +186,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
       onTimeChange: (time: string) => { setVisitData(prev => ({ ...prev, time })); setIsTimeManuallyEdited(true); },
       onNotesChange: (notes: string) => setVisitData(prev => ({ ...prev, notes })),
       onSave: (...args) => callbackRefs.current.handleSaveVisit(...args),
+      onClear: () => callbackRefs.current.handleClearAll(),
       onAddNoShow: callbackRefs.current.onAddNoShow,
       addingNoShow: callbackRefs.current.addingNoShow,
       canSave: visitData.procedures.length > 0,
@@ -210,6 +212,15 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
         </div>
       )}
 
+      {/* Search — always at top */}
+      <div>
+        <RVUPicker
+          multiSelect={true}
+          onMultiSelect={handleAddProcedures}
+          selectedCodes={selectedCodes}
+        />
+      </div>
+
       {/* Favorite Groups */}
       <FavoriteGroupsPicker
         onAddGroup={handleAddGroup}
@@ -228,19 +239,8 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
 
       {!isEditingGroup && (
         <>
-          {/* Search */}
-          <div>
-            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">Search HCPCS</p>
-            <RVUPicker
-              multiSelect={true}
-              onMultiSelect={handleAddProcedures}
-              selectedCodes={selectedCodes}
-            />
-          </div>
-
           {/* Favorites */}
           <div>
-            <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">Favorites</p>
             <FavoritesPicker
               multiSelect={true}
               onMultiSelect={handleAddFromFavorites}

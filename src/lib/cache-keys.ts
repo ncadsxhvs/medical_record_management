@@ -9,4 +9,5 @@ export const CACHE_KEYS = {
     `/api/analytics?period=${period}&start=${start}&end=${end}`,
   analyticsBreakdown: (period: string, start: string, end: string) =>
     `/api/analytics?period=${period}&start=${start}&end=${end}&groupBy=hcpcs`,
+  settings: '/api/settings',
 } as const;

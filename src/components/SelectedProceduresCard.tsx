@@ -9,107 +9,130 @@ interface Props {
 export default function SelectedProceduresCard({ data }: Props) {
   if (!data) return null;
 
-  const { procedures, onQuantityChange, onRemove, date, time, notes, onDateChange, onTimeChange, onNotesChange, onSave, onAddNoShow, addingNoShow, canSave } = data;
+  const { procedures, onQuantityChange, onRemove, date, time, notes, onDateChange, onTimeChange, onNotesChange, onSave, onClear, onAddNoShow, addingNoShow, canSave } = data;
+
+  const totalRvu = procedures.reduce((s, p) => s + Number(p.work_rvu) * (p.quantity || 1), 0);
 
   return (
-    <div className="space-y-3">
-      {/* Selected Procedures */}
-      {procedures.length > 0 && (
-        <div>
-          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">Selected</p>
-          <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 space-y-1.5">
-            {procedures.map(p => (
-              <div key={p.hcpcs} className="flex items-center justify-between">
-                <div className="flex items-center gap-2 min-w-0">
-                  <span className="font-mono font-semibold text-sm text-zinc-900">{p.hcpcs}</span>
-                  <span className="text-xs text-zinc-500 truncate">{p.description}</span>
-                </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
-                  <div className="flex items-center gap-1">
-                    <button
-                      onClick={() => onQuantityChange(p.hcpcs, (p.quantity || 1) - 1)}
-                      className="w-5 h-5 flex items-center justify-center bg-sky-100 text-sky-700 rounded text-xs font-bold hover:bg-sky-200"
-                    >
-                      −
-                    </button>
-                    <span className="font-mono text-xs text-zinc-500 w-4 text-center">x{p.quantity || 1}</span>
-                    <button
-                      onClick={() => onQuantityChange(p.hcpcs, (p.quantity || 1) + 1)}
-                      className="w-5 h-5 flex items-center justify-center bg-sky-100 text-sky-700 rounded text-xs font-bold hover:bg-sky-200"
-                    >
-                      +
-                    </button>
-                  </div>
-                  <span className="font-mono text-sm font-bold text-sky-700 w-12 text-right">{(Number(p.work_rvu) * (p.quantity || 1)).toFixed(2)}</span>
-                  <button
-                    onClick={() => onRemove(p.hcpcs)}
-                    className="text-sky-400 hover:text-red-500 transition-colors"
-                  >
-                    <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </button>
-                </div>
-              </div>
-            ))}
-            <div className="border-t border-sky-200 pt-1.5 flex justify-between">
-              <span className="text-xs font-semibold text-sky-800">Total</span>
-              <span className="font-mono font-bold text-sky-900">
-                {procedures.reduce((s, p) => s + Number(p.work_rvu) * (p.quantity || 1), 0).toFixed(2)} RVU
-              </span>
-            </div>
+    <div className="space-y-5">
+      {/* Selected Codes Card */}
+      <div className="bg-white border border-zinc-200 rounded-xl p-5">
+        <div className="flex items-start justify-between mb-4">
+          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Selected Codes</p>
+          <div className="text-right">
+            <span className="text-3xl font-bold text-zinc-900 font-mono tracking-tight">{totalRvu.toFixed(2)}</span>
+            <span className="text-sm text-zinc-400 ml-1.5">RVU</span>
           </div>
         </div>
-      )}
+
+        {procedures.length === 0 ? (
+          <div className="py-6 text-center text-sm text-zinc-400">
+            Select codes from favorites or search to get started.
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {procedures.map(p => {
+              const qty = p.quantity || 1;
+              const lineRvu = Number(p.work_rvu) * qty;
+              return (
+                <div key={p.hcpcs} className="flex items-center justify-between bg-zinc-50 border border-zinc-200 rounded-lg px-4 py-2.5">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <span className="font-mono font-bold text-sm text-zinc-900">{p.hcpcs}</span>
+                  </div>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <div className="flex items-center gap-0.5">
+                      <button
+                        onClick={() => onQuantityChange(p.hcpcs, qty - 1)}
+                        disabled={qty <= 1}
+                        className="w-7 h-7 flex items-center justify-center rounded-md bg-zinc-200 text-zinc-600 text-sm font-bold hover:bg-zinc-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        aria-label={`Decrease ${p.hcpcs} quantity`}
+                      >
+                        &minus;
+                      </button>
+                      <span className="font-mono text-xs text-zinc-500 w-6 text-center">{qty}</span>
+                      <button
+                        onClick={() => onQuantityChange(p.hcpcs, qty + 1)}
+                        className="w-7 h-7 flex items-center justify-center rounded-md bg-zinc-200 text-zinc-600 text-sm font-bold hover:bg-zinc-300 transition-colors"
+                        aria-label={`Increase ${p.hcpcs} quantity`}
+                      >
+                        +
+                      </button>
+                    </div>
+                    <span className="font-mono text-sm text-zinc-600 w-14 text-right">{lineRvu.toFixed(2)}</span>
+                    <button
+                      onClick={() => onRemove(p.hcpcs)}
+                      className="w-6 h-6 flex items-center justify-center text-red-400 hover:text-red-600 transition-colors rounded-full hover:bg-red-50"
+                      aria-label={`Remove ${p.hcpcs}`}
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
 
       {/* Date / Time */}
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="ext-date" className="block text-xs font-medium text-zinc-500 mb-1">Date</label>
+          <label htmlFor="ext-date" className="block text-sm font-medium text-zinc-600 mb-1.5">Date</label>
           <input
             type="date"
             id="ext-date"
             value={date}
             onChange={(e) => onDateChange(e.target.value)}
-            className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm bg-white"
+            className="w-full px-4 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
           />
         </div>
         <div>
-          <label htmlFor="ext-time" className="block text-xs font-medium text-zinc-500 mb-1">Time</label>
+          <label htmlFor="ext-time" className="block text-sm font-medium text-zinc-600 mb-1.5">Time</label>
           <input
             type="time"
             id="ext-time"
             value={time}
             onChange={(e) => onTimeChange(e.target.value)}
-            className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm bg-white"
+            className="w-full px-4 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
           />
         </div>
       </div>
 
       {/* Notes */}
-      <input
-        type="text"
-        id="ext-notes"
-        value={notes}
-        onChange={(e) => onNotesChange(e.target.value)}
-        placeholder="Notes (optional)"
-        className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm bg-white"
-      />
+      <div>
+        <label htmlFor="ext-notes" className="block text-sm font-medium text-zinc-600 mb-1.5">Notes (optional)</label>
+        <input
+          type="text"
+          id="ext-notes"
+          value={notes}
+          onChange={(e) => onNotesChange(e.target.value)}
+          placeholder=""
+          className="w-full px-4 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+        />
+      </div>
 
       {/* Action Buttons */}
-      <div className="flex gap-2">
+      <div className="flex gap-3">
         <button
           onClick={onSave}
           disabled={!canSave}
-          className="flex-1 py-2.5 bg-zinc-900 text-white text-sm font-semibold rounded-lg hover:bg-zinc-800 active:scale-[0.98] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 py-3 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-600 active:scale-[0.98] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Save Visit
+        </button>
+        <button
+          onClick={onClear}
+          className="py-3 px-5 text-zinc-500 text-sm font-semibold rounded-xl border border-zinc-200 hover:bg-zinc-50 active:scale-[0.98] transition-all duration-150"
+        >
+          Clear
         </button>
         {onAddNoShow && (
           <button
             onClick={onAddNoShow}
             disabled={addingNoShow}
-            className="py-2.5 px-4 bg-red-50 text-red-600 text-xs font-semibold rounded-lg hover:bg-red-100 active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
+            className="py-3 px-5 text-red-500 text-sm font-semibold rounded-xl border border-red-200 hover:bg-red-50 active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
           >
             {addingNoShow ? '...' : 'No Show'}
           </button>

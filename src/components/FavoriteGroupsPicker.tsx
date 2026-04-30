@@ -186,33 +186,32 @@ export default function FavoriteGroupsPicker({
 
   if (loading) return null;
 
+  const GROUP_DOT_COLORS = ['bg-blue-500', 'bg-green-500', 'bg-amber-500', 'bg-rose-500', 'bg-violet-500', 'bg-teal-500'];
+
   // Always show header so users can add their first group
   return (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <h3 className="text-lg font-semibold">Favorite Groups</h3>
+        <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Favorite Groups</p>
         <div className="flex gap-2">
           <button
             onClick={handleAddNewGroup}
-            className="px-3 py-1 text-sm bg-green-50 text-green-700 border border-green-200 rounded-md hover:bg-green-100 flex items-center gap-1"
+            className="text-xs font-semibold text-blue-500 hover:text-blue-700 transition-colors"
           >
-            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-            Add Group
+            + Add
           </button>
           {groups.length > 0 && (
             managementMode ? (
               <button
                 onClick={handleExitManagement}
-                className="px-3 py-1 text-sm bg-zinc-200 text-zinc-700 rounded-md hover:bg-zinc-300"
+                className="text-xs font-semibold text-zinc-500 hover:text-zinc-700 border border-zinc-300 rounded-md px-2.5 py-0.5"
               >
                 Done
               </button>
             ) : (
               <button
                 onClick={() => setManagementMode(true)}
-                className="px-3 py-1 text-sm bg-blue-50 text-blue-700 border border-blue-200 rounded-md hover:bg-blue-100"
+                className="text-xs font-semibold text-blue-500 hover:text-blue-700 border border-blue-300 rounded-md px-2.5 py-0.5"
               >
                 Edit
               </button>
@@ -222,68 +221,63 @@ export default function FavoriteGroupsPicker({
       </div>
 
       {groups.length > 0 && (
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-        {groups.map((g) => {
+      <div className="space-y-1.5">
+        {groups.map((g, idx) => {
           const totalRvu = g.items.reduce(
             (sum, it) => sum + (Number(it.work_rvu) || 0) * (it.quantity || 1),
             0
           );
           const isSelected = editingGroup?.id === g.id;
+          const dotColor = GROUP_DOT_COLORS[idx % GROUP_DOT_COLORS.length];
 
           if (managementMode) {
             return (
               <div
                 key={g.id}
-                className={`relative p-2 border rounded-md transition-colors ${
+                className={`relative flex items-center gap-3 p-3 border rounded-xl transition-colors ${
                   isSelected
-                    ? 'bg-blue-100 border-blue-400'
-                    : 'bg-white hover:bg-blue-50'
+                    ? 'bg-blue-50 border-blue-300'
+                    : 'bg-white border-zinc-200 hover:bg-blue-50'
                 }`}
               >
+                <div className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColor}`} />
                 <button
                   onClick={() => handleSelectForEdit(g)}
-                  className="w-full text-left pr-16"
+                  className="flex-1 text-left min-w-0 pr-12"
                   title="Select to edit procedures"
                 >
-                  <div className="font-medium text-zinc-900 truncate">{g.name}</div>
-                  <div className="text-xs text-zinc-500">
-                    {g.items.length} code{g.items.length !== 1 ? 's' : ''} · {totalRvu.toFixed(2)} RVU
+                  <div className="font-semibold text-sm text-zinc-900 truncate">{g.name}</div>
+                  <div className="text-xs text-zinc-400 font-mono">
+                    {g.items.length} code{g.items.length !== 1 ? 's' : ''} &middot; {totalRvu.toFixed(2)} RVU
                   </div>
-                  {isSelected && (
-                    <div className="text-xs text-blue-600 font-medium mt-0.5">▼ SELECTED</div>
-                  )}
                 </button>
-                {/* Delete button - red pill style */}
                 <button
                   onClick={(e) => { e.stopPropagation(); handleDelete(g.id, g.name); }}
-                  className="absolute top-1/2 -translate-y-1/2 right-1 flex items-center gap-1 px-2 py-1 bg-red-50 text-red-600 text-xs font-semibold rounded-lg hover:bg-red-100 active:bg-red-200 transition-all duration-150"
+                  className="absolute right-2 p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
                   title="Delete group"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                   </svg>
-                  Delete
                 </button>
               </div>
             );
           }
 
-          // Normal mode: click to add to visit
           return (
             <div
               key={g.id}
-              className="relative p-2 border rounded-md bg-white hover:bg-blue-50 transition-colors"
+              className="flex items-center gap-3 p-3 border border-zinc-200 rounded-xl bg-white hover:bg-blue-50 transition-colors cursor-pointer"
+              onClick={() => onAddGroup(g.items, g.name)}
+              title="Add all codes in this group to the visit"
             >
-              <button
-                onClick={() => onAddGroup(g.items, g.name)}
-                className="w-full text-left"
-                title="Add all codes in this group to the visit"
-              >
-                <div className="font-medium text-zinc-900 truncate">{g.name}</div>
-                <div className="text-xs text-zinc-500">
-                  {g.items.length} code{g.items.length !== 1 ? 's' : ''} · {totalRvu.toFixed(2)} RVU
+              <div className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColor}`} />
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-sm text-zinc-900 truncate">{g.name}</div>
+                <div className="text-xs text-zinc-400 font-mono">
+                  {g.items.length} code{g.items.length !== 1 ? 's' : ''} &middot; {totalRvu.toFixed(2)} RVU
                 </div>
-              </button>
+              </div>
             </div>
           );
         })}

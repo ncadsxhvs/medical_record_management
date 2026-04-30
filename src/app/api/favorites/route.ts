@@ -5,9 +5,11 @@ import { NextRequest, NextResponse } from 'next/server';
 export const GET = withAuth(async (_req: NextRequest, userId: string) => {
   try {
     const { rows } = await sql`
-      SELECT * FROM favorites
-      WHERE user_id = ${userId}
-      ORDER BY sort_order ASC, created_at ASC;
+      SELECT f.*, r.description, r.work_rvu
+      FROM favorites f
+      LEFT JOIN rvu_codes r ON f.hcpcs = r.hcpcs
+      WHERE f.user_id = ${userId}
+      ORDER BY f.sort_order ASC, f.created_at ASC;
     `;
     return NextResponse.json(rows);
   } catch (error) {

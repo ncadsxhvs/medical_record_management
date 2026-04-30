@@ -4,6 +4,70 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 25
+
+- **Date:** 2026-04-30
+- **Title:** feat(ux): unified design system and HTML templates
+- **Branch:** `feat/addbutton-for-fav`
+- **Spec:** [docs/features/ui-consistency.md](features/ui-consistency.md)
+- **What changed:**
+  - Extracted shared `AppHeader` component with blue-500 nav pills, "R" logo, 1400px container
+  - Replaced inline headers on all 3 pages with `<AppHeader activePage="..." />`
+  - Analytics: active preset chip changed from zinc-900 to blue-500
+  - Productivity: replaced oklch() inline colors with Tailwind hex equivalents (emerald-600, amber-600, blue-600)
+  - All pages now use max-w-[1400px] container (was max-w-7xl on analytics/productivity)
+  - Created 3 HTML design templates at `docs/templates/` with Tailwind CDN + Google Fonts
+- **Files touched:**
+  - `src/components/AppHeader.tsx` (new)
+  - `src/app/(main)/page.tsx` (header swap)
+  - `src/app/analytics/page.tsx` (header swap, blue accent)
+  - `src/app/productivity/page.tsx` (header swap, hex colors)
+  - `docs/templates/home.html` (new)
+  - `docs/templates/analytics.html` (new)
+  - `docs/templates/productivity.html` (new)
+- **How to verify:**
+  - Navigate between all 3 pages — headers should be identical
+  - Analytics preset chips show blue active state
+  - Productivity page: inspect elements, confirm no oklch() in styles
+  - Open HTML templates in browser
+
+---
+
+## Entry 24
+
+- **Date:** 2026-04-30
+- **Title:** feat(productivity): Productivity dashboard with score rings, rhythm, streak, trend, peer comparison
+- **Branch:** `feat/addbutton-for-fav`
+- **Spec:** [docs/features/productivity-view.md](features/productivity-view.md)
+- **What changed:**
+  - New `/productivity` page with editorial headline, 3 score rings (today RVU, monthly pace, productivity score)
+  - Today's rhythm: hour-by-hour bar chart of RVU production (8am–5pm)
+  - Hit-target streak: 14-day GitHub-style grid showing daily target hits
+  - 12-week trend: weekly bar chart with target line overlay and trend percentage
+  - Peer comparison: bullet bar metrics (RVU/workday, avg/encounter, days to goal) vs. placeholder peers
+  - Coaching suggestions: 3 data-driven insight cards (peak day, G2211 opportunity, end-of-day drop)
+  - Navigation links added to all 3 pages (Log, Analytics, Productivity)
+  - Reads RVU target from bonusSettings localStorage; defaults to 480/month
+  - Responsive: single-column mobile, multi-column desktop
+- **Files touched:**
+  - `src/app/productivity/page.tsx` (new)
+  - `src/components/productivity/ScoreRing.tsx` (new)
+  - `src/components/productivity/TodayRhythm.tsx` (new)
+  - `src/components/productivity/StreakGrid.tsx` (new)
+  - `src/components/productivity/WeeklyTrend.tsx` (new)
+  - `src/components/productivity/PeerComparison.tsx` (new)
+  - `src/components/productivity/CoachingSuggestions.tsx` (new)
+  - `src/app/(main)/page.tsx` (nav links)
+  - `src/app/analytics/page.tsx` (nav links)
+- **How to verify:**
+  1. `npm run build` — passes
+  2. Open http://localhost:3001/productivity — all sections render
+  3. Score rings show correct percentages based on visit data
+  4. Nav links work between Log, Analytics, and Productivity
+  5. Resize to mobile — single-column layout
+
+---
+
 ## Entry 23
 
 - **Date:** 2026-04-29

@@ -1,6 +1,9 @@
 import NextAuth from "next-auth";
 import Google from "next-auth/providers/google";
-import { sql } from "@/lib/db"; // Import sql for database interaction
+import Credentials from "next-auth/providers/credentials";
+import { sql } from "@/lib/db";
+
+const isDevBypass = process.env.DEV_BYPASS_AUTH === 'true' && process.env.NODE_ENV === 'development';
 
 export const { handlers, signIn, signOut, auth } = NextAuth({
   providers: [
@@ -8,6 +11,18 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       clientId: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
     }),
+    ...(isDevBypass
+      ? [Credentials({
+          credentials: {},
+          async authorize() {
+            return {
+              id: process.env.DEV_USER_ID || 'sandbox-user',
+              email: process.env.DEV_USER_EMAIL || 'sandbox@localhost',
+              name: process.env.DEV_USER_NAME || 'Sandbox User',
+            };
+          },
+        })]
+      : []),
   ],
   session: {
     strategy: "jwt",
@@ -40,7 +55,27 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       return !!auth;
     },
     // JWT Callback: Invoked when a JWT is created (on sign in, or subsequent requests)
-    async jwt({ token, account, profile }) {
+    async jwt({ token, account, profile, user }) {
+      // Credentials provider: user object has id/email directly, no profile
+      if (account?.provider === 'credentials' && user) {
+        token.id = user.id;
+        token.email = user.email;
+        token.name = user.name;
+        try {
+          await sql`
+            INSERT INTO users (id, email, name)
+            VALUES (${user.id}, ${user.email}, ${user.name})
+            ON CONFLICT (id) DO UPDATE SET
+              email = EXCLUDED.email,
+              name = EXCLUDED.name,
+              updated_at = CURRENT_TIMESTAMP
+          `;
+        } catch (error) {
+          console.error('[JWT Callback] Dev user upsert error:', error);
+        }
+        return token;
+      }
+
       // If token doesn't have an ID yet, try to get it from the database by email
       if (!token.id && token.email) {
         console.log('[JWT Callback] Token missing ID, fetching from DB for email:', token.email);

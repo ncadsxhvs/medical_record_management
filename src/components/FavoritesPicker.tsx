@@ -33,11 +33,10 @@ interface SortableItemProps {
   fav: Favorite;
   isAlreadySelected: boolean;
   onSelect: () => void;
-  onRemove: (e: React.MouseEvent) => void;
   multiSelect: boolean;
 }
 
-function SortableItem({ fav, isAlreadySelected, onSelect, onRemove, multiSelect }: SortableItemProps) {
+function SortableItem({ fav, isAlreadySelected, onSelect, multiSelect }: SortableItemProps) {
   const {
     attributes,
     listeners,
@@ -56,48 +55,29 @@ function SortableItem({ fav, isAlreadySelected, onSelect, onRemove, multiSelect 
     <div
       ref={setNodeRef}
       style={style}
-      className={`flex items-center gap-2 p-2 border rounded-md transition-all duration-200 ${
-        isAlreadySelected ? 'bg-green-50 border-green-300' : 'bg-white'
+      className={`p-2.5 border rounded-xl transition-all duration-200 ${
+        isAlreadySelected ? 'bg-green-50 border-green-300' : 'bg-white border-zinc-200 hover:border-blue-300 hover:bg-blue-50/30'
       } ${isDragging ? 'opacity-40 scale-95 shadow-lg z-50' : ''}`}
     >
-      {/* Drag Handle */}
-      {!isAlreadySelected && (
-        <div
-          {...attributes}
-          {...listeners}
-          className="flex-shrink-0 text-zinc-400 cursor-grab active:cursor-grabbing touch-none"
-          title="Drag to reorder"
+      <div className="flex items-start justify-between">
+        <button
+          onClick={onSelect}
+          disabled={multiSelect && isAlreadySelected}
+          className="flex-1 text-left min-w-0"
+          {...(!isAlreadySelected ? { ...attributes, ...listeners } : {})}
         >
-          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-            <path d="M9 3h2v2H9V3zm0 4h2v2H9V7zm0 4h2v2H9v-2zm0 4h2v2H9v-2zm0 4h2v2H9v-2zm4-16h2v2h-2V3zm0 4h2v2h-2V7zm0 4h2v2h-2v-2zm0 4h2v2h-2v-2zm0 4h2v2h-2v-2z"/>
-          </svg>
-        </div>
-      )}
-
-      {/* Content */}
-      <button
-        onClick={onSelect}
-        disabled={multiSelect && isAlreadySelected}
-        className="flex-1 text-left min-w-0 truncate"
-      >
-        <span className={`font-medium ${isAlreadySelected ? 'text-green-700' : 'text-zinc-900'}`}>
-          {fav.hcpcs}
-        </span>
-        {isAlreadySelected && (
-          <span className="ml-1 text-xs text-green-600">✓ added</span>
-        )}
-      </button>
-
-      {/* Delete Button — icon only */}
-      <button
-        onClick={onRemove}
-        className="flex-shrink-0 p-1.5 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 active:bg-red-200 transition-all duration-150"
-        title="Remove from favorites"
-      >
-        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-        </svg>
-      </button>
+          <div className={`font-mono font-bold text-sm ${isAlreadySelected ? 'text-green-700' : 'text-zinc-900'}`}>
+            {fav.hcpcs}
+          </div>
+          {fav.description && (
+            <div className="text-[11px] text-zinc-400 truncate mt-0.5">{fav.description}</div>
+          )}
+          <div className="text-xs font-mono font-semibold text-blue-600 mt-1">
+            {fav.work_rvu ? `${Number(fav.work_rvu).toFixed(2)} RVU` : ''}
+            {isAlreadySelected && <span className="text-green-600 ml-1">&#10003;</span>}
+          </div>
+        </button>
+      </div>
     </div>
   );
 }
@@ -107,6 +87,7 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
   const [favorites, setFavorites] = useState<Favorite[]>([]);
   const [loading, setLoading] = useState(true);
   const [showAddSearch, setShowAddSearch] = useState(false);
+  const [editMode, setEditMode] = useState(false);
   const [addQuery, setAddQuery] = useState('');
   const [addResults, setAddResults] = useState<RVUCode[]>([]);
   const [addLoading, setAddLoading] = useState(false);
@@ -222,65 +203,86 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
 
   return (
     <div>
-      {/* Add Favorites Button / Search */}
-      <div className="mb-2">
-        {showAddSearch ? (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <input
-                type="text"
-                value={addQuery}
-                onChange={(e) => {
-                  setAddQuery(e.target.value);
-                  searchFavorites(e.target.value);
-                }}
-                placeholder="Add favorite by code or name..."
-                className="flex-1 px-3 py-1.5 border border-zinc-300 rounded-md text-sm"
-                autoFocus
-              />
+      {/* Header: FAVORITES + Add / Edit */}
+      <div className="flex items-center justify-between mb-2">
+        <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">Favorites</p>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setShowAddSearch(true)}
+            className="text-xs font-semibold text-blue-500 hover:text-blue-700 transition-colors"
+          >
+            + Add
+          </button>
+          {favorites.length > 0 && (
+            editMode ? (
               <button
-                onClick={() => {
-                  setShowAddSearch(false);
-                  setAddQuery('');
-                  setAddResults([]);
-                }}
-                className="px-3 py-1.5 text-sm text-zinc-600 hover:text-zinc-800"
+                onClick={() => setEditMode(false)}
+                className="text-xs font-semibold text-zinc-500 hover:text-zinc-700 border border-zinc-300 rounded-md px-2.5 py-0.5"
               >
                 Done
               </button>
-            </div>
-            {addLoading && <div className="text-xs text-zinc-400">Searching...</div>}
-            {addResults.length > 0 && (
-              <div className="max-h-48 overflow-y-auto border border-zinc-200 rounded-md">
-                {addResults.map(code => {
-                  const alreadyFav = favorites.some(f => f.hcpcs === code.hcpcs);
-                  return (
-                    <button
-                      key={code.hcpcs}
-                      onClick={() => !alreadyFav && handleAddFavorite(code.hcpcs)}
-                      disabled={alreadyFav}
-                      className={`w-full text-left px-3 py-1.5 text-sm border-b border-zinc-100 last:border-b-0 ${
-                        alreadyFav ? 'bg-zinc-50 text-zinc-400' : 'hover:bg-blue-50'
-                      }`}
-                    >
-                      <span className="font-medium">{code.hcpcs}</span>
-                      <span className="text-zinc-500 ml-2">{code.description}</span>
-                      {alreadyFav && <span className="ml-1 text-xs">(already added)</span>}
-                    </button>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        ) : (
-          <button
-            onClick={() => setShowAddSearch(true)}
-            className="px-3 py-1.5 text-sm bg-green-50 text-green-700 border border-green-200 rounded-md hover:bg-green-100"
-          >
-            + Add Favorite
-          </button>
-        )}
+            ) : (
+              <button
+                onClick={() => setEditMode(true)}
+                className="text-xs font-semibold text-blue-500 hover:text-blue-700 border border-blue-300 rounded-md px-2.5 py-0.5"
+              >
+                Edit
+              </button>
+            )
+          )}
+        </div>
       </div>
+
+      {/* Add search */}
+      {showAddSearch && (
+        <div className="space-y-2 mb-3">
+          <div className="flex items-center gap-2">
+            <input
+              type="text"
+              value={addQuery}
+              onChange={(e) => {
+                setAddQuery(e.target.value);
+                searchFavorites(e.target.value);
+              }}
+              placeholder="Add favorite by code or name..."
+              className="flex-1 px-3 py-1.5 border border-zinc-300 rounded-lg text-sm"
+              autoFocus
+            />
+            <button
+              onClick={() => {
+                setShowAddSearch(false);
+                setAddQuery('');
+                setAddResults([]);
+              }}
+              className="text-xs font-semibold text-zinc-500 hover:text-zinc-700"
+            >
+              Done
+            </button>
+          </div>
+          {addLoading && <div className="text-xs text-zinc-400">Searching...</div>}
+          {addResults.length > 0 && (
+            <div className="max-h-48 overflow-y-auto border border-zinc-200 rounded-lg">
+              {addResults.map(code => {
+                const alreadyFav = favorites.some(f => f.hcpcs === code.hcpcs);
+                return (
+                  <button
+                    key={code.hcpcs}
+                    onClick={() => !alreadyFav && handleAddFavorite(code.hcpcs)}
+                    disabled={alreadyFav}
+                    className={`w-full text-left px-3 py-1.5 text-sm border-b border-zinc-100 last:border-b-0 ${
+                      alreadyFav ? 'bg-zinc-50 text-zinc-400' : 'hover:bg-blue-50'
+                    }`}
+                  >
+                    <span className="font-medium">{code.hcpcs}</span>
+                    <span className="text-zinc-500 ml-2">{code.description}</span>
+                    {alreadyFav && <span className="ml-1 text-xs">(already added)</span>}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
 
       {loading && <div>Loading favorites...</div>}
       {!loading && favorites.length === 0 && !showAddSearch && (
@@ -299,17 +301,26 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
             {favorites.map((fav) => {
               const isAlreadySelected = selectedCodes.includes(fav.hcpcs);
               return (
-                <SortableItem
-                  key={fav.hcpcs}
-                  fav={fav}
-                  isAlreadySelected={isAlreadySelected}
-                  onSelect={() => !isAlreadySelected && handleSelect(fav.hcpcs)}
-                  onRemove={(e) => {
-                    e.stopPropagation();
-                    handleRemove(fav.hcpcs);
-                  }}
-                  multiSelect={multiSelect}
-                />
+                <div key={fav.hcpcs} className="relative">
+                  <SortableItem
+                    fav={fav}
+                    isAlreadySelected={isAlreadySelected}
+                    onSelect={() => !isAlreadySelected && handleSelect(fav.hcpcs)}
+                    multiSelect={multiSelect}
+                  />
+                  {editMode && (
+                    <button
+                      onClick={() => handleRemove(fav.hcpcs)}
+                      className="absolute right-1.5 top-1.5 p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all z-10"
+                      aria-label={`Remove ${fav.hcpcs} from favorites`}
+                      title="Remove from favorites"
+                    >
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  )}
+                </div>
               );
             })}
           </div>

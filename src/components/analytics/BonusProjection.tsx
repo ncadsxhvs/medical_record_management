@@ -1,9 +1,12 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
+import useSWR, { mutate } from 'swr';
 import { AnalyticsData } from '@/types';
 import { parseLocalDate } from '@/lib/dateUtils';
-import { BonusSettings, loadBonusSettings, saveBonusSettings } from '@/lib/bonusSettings';
+import { BonusSettings, getDefaultSettings, saveBonusSettings } from '@/lib/bonusSettings';
+import { fetcher } from '@/lib/fetcher';
+import { CACHE_KEYS } from '@/lib/cache-keys';
 
 interface BonusProjectionProps {
   data: AnalyticsData[];
@@ -13,14 +16,17 @@ interface BonusProjectionProps {
 
 export default function BonusProjection({ data, startDate, endDate }: BonusProjectionProps) {
   const [isExpanded, setIsExpanded] = useState(false);
-  const [settings, setSettings] = useState<BonusSettings>(loadBonusSettings);
+  const { data: dbSettings } = useSWR<BonusSettings>(CACHE_KEYS.settings, fetcher);
+  const settings = dbSettings || getDefaultSettings();
 
-  useEffect(() => {
-    saveBonusSettings(settings);
-  }, [settings]);
+  const updateSettings = async (update: Partial<BonusSettings>) => {
+    const newSettings = { ...settings, ...update };
+    mutate(CACHE_KEYS.settings, newSettings, false);
+    await saveBonusSettings(newSettings);
+    mutate(CACHE_KEYS.settings);
+  };
 
   const results = useMemo(() => {
-    // Data range (actual RVUs observed)
     const start = parseLocalDate(startDate);
     const end = parseLocalDate(endDate);
     const daysInRange = Math.max(1, Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1);
@@ -28,7 +34,6 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
     const dailyRate = actualRvus / daysInRange;
     const annualizedRvus = dailyRate * 365;
 
-    // Target period
     const targetStart = parseLocalDate(settings.targetStartDate);
     const targetEnd = parseLocalDate(settings.targetEndDate);
     const daysInTargetPeriod = Math.max(1, Math.round((targetEnd.getTime() - targetStart.getTime()) / (1000 * 60 * 60 * 24)) + 1);
@@ -37,8 +42,6 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
     const surplus = Math.max(0, annualizedRvus - annualTarget);
     const projectedBonus = surplus * settings.bonusRate;
     const progressPct = annualTarget > 0 ? Math.min(100, (annualizedRvus / annualTarget) * 100) : 0;
-
-    // Prorated bonus for the target period
     const proratedBonus = projectedBonus * (daysInTargetPeriod / 365);
 
     return { actualRvus, daysInRange, annualizedRvus, annualTarget, surplus, projectedBonus, progressPct, daysInTargetPeriod, proratedBonus };
@@ -61,7 +64,6 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
 
       {isExpanded && (
         <div className="px-4 pb-4 space-y-4">
-          {/* Inputs */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-zinc-700 mb-1">RVU Target</label>
@@ -70,7 +72,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 min="0"
                 step="any"
                 value={settings.rvuTarget || ''}
-                onChange={(e) => setSettings(s => ({ ...s, rvuTarget: parseFloat(e.target.value) || 0 }))}
+                onChange={(e) => updateSettings({ rvuTarget: parseFloat(e.target.value) || 0 })}
                 placeholder="e.g. 4000"
                 className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               />
@@ -80,7 +82,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
               <input
                 type="date"
                 value={settings.targetStartDate}
-                onChange={(e) => setSettings(s => ({ ...s, targetStartDate: e.target.value }))}
+                onChange={(e) => updateSettings({ targetStartDate: e.target.value })}
                 className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -89,7 +91,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
               <input
                 type="date"
                 value={settings.targetEndDate}
-                onChange={(e) => setSettings(s => ({ ...s, targetEndDate: e.target.value }))}
+                onChange={(e) => updateSettings({ targetEndDate: e.target.value })}
                 className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
@@ -100,7 +102,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 min="0"
                 step="any"
                 value={settings.bonusRate || ''}
-                onChange={(e) => setSettings(s => ({ ...s, bonusRate: parseFloat(e.target.value) || 0 }))}
+                onChange={(e) => updateSettings({ bonusRate: parseFloat(e.target.value) || 0 })}
                 placeholder="e.g. 35"
                 className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
               />
@@ -110,7 +112,6 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
             Target: {settings.rvuTarget.toLocaleString()} RVUs over {results.daysInTargetPeriod} days ({settings.targetStartDate} to {settings.targetEndDate})
           </p>
 
-          {/* Progress Bar */}
           {results.annualTarget > 0 && (
             <div>
               <div className="flex justify-between text-sm text-zinc-600 mb-1">
@@ -129,7 +130,6 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
             </div>
           )}
 
-          {/* Result Cards */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
             <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg shadow-md border border-blue-200">
               <h3 className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">Actual RVUs</h3>

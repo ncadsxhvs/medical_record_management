@@ -421,12 +421,13 @@ Each spec must allow a Claude Code agent on an iOS / SwiftUI project to recreate
 
 - [Analytics Dashboard](docs/features/analytics.md)
 
-## graphify
+<!-- evolver-evolution-memory -->
+## Evolution Memory (Evolver)
 
-This project has a graphify knowledge graph at graphify-out/.
+This project uses evolver for self-evolution. Hooks automatically:
+1. Inject recent evolution memory at session start
+2. Detect evolution signals during file edits
+3. Record outcomes at session end
 
-Rules:
-- Before answering architecture or codebase questions, read graphify-out/GRAPH_REPORT.md for god nodes and community structure
-- If graphify-out/wiki/index.md exists, navigate it instead of reading raw files
-- For cross-module "how does X relate to Y" questions, prefer `graphify query "<question>"`, `graphify path "<A>" "<B>"`, or `graphify explain "<concept>"` over grep — these traverse the graph's EXTRACTED + INFERRED edges instead of scanning files
-- After modifying code files in this session, run `graphify update .` to keep the graph current (AST-only, no API cost)
+For substantive tasks, call `gep_recall` before work and `gep_record_outcome` after.
+Signals: log_error, perf_bottleneck, user_feature_request, capability_gap, deployment_issue, test_failure.
