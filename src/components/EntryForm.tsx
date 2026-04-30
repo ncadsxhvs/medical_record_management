@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { RVUCode, VisitFormData, Visit, FavoriteGroupItem } from '@/types';
 import RVUPicker from './RVUPicker';
 import FavoritesPicker from './FavoritesPicker';
@@ -9,15 +9,41 @@ import { getCurrentTimeString, getTodayString } from '@/lib/dateUtils';
 import { rvuCodesToProcedures, fetchRvuCodeByHcpcs, groupItemsToProcedures } from '@/lib/procedureUtils';
 import { useToast } from './Toast';
 
+export interface SelectedProcedure {
+  hcpcs: string;
+  description: string;
+  status_code: string;
+  work_rvu: number;
+  quantity: number;
+}
+
+export interface VisitFormControls {
+  procedures: SelectedProcedure[];
+  onQuantityChange: (hcpcs: string, quantity: number) => void;
+  onRemove: (hcpcs: string) => void;
+  date: string;
+  time: string;
+  notes: string;
+  onDateChange: (date: string) => void;
+  onTimeChange: (time: string) => void;
+  onNotesChange: (notes: string) => void;
+  onSave: () => void;
+  onAddNoShow?: () => void;
+  addingNoShow?: boolean;
+  canSave: boolean;
+}
+
 interface EntryFormProps {
   onEntryAdded: () => void;
   copiedVisit?: Visit | null;
   onClearCopy?: () => void;
   onAddNoShow?: () => void;
   addingNoShow?: boolean;
+  externalSelected?: boolean;
+  onSelectedUpdate?: (data: VisitFormControls) => void;
 }
 
-export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAddNoShow, addingNoShow }: EntryFormProps) {
+export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAddNoShow, addingNoShow, externalSelected, onSelectedUpdate }: EntryFormProps) {
   const [visitData, setVisitData] = useState<VisitFormData>({
     date: getTodayString(),
     time: getCurrentTimeString(), // HH:MM format
@@ -78,23 +104,23 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
     }));
   };
 
-  const handleRemoveProcedure = (hcpcs: string) => {
+  const handleRemoveProcedure = useCallback((hcpcs: string) => {
     setVisitData(prev => ({
       ...prev,
       procedures: prev.procedures.filter(p => p.hcpcs !== hcpcs),
     }));
-  };
+  }, []);
 
-  const handleQuantityChange = (hcpcs: string, quantity: number) => {
+  const handleQuantityChange = useCallback((hcpcs: string, quantity: number) => {
     setVisitData(prev => ({
       ...prev,
       procedures: prev.procedures.map(p =>
         p.hcpcs === hcpcs ? { ...p, quantity: Math.max(1, quantity) } : p
       ),
     }));
-  };
+  }, []);
 
-  const handleClearAll = () => {
+  const handleClearAll = useCallback(() => {
     setVisitData({
       date: getTodayString(),
       time: getCurrentTimeString(),
@@ -105,12 +131,11 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
     if (onClearCopy) {
       onClearCopy();
     }
-  };
+  }, [onClearCopy]);
 
-  const handleSaveVisit = async () => {
+  const handleSaveVisit = useCallback(async () => {
     if (visitData.procedures.length === 0) return;
 
-    // Update time to current time if not manually edited
     const dataToSave = {
       ...visitData,
       time: isTimeManuallyEdited ? visitData.time : getCurrentTimeString()
@@ -137,7 +162,34 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
       console.error('Failed to save visit:', error);
       toast('Failed to save visit. Please try again.', 'error');
     }
-  };
+  }, [visitData, isTimeManuallyEdited, handleClearAll, onClearCopy, onEntryAdded, toast]);
+
+  const callbackRefs = useRef({ onSelectedUpdate, handleSaveVisit, handleQuantityChange, handleRemoveProcedure, onAddNoShow, addingNoShow });
+  callbackRefs.current = { onSelectedUpdate, handleSaveVisit, handleQuantityChange, handleRemoveProcedure, onAddNoShow, addingNoShow };
+
+  const prevDataKey = useRef('');
+  useEffect(() => {
+    if (!externalSelected || !callbackRefs.current.onSelectedUpdate) return;
+    const dataKey = JSON.stringify({ d: visitData.date, t: visitData.time, n: visitData.notes, p: visitData.procedures.map(p => `${p.hcpcs}:${p.quantity}`), a: callbackRefs.current.addingNoShow });
+    if (dataKey === prevDataKey.current) return;
+    prevDataKey.current = dataKey;
+
+    callbackRefs.current.onSelectedUpdate({
+      procedures: visitData.procedures,
+      onQuantityChange: (...args) => callbackRefs.current.handleQuantityChange(...args),
+      onRemove: (...args) => callbackRefs.current.handleRemoveProcedure(...args),
+      date: visitData.date,
+      time: visitData.time || '',
+      notes: visitData.notes || '',
+      onDateChange: (date: string) => setVisitData(prev => ({ ...prev, date })),
+      onTimeChange: (time: string) => { setVisitData(prev => ({ ...prev, time })); setIsTimeManuallyEdited(true); },
+      onNotesChange: (notes: string) => setVisitData(prev => ({ ...prev, notes })),
+      onSave: (...args) => callbackRefs.current.handleSaveVisit(...args),
+      onAddNoShow: callbackRefs.current.onAddNoShow,
+      addingNoShow: callbackRefs.current.addingNoShow,
+      canSave: visitData.procedures.length > 0,
+    });
+  });
 
   return (
     <div className="space-y-4">
@@ -196,8 +248,8 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
             />
           </div>
 
-          {/* Selected Procedures */}
-          {visitData.procedures.length > 0 && (
+          {/* Selected Procedures (hidden when rendered externally) */}
+          {!externalSelected && visitData.procedures.length > 0 && (
             <div>
               <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">Selected</p>
               <div className="bg-sky-50 border border-sky-200 rounded-lg p-3 space-y-1.5">
@@ -211,14 +263,14 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => handleQuantityChange(p.hcpcs, (p.quantity || 1) - 1)}
-                          className="w-5 h-5 flex items-center justify-center bg-sky-100 text-sky-700 rounded text-xs font-bold hover:bg-sky-200"
+                          className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-sky-100 text-sky-700 rounded-lg text-sm font-bold hover:bg-sky-200"
                         >
                           −
                         </button>
                         <span className="font-mono text-xs text-zinc-500 w-4 text-center">x{p.quantity || 1}</span>
                         <button
                           onClick={() => handleQuantityChange(p.hcpcs, (p.quantity || 1) + 1)}
-                          className="w-5 h-5 flex items-center justify-center bg-sky-100 text-sky-700 rounded text-xs font-bold hover:bg-sky-200"
+                          className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-sky-100 text-sky-700 rounded-lg text-sm font-bold hover:bg-sky-200"
                         >
                           +
                         </button>
@@ -245,62 +297,64 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
             </div>
           )}
 
-          {/* Date / Time */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label htmlFor="date" className="block text-xs font-medium text-zinc-500 mb-1">Date</label>
+          {/* Date / Time / Notes / Actions — hidden when rendered externally */}
+          {!externalSelected && (
+            <>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label htmlFor="date" className="block text-xs font-medium text-zinc-500 mb-1">Date</label>
+                  <input
+                    type="date"
+                    id="date"
+                    value={visitData.date}
+                    onChange={(e) => setVisitData({ ...visitData, date: e.target.value })}
+                    className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="time" className="block text-xs font-medium text-zinc-500 mb-1">Time</label>
+                  <input
+                    type="time"
+                    id="time"
+                    value={visitData.time || ''}
+                    onChange={(e) => {
+                      setVisitData({ ...visitData, time: e.target.value });
+                      setIsTimeManuallyEdited(true);
+                    }}
+                    className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm"
+                  />
+                </div>
+              </div>
+
               <input
-                type="date"
-                id="date"
-                value={visitData.date}
-                onChange={(e) => setVisitData({ ...visitData, date: e.target.value })}
+                type="text"
+                id="notes"
+                value={visitData.notes || ''}
+                onChange={(e) => setVisitData({ ...visitData, notes: e.target.value })}
+                placeholder="Notes (optional)"
                 className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm"
               />
-            </div>
-            <div>
-              <label htmlFor="time" className="block text-xs font-medium text-zinc-500 mb-1">Time</label>
-              <input
-                type="time"
-                id="time"
-                value={visitData.time || ''}
-                onChange={(e) => {
-                  setVisitData({ ...visitData, time: e.target.value });
-                  setIsTimeManuallyEdited(true);
-                }}
-                className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm"
-              />
-            </div>
-          </div>
 
-          {/* Notes */}
-          <input
-            type="text"
-            id="notes"
-            value={visitData.notes || ''}
-            onChange={(e) => setVisitData({ ...visitData, notes: e.target.value })}
-            placeholder="Notes (optional)"
-            className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm"
-          />
-
-          {/* Action Buttons */}
-          <div className="flex gap-2">
-            <button
-              onClick={handleSaveVisit}
-              disabled={visitData.procedures.length === 0}
-              className="flex-1 py-2.5 bg-zinc-900 text-white text-sm font-semibold rounded-lg hover:bg-zinc-800 active:scale-[0.98] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Save Visit
-            </button>
-            {onAddNoShow && (
-              <button
-                onClick={onAddNoShow}
-                disabled={addingNoShow}
-                className="py-2.5 px-4 bg-red-50 text-red-600 text-xs font-semibold rounded-lg hover:bg-red-100 active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
-              >
-                {addingNoShow ? '...' : 'No Show'}
-              </button>
-            )}
-          </div>
+              <div className="flex gap-2">
+                <button
+                  onClick={handleSaveVisit}
+                  disabled={visitData.procedures.length === 0}
+                  className="flex-1 py-2.5 bg-zinc-900 text-white text-sm font-semibold rounded-lg hover:bg-zinc-800 active:scale-[0.98] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Save Visit
+                </button>
+                {onAddNoShow && (
+                  <button
+                    onClick={onAddNoShow}
+                    disabled={addingNoShow}
+                    className="py-2.5 px-4 bg-red-50 text-red-600 text-xs font-semibold rounded-lg hover:bg-red-100 active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
+                  >
+                    {addingNoShow ? '...' : 'No Show'}
+                  </button>
+                )}
+              </div>
+            </>
+          )}
         </>
       )}
     </div>

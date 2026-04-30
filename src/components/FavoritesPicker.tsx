@@ -65,7 +65,7 @@ function SortableItem({ fav, isAlreadySelected, onSelect, onRemove, multiSelect 
         <div
           {...attributes}
           {...listeners}
-          className="flex-shrink-0 text-gray-400 cursor-grab active:cursor-grabbing touch-none"
+          className="flex-shrink-0 text-zinc-400 cursor-grab active:cursor-grabbing touch-none"
           title="Drag to reorder"
         >
           <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
@@ -80,7 +80,7 @@ function SortableItem({ fav, isAlreadySelected, onSelect, onRemove, multiSelect 
         disabled={multiSelect && isAlreadySelected}
         className="flex-1 text-left min-w-0 truncate"
       >
-        <span className={`font-medium ${isAlreadySelected ? 'text-green-700' : 'text-gray-900'}`}>
+        <span className={`font-medium ${isAlreadySelected ? 'text-green-700' : 'text-zinc-900'}`}>
           {fav.hcpcs}
         </span>
         {isAlreadySelected && (
@@ -235,7 +235,7 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
                   searchFavorites(e.target.value);
                 }}
                 placeholder="Add favorite by code or name..."
-                className="flex-1 px-3 py-1.5 border border-gray-300 rounded-md text-sm"
+                className="flex-1 px-3 py-1.5 border border-zinc-300 rounded-md text-sm"
                 autoFocus
               />
               <button
@@ -244,14 +244,14 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
                   setAddQuery('');
                   setAddResults([]);
                 }}
-                className="px-3 py-1.5 text-sm text-gray-600 hover:text-gray-800"
+                className="px-3 py-1.5 text-sm text-zinc-600 hover:text-zinc-800"
               >
                 Done
               </button>
             </div>
-            {addLoading && <div className="text-xs text-gray-400">Searching...</div>}
+            {addLoading && <div className="text-xs text-zinc-400">Searching...</div>}
             {addResults.length > 0 && (
-              <div className="max-h-48 overflow-y-auto border border-gray-200 rounded-md">
+              <div className="max-h-48 overflow-y-auto border border-zinc-200 rounded-md">
                 {addResults.map(code => {
                   const alreadyFav = favorites.some(f => f.hcpcs === code.hcpcs);
                   return (
@@ -259,12 +259,12 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
                       key={code.hcpcs}
                       onClick={() => !alreadyFav && handleAddFavorite(code.hcpcs)}
                       disabled={alreadyFav}
-                      className={`w-full text-left px-3 py-1.5 text-sm border-b border-gray-100 last:border-b-0 ${
-                        alreadyFav ? 'bg-gray-50 text-gray-400' : 'hover:bg-blue-50'
+                      className={`w-full text-left px-3 py-1.5 text-sm border-b border-zinc-100 last:border-b-0 ${
+                        alreadyFav ? 'bg-zinc-50 text-zinc-400' : 'hover:bg-blue-50'
                       }`}
                     >
                       <span className="font-medium">{code.hcpcs}</span>
-                      <span className="text-gray-500 ml-2">{code.description}</span>
+                      <span className="text-zinc-500 ml-2">{code.description}</span>
                       {alreadyFav && <span className="ml-1 text-xs">(already added)</span>}
                     </button>
                   );
@@ -284,7 +284,7 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
 
       {loading && <div>Loading favorites...</div>}
       {!loading && favorites.length === 0 && !showAddSearch && (
-        <div className="text-gray-500 text-sm">No favorites yet</div>
+        <div className="text-zinc-500 text-sm">No favorites yet</div>
       )}
       <DndContext
         sensors={sensors}

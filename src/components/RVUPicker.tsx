@@ -103,13 +103,14 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
         onFocus={() => setShowDropdown(true)}
         onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
         placeholder="Search HCPCS code or description... (e.g., 99213)"
-        className="w-full px-3 py-2 border border-gray-300 rounded-md"
+        data-search-input
+        className="w-full px-3 py-2 border border-zinc-300 rounded-md"
       />
       {loading && <div className="p-2">Loading...</div>}
       {displayResults.length > 0 && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg">
+        <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-300 rounded-md shadow-lg">
           {query.length < 2 && (
-            <div className="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 bg-gray-50">
+            <div className="px-3 py-2 text-xs font-semibold text-zinc-500 uppercase tracking-wider border-b border-zinc-200 bg-zinc-50">
               Common Office Visit Codes
             </div>
           )}
@@ -120,7 +121,7 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
               return (
                 <li
                   key={rvuCode.hcpcs}
-                  className={`px-3 py-2 ${!multiSelect ? 'cursor-pointer hover:bg-gray-100' : ''} ${isAlreadySelected ? 'bg-gray-100 opacity-50' : ''}`}
+                  className={`px-3 py-2 ${!multiSelect ? 'cursor-pointer hover:bg-zinc-100' : ''} ${isAlreadySelected ? 'bg-zinc-100 opacity-50' : ''}`}
                   onClick={() => !multiSelect && !isAlreadySelected && handleSelect(rvuCode)}
                 >
                   <div className="flex items-center gap-2">
@@ -138,13 +139,13 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
                         <span className="font-bold">{rvuCode.hcpcs}</span>
                         <button
                           onClick={(e) => handleToggleFavorite(rvuCode.hcpcs, e)}
-                          className={`text-lg ${fav ? 'text-yellow-500' : 'text-gray-300'} hover:text-yellow-400 transition-colors`}
+                          className={`text-lg ${fav ? 'text-yellow-500' : 'text-zinc-300'} hover:text-yellow-400 transition-colors`}
                           title={fav ? 'Remove from favorites' : 'Add to favorites'}
                         >
                           {fav ? '★' : '☆'}
                         </button>
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-zinc-600">
                         {rvuCode.description}
                         {isAlreadySelected && <span className="ml-2 text-blue-600">(Already added)</span>}
                       </div>
@@ -155,7 +156,7 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
             })}
           </ul>
           {multiSelect && checkedCodes.size > 0 && (
-            <div className="p-2 border-t border-gray-300">
+            <div className="p-2 border-t border-zinc-300">
               <button
                 onClick={handleAddSelected}
                 className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
