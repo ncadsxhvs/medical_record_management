@@ -54,3 +54,6 @@ keys/
 config/
 configs/
 .gstack/
+docs/
+.graphify-out/
+graphify-out/
