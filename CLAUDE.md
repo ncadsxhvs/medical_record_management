@@ -101,8 +101,10 @@ Follow this workflow for every development task:
 7. **Update docs** — Append `docs/FEATURE_LOG.md` entry + create/update `docs/features/<name>.md` (use `git add -f docs/` since docs/ is gitignored). Do this BEFORE pushing, not after CI fails.
 8. **Commit & push** — Stage specific files, commit, push to branch
 9. **Create PR** — Use `gh pr create` with summary and test plan
+10. **After PR is merged** — Switch back to `main`, pull latest, and delete the merged branch. Always create a new branch for the next feature.
 
 **Never skip step 6 for UI changes.** Code correctness != feature correctness.
+**Never reuse a merged branch.** Each feature/fix gets its own fresh branch off `main`.
 
 ## Skill Routing
 
