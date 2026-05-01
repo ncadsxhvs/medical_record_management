@@ -82,7 +82,7 @@ export default function ProcedureList({ procedures, onRemove, onQuantityChange, 
                     Unit RVU: <span className="font-semibold">{Number(proc.work_rvu).toFixed(2)}</span>
                   </div>
                   <div className="text-sm text-zinc-600">
-                    Total: <span className="font-semibold text-blue-600">{(Number(proc.work_rvu) * (proc.quantity || 1)).toFixed(2)} RVU</span>
+                    Total: <span className="font-semibold text-[#0070cc]">{(Number(proc.work_rvu) * (proc.quantity || 1)).toFixed(2)} RVU</span>
                   </div>
                 </div>
               </div>
@@ -99,14 +99,14 @@ export default function ProcedureList({ procedures, onRemove, onQuantityChange, 
           </div>
         );
       })}
-      <div className="p-3 bg-blue-50 border border-blue-300 rounded-md">
+      <div className="p-3 bg-[#0070cc]/5 border border-[#0070cc]/20 rounded-md">
         <div className="flex justify-between items-center">
           <span className="font-semibold text-zinc-700">Total Procedures:</span>
           <span className="font-bold">{procedures.length}</span>
         </div>
         <div className="flex justify-between items-center mt-1">
           <span className="font-semibold text-zinc-700">Total Work RVU:</span>
-          <span className="font-bold text-blue-700 text-lg">{totalRVU.toFixed(2)}</span>
+          <span className="font-bold text-[#0070cc] text-lg">{totalRVU.toFixed(2)}</span>
         </div>
       </div>
     </div>

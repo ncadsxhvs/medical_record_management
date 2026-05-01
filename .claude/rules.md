@@ -2,6 +2,17 @@
 
 ---
 
+## Skill Routing
+
+| When | Skill/Plugin | Stage |
+|------|-------------|-------|
+| UI/UX planning & design decisions | `/ui-ux-pro-max:ui-ux-pro-max` | During planning (step 2) |
+| Any feature build (multi-file) | `harness-design` | Right after planning (step 3) |
+| UI polish, component architecture, bias corrections | `taste-skill` | During implementation |
+| Feature planning & execution | `superpowers` skills | As needed |
+
+---
+
 ## PR Summary to Brain Base (MANDATORY)
 
 Every PR — before pushing — MUST write a summary file to:

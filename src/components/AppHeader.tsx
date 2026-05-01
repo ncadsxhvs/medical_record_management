@@ -17,18 +17,18 @@ interface AppHeaderProps {
 
 export default function AppHeader({ activePage }: AppHeaderProps) {
   return (
-    <div className="border-b border-zinc-200/60 bg-white px-3 sm:px-6 py-3">
+    <div className="bg-[#000000] px-3 sm:px-6 py-3">
       <div className="max-w-[1400px] mx-auto flex items-center gap-1.5 sm:gap-3">
-        <div className="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white text-xs font-bold flex-shrink-0">R</div>
-        <h1 className="text-lg font-bold text-zinc-900 tracking-tight hidden sm:inline">RVU Tracker</h1>
+        <div className="w-8 h-8 rounded-full bg-[#0070cc] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">R</div>
+        <h1 className="text-lg font-light text-white tracking-tight hidden sm:inline">RVU Tracker</h1>
         <div className="flex items-center gap-1 sm:ml-4">
           {NAV_ITEMS.map(item =>
             item.key === activePage ? (
-              <span key={item.key} className="px-2 sm:px-3 py-1 sm:py-1.5 bg-blue-500 text-white text-xs font-semibold rounded-lg">
+              <span key={item.key} className="px-3 sm:px-4 py-1 sm:py-1.5 bg-[#0070cc] text-white text-xs font-medium rounded-full">
                 {item.label}
               </span>
             ) : (
-              <a key={item.key} href={item.href} className="px-2 sm:px-3 py-1 sm:py-1.5 text-zinc-500 text-xs font-semibold rounded-lg hover:bg-zinc-100 transition-colors">
+              <a key={item.key} href={item.href} className="px-3 sm:px-4 py-1 sm:py-1.5 text-white/70 text-xs font-medium rounded-full hover:text-[#1eaedb] transition-colors duration-180">
                 {item.label}
               </a>
             )
@@ -43,7 +43,7 @@ export default function AppHeader({ activePage }: AppHeaderProps) {
 
 export function AppHeaderSkeleton() {
   return (
-    <div className="border-b border-zinc-200/60 bg-white px-6 py-3">
+    <div className="bg-[#000000] px-6 py-3">
       <div className="max-w-[1400px] mx-auto flex items-center gap-3">
         <Skeleton className="h-8 w-8 rounded-full" />
         <Skeleton className="h-6 w-32" />

@@ -80,7 +80,7 @@ export default function ProductivityPage() {
 
   if (status === 'loading' || isLoading) {
     return (
-      <div className="min-h-screen bg-stone-50">
+      <div className="min-h-screen bg-[#f5f7fa]">
         <AppHeaderSkeleton />
         <div className="max-w-[1400px] mx-auto p-6 space-y-6">
           <Skeleton className="h-12 w-96" />
@@ -96,13 +96,13 @@ export default function ProductivityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-[#f5f7fa]">
       <AppHeader activePage="productivity" />
 
       <div className="max-w-[1400px] mx-auto p-5 lg:p-8">
         {/* Editorial headline */}
         <div className="mb-7">
-          <h2 className="text-3xl lg:text-5xl font-bold text-zinc-900 tracking-tight leading-none">
+          <h2 className="text-3xl lg:text-5xl font-light text-zinc-900 tracking-tight leading-none">
             You&apos;re having{' '}
             <em className="not-italic font-bold" style={{ color: onPace ? '#059669' : '#d97706' }}>
               {onPace ? 'a strong week' : 'a slow week'}
@@ -132,7 +132,7 @@ export default function ProductivityPage() {
               pct={monthPct}
               value={`${monthPct.toFixed(0)}%`}
               sublabel="Monthly pace"
-              color="#2563eb"
+              color="#0070cc"
             />
             <p className="text-xs text-zinc-500 mt-4 text-center">
               {monthRVU.toFixed(1)} of {monthlyTarget} &middot; projected {projection.toFixed(0)}

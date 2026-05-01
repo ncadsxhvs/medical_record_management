@@ -196,7 +196,7 @@ export default function FavoriteGroupsPicker({
         <div className="flex gap-2">
           <button
             onClick={handleAddNewGroup}
-            className="text-xs font-semibold text-blue-500 hover:text-blue-700 transition-colors"
+            className="text-xs font-semibold text-[#0070cc] hover:text-[#1eaedb] transition-colors cursor-pointer"
           >
             + Add
           </button>
@@ -204,14 +204,14 @@ export default function FavoriteGroupsPicker({
             managementMode ? (
               <button
                 onClick={handleExitManagement}
-                className="text-xs font-semibold text-zinc-500 hover:text-zinc-700 border border-zinc-300 rounded-md px-2.5 py-0.5"
+                className="text-xs font-semibold text-zinc-500 hover:text-zinc-700 border border-zinc-300 rounded-full px-2.5 py-0.5 cursor-pointer"
               >
                 Done
               </button>
             ) : (
               <button
                 onClick={() => setManagementMode(true)}
-                className="text-xs font-semibold text-blue-500 hover:text-blue-700 border border-blue-300 rounded-md px-2.5 py-0.5"
+                className="text-xs font-semibold text-[#0070cc] hover:text-[#1eaedb] border border-[#0070cc]/30 rounded-full px-2.5 py-0.5 cursor-pointer"
               >
                 Edit
               </button>
@@ -236,8 +236,8 @@ export default function FavoriteGroupsPicker({
                 key={g.id}
                 className={`relative flex items-center gap-3 p-3 border rounded-xl transition-colors ${
                   isSelected
-                    ? 'bg-blue-50 border-blue-300'
-                    : 'bg-white border-zinc-200 hover:bg-blue-50'
+                    ? 'bg-[#0070cc]/5 border-[#0070cc]/30'
+                    : 'bg-white border-zinc-200 hover:bg-[#0070cc]/5'
                 }`}
               >
                 <div className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColor}`} />
@@ -267,7 +267,7 @@ export default function FavoriteGroupsPicker({
           return (
             <div
               key={g.id}
-              className="flex items-center gap-3 p-3 border border-zinc-200 rounded-xl bg-white hover:bg-blue-50 transition-colors cursor-pointer"
+              className="flex items-center gap-3 p-3 border border-zinc-200 rounded-xl bg-white hover:bg-[#0070cc]/5 transition-colors cursor-pointer"
               onClick={() => onAddGroup(g.items, g.name)}
               title="Add all codes in this group to the visit"
             >
@@ -286,9 +286,9 @@ export default function FavoriteGroupsPicker({
 
       {/* Inline editor for selected group or new group */}
       {managementMode && (editingGroup || creatingGroupName) && (
-        <div className="mt-3 p-4 border border-blue-300 rounded-md bg-blue-50">
+        <div className="mt-3 p-4 border border-[#0070cc]/20 rounded-md bg-[#0070cc]/5">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="text-md font-semibold text-blue-900">
+            <h4 className="text-md font-semibold text-[#0070cc]">
               {creatingGroupName
                 ? <>New Group &quot;{creatingGroupName}&quot;</>
                 : <>Editing &quot;{editingGroup!.name}&quot;</>
@@ -328,7 +328,7 @@ export default function FavoriteGroupsPicker({
             <button
               onClick={creatingGroupName ? handleSaveNewGroup : handleSaveEdit}
               disabled={editProcedures.length === 0}
-              className="px-4 py-2 text-sm bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm bg-[#0070cc] text-white rounded-full hover:bg-[#005fa3] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {creatingGroupName ? 'Create Group' : 'Save Changes'}
             </button>

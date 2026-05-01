@@ -56,7 +56,7 @@ function SortableItem({ fav, isAlreadySelected, onSelect, multiSelect }: Sortabl
       ref={setNodeRef}
       style={style}
       className={`p-2.5 border rounded-xl transition-all duration-200 ${
-        isAlreadySelected ? 'bg-green-50 border-green-300' : 'bg-white border-zinc-200 hover:border-blue-300 hover:bg-blue-50/30'
+        isAlreadySelected ? 'bg-green-50 border-green-300' : 'bg-white border-zinc-200 hover:border-[#0070cc]/30 hover:bg-[#0070cc]/5'
       } ${isDragging ? 'opacity-40 scale-95 shadow-lg z-50' : ''}`}
     >
       <div className="flex items-start justify-between">
@@ -72,7 +72,7 @@ function SortableItem({ fav, isAlreadySelected, onSelect, multiSelect }: Sortabl
           {fav.description && (
             <div className="text-[11px] text-zinc-400 truncate mt-0.5">{fav.description}</div>
           )}
-          <div className="text-xs font-mono font-semibold text-blue-600 mt-1">
+          <div className="text-xs font-mono font-semibold text-[#0070cc] mt-1">
             {fav.work_rvu ? `${Number(fav.work_rvu).toFixed(2)} RVU` : ''}
             {isAlreadySelected && <span className="text-green-600 ml-1">&#10003;</span>}
           </div>
@@ -209,7 +209,7 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
         <div className="flex gap-2">
           <button
             onClick={() => setShowAddSearch(true)}
-            className="text-xs font-semibold text-blue-500 hover:text-blue-700 transition-colors"
+            className="text-xs font-semibold text-[#0070cc] hover:text-[#1eaedb] transition-colors cursor-pointer"
           >
             + Add
           </button>
@@ -217,14 +217,14 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
             editMode ? (
               <button
                 onClick={() => setEditMode(false)}
-                className="text-xs font-semibold text-zinc-500 hover:text-zinc-700 border border-zinc-300 rounded-md px-2.5 py-0.5"
+                className="text-xs font-semibold text-zinc-500 hover:text-zinc-700 border border-zinc-300 rounded-full px-2.5 py-0.5 cursor-pointer"
               >
                 Done
               </button>
             ) : (
               <button
                 onClick={() => setEditMode(true)}
-                className="text-xs font-semibold text-blue-500 hover:text-blue-700 border border-blue-300 rounded-md px-2.5 py-0.5"
+                className="text-xs font-semibold text-[#0070cc] hover:text-[#1eaedb] border border-[#0070cc]/30 rounded-full px-2.5 py-0.5 cursor-pointer"
               >
                 Edit
               </button>
@@ -270,7 +270,7 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
                     onClick={() => !alreadyFav && handleAddFavorite(code.hcpcs)}
                     disabled={alreadyFav}
                     className={`w-full text-left px-3 py-1.5 text-sm border-b border-zinc-100 last:border-b-0 ${
-                      alreadyFav ? 'bg-zinc-50 text-zinc-400' : 'hover:bg-blue-50'
+                      alreadyFav ? 'bg-zinc-50 text-zinc-400' : 'hover:bg-[#0070cc]/5'
                     }`}
                   >
                     <span className="font-medium">{code.hcpcs}</span>

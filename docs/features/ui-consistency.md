@@ -19,32 +19,35 @@ Unify visual design across all 3 pages (Log, Analytics, Productivity) so header,
 ### Shared Header (`AppHeader`)
 | Element | Type | Details |
 |---------|------|---------|
-| Logo | Circle badge | 32x32pt, blue fill, white "R" text, bold |
-| Title | Text | "RVU Tracker", 18pt, bold, dark gray |
+| Logo | Circle badge | 32x32pt, PlayStation Blue (#0070cc) fill, white "R" text, bold |
+| Title | Text | "RVU Tracker", 18pt, font-light (300), white (hidden on mobile) |
 | Nav pills | Horizontal group | 3 items: Log, Analytics, Productivity |
-| Active pill | Filled badge | Blue background (#3b82f6), white text, 12pt semibold, rounded-lg |
-| Inactive pill | Text link | Gray text (#71717a), 12pt semibold, hover: light gray background |
-| User avatar | Component | Right-aligned, shows profile dropdown |
+| Active pill | Filled badge | PlayStation Blue (#0070cc) bg, white text, 12pt medium, rounded-full (pill) |
+| Inactive pill | Text link | White text at 70% opacity, hover: Cyan (#1eaedb), rounded-full |
+| User avatar | Component | Right-aligned; mobile: circle initial only; desktop: name + sign-out |
 | Container | Max-width | 1400px, centered |
-| Border | Bottom | 1px, light gray at 60% opacity |
+| Background | Solid | Console Black (#000000) |
 
 ### Loading State (`AppHeaderSkeleton`)
 Same outer shell with animated placeholder rectangles for logo (32x32 circle) and title (128x24 rect).
 
-### Design Tokens (Unified)
-| Token | Value | Tailwind | Usage |
-|-------|-------|----------|-------|
-| Primary | #3b82f6 | blue-500 | Active nav, primary buttons, focus rings |
-| Primary hover | #2563eb | blue-600 | Button hover states |
-| Success | #059669 | emerald-600 | Positive indicators, on-pace states |
-| Caution | #d97706 | amber-600 | Warning states, slow-pace indicators |
-| Destructive | #dc2626 | red-600 | Delete buttons, error states |
-| Page background | #fafaf9 | stone-50 | All page backgrounds |
-| Card background | #ffffff | white | Cards, sidebars |
-| Card border | #e4e4e7 at 80% | zinc-200/80 | Card borders |
-| Text primary | #18181b | zinc-900 | Headings, body text |
-| Text secondary | #71717a | zinc-500 | Subtitles, metadata |
-| Text tertiary | #a1a1aa | zinc-400 | Labels, hints |
+### Design Tokens — PlayStation-Inspired
+| Token | Value | CSS Variable | Usage |
+|-------|-------|-------------|-------|
+| Primary (Brand) | #0070cc | --color-ps-blue | Active nav, primary buttons, links, focus rings |
+| Primary hover | #005fa3 | --color-ps-blue-hover | Button pressed states |
+| Interaction Cyan | #1eaedb | --color-ps-cyan | Hover/focus accent ONLY — never at rest |
+| Console Black | #000000 | --color-ps-black | Header/nav background |
+| Deep Charcoal | #1f1f1f | --color-ps-charcoal | Body headlines, toast backgrounds |
+| Body Gray | #6b6b6b | --color-ps-body-gray | Secondary text, metadata |
+| Mute Gray | #cccccc | --color-ps-mute | Disabled states, placeholders |
+| Paper White | #ffffff | --color-ps-paper | Card/surface backgrounds |
+| Ice Mist | #f5f7fa | --color-ps-ice | Page backgrounds |
+| Divider | #f3f3f3 | --color-ps-divider | Section separators |
+| Commerce Orange | #d53b00 | --color-ps-orange | No-show buttons, destructive commerce CTAs |
+| Warning Red | #c81b3a | --color-ps-red | Form errors, delete confirmations |
+| Success | #059669 | emerald-600 | Positive indicators |
+| Caution | #d97706 | amber-600 | Warning states |
 
 ### Per-Page Changes
 
@@ -110,23 +113,47 @@ Middleware runs in the Edge Runtime, which does not support Node.js `crypto`. Th
 - Loading skeleton must match the same header width and structure.
 - Nav pills must not wrap on mobile (3 items fit within 375px viewport).
 
+## PlayStation Signature Button (ps-btn)
+All primary buttons use the `ps-btn` CSS class:
+1. At rest: PlayStation Blue (#0070cc) bg, white text, rounded-full (pill)
+2. On hover: Cyan (#1eaedb) bg, 2px white border, 2px PlayStation Blue outer ring (box-shadow), scale 1.05×
+3. On active: opacity 0.6, scale 1.0
+4. Transition: 180ms ease
+
+### Typography Rules
+- Display headings (22px+): font-light (weight 300) — not bold
+- Body text: font-normal (weight 400)
+- UI labels/buttons: font-medium (weight 500)
+- No ALL-CAPS labels — sentence case and title case only
+- Font: Geist (sans), Geist Mono (mono)
+
+### Border Radius
+- Inputs: rounded-lg (8px)
+- Cards: rounded-xl (12px)
+- Modals: rounded-2xl (16px)
+- All buttons: rounded-full (pill shape)
+
 ## Acceptance Criteria
-- [ ] All 3 pages show identical header: blue "R" circle, "RVU Tracker" title, 3 nav pills
-- [ ] Active page pill is blue-500 with white text on every page
-- [ ] Inactive pills are gray-500 text with hover highlight
+- [ ] All 3 pages show identical header: PlayStation Blue "R" circle, "RVU Tracker" title (font-light), 3 nav pills
+- [ ] Header background is Console Black (#000000)
+- [ ] Active page pill is PlayStation Blue (#0070cc) with white text, rounded-full
+- [ ] Inactive pills are white/70 text with cyan hover
 - [ ] All pages use max-w-[1400px] container
-- [ ] Analytics preset chips use blue-500 active state (not zinc-900)
-- [ ] Productivity page has no oklch() inline styles
-- [ ] Productivity headline uses emerald-600/amber-600 for pace indicator
-- [ ] Score rings use hex colors (#059669, #2563eb)
-- [ ] HTML templates render correctly in browser with Tailwind CDN
+- [ ] All pages use Ice Mist (#f5f7fa) background
+- [ ] Display headings use font-light, not font-bold
+- [ ] All buttons are pill-shaped (rounded-full)
+- [ ] Primary buttons have ps-btn hover treatment
+- [ ] No cyan (#1eaedb) appears at rest — only on hover/focus
+- [ ] Focus rings are 2px PlayStation Blue box-shadow
 - [ ] `npm run build` passes with no errors
 
 ## iOS / SwiftUI Notes
-- **Header**: Use a custom `AppHeaderView` with `HStack` containing logo circle (`Circle().fill(.blue)`), title `Text`, and `ForEach` over nav items. Active item uses `.background(.blue)` capsule; inactive uses plain text.
-- **Design tokens**: Define as `Color` extensions in a `DesignTokens.swift` file. Map blue-500 to `Color(hex: "#3b82f6")`, etc.
+- **Header**: Use a custom `AppHeaderView` with `HStack` containing logo circle (`Circle().fill(Color(hex: "#0070cc"))`), title `Text` with `.fontWeight(.light)`, and `ForEach` over nav items. Active item uses `.background(Color(hex: "#0070cc"))` capsule; inactive uses `.foregroundColor(.white.opacity(0.7))`.
+- **Design tokens**: Define as `Color` extensions in a `DesignTokens.swift` file. Map PlayStation Blue to `Color(hex: "#0070cc")`, Cyan to `Color(hex: "#1eaedb")`, Ice Mist to `Color(hex: "#f5f7fa")`, etc.
+- **Buttons**: All buttons use `.clipShape(Capsule())` for pill shape. Primary buttons: PlayStation Blue bg, white text. On press: reduce opacity to 0.6.
 - **Container width**: Use `.frame(maxWidth: 1400)` with `.padding(.horizontal)` on iPad; full-width on iPhone.
 - **Nav**: On iOS, this maps to a `TabView` with 3 tabs (Log, Analytics, Productivity) rather than a top nav bar.
+- **Typography**: Display headings use `.fontWeight(.light)`. No bold display text.
 
 ## Files (web reference)
 - `src/components/AppHeader.tsx` — shared header component + skeleton

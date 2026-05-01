@@ -85,7 +85,7 @@ export default function SelectedProceduresCard({ data }: Props) {
             id="ext-date"
             value={date}
             onChange={(e) => onDateChange(e.target.value)}
-            className="w-full px-4 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            className="w-full px-4 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0070cc]/20 focus:border-[#0070cc] transition-all"
           />
         </div>
         <div>
@@ -95,7 +95,7 @@ export default function SelectedProceduresCard({ data }: Props) {
             id="ext-time"
             value={time}
             onChange={(e) => onTimeChange(e.target.value)}
-            className="w-full px-4 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+            className="w-full px-4 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0070cc]/20 focus:border-[#0070cc] transition-all"
           />
         </div>
       </div>
@@ -109,7 +109,7 @@ export default function SelectedProceduresCard({ data }: Props) {
           value={notes}
           onChange={(e) => onNotesChange(e.target.value)}
           placeholder=""
-          className="w-full px-4 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
+          className="w-full px-4 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0070cc]/20 focus:border-[#0070cc] transition-all"
         />
       </div>
 
@@ -118,13 +118,13 @@ export default function SelectedProceduresCard({ data }: Props) {
         <button
           onClick={onSave}
           disabled={!canSave}
-          className="flex-1 py-3 bg-blue-500 text-white text-sm font-semibold rounded-xl hover:bg-blue-600 active:scale-[0.98] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+          className="flex-1 py-3 bg-[#0070cc] text-white text-sm font-semibold rounded-full ps-btn cursor-pointer active:scale-[0.98] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
         >
           Save Visit
         </button>
         <button
           onClick={onClear}
-          className="py-3 px-5 text-zinc-500 text-sm font-semibold rounded-xl border border-zinc-200 hover:bg-zinc-50 active:scale-[0.98] transition-all duration-150"
+          className="py-3 px-5 text-zinc-500 text-sm font-semibold rounded-full border border-zinc-200 cursor-pointer hover:bg-zinc-50 active:scale-[0.98] transition-all duration-150"
         >
           Clear
         </button>
@@ -132,7 +132,7 @@ export default function SelectedProceduresCard({ data }: Props) {
           <button
             onClick={onAddNoShow}
             disabled={addingNoShow}
-            className="py-3 px-5 text-red-500 text-sm font-semibold rounded-xl border border-red-200 hover:bg-red-50 active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
+            className="py-3 px-5 text-[#d53b00] text-sm font-semibold rounded-full border border-[#d53b00] cursor-pointer hover:bg-red-50 active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
           >
             {addingNoShow ? '...' : 'No Show'}
           </button>

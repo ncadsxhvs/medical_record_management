@@ -124,7 +124,7 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
           {/* Search for Additional Procedures */}
           <div className="bg-zinc-50 border border-zinc-200 rounded-xl p-5">
             <div className="flex items-center gap-2 mb-3">
-              <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-5 h-5 text-[#0070cc]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
               <h3 className="text-sm font-semibold text-zinc-900">Add More Procedures</h3>
@@ -158,8 +158,8 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
 
           {/* Selected Procedures */}
           {editedVisit.procedures.length > 0 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-5">
-              <h3 className="text-sm font-semibold text-blue-900 mb-3">
+            <div className="bg-[#0070cc]/5 border border-[#0070cc]/20 rounded-xl p-5">
+              <h3 className="text-sm font-semibold text-[#0070cc] mb-3">
                 Selected Procedures ({editedVisit.procedures.length})
               </h3>
               <ProcedureList
@@ -184,7 +184,7 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
                   type="date"
                   value={editedVisit.date}
                   onChange={(e) => setEditedVisit(prev => ({ ...prev, date: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2.5 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-[#0070cc] focus:border-transparent transition-all"
                 />
               </div>
 
@@ -196,7 +196,7 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
                   type="time"
                   value={editedVisit.time || ''}
                   onChange={(e) => setEditedVisit(prev => ({ ...prev, time: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  className="w-full px-4 py-2.5 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-[#0070cc] focus:border-transparent transition-all"
                 />
               </div>
             </div>
@@ -209,7 +209,7 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
                 value={editedVisit.notes || ''}
                 onChange={(e) => setEditedVisit(prev => ({ ...prev, notes: e.target.value }))}
                 placeholder="Add visit notes..."
-                className="w-full px-4 py-2.5 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all resize-none"
+                className="w-full px-4 py-2.5 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-[#0070cc] focus:border-transparent transition-all resize-none"
                 rows={3}
               />
             </div>
@@ -228,7 +228,7 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
           <button
             onClick={handleSave}
             disabled={editedVisit.procedures.length === 0}
-            className="px-5 py-2.5 bg-blue-600 text-white font-semibold text-sm rounded-lg hover:bg-blue-700 active:bg-blue-800 transition-all duration-150 disabled:bg-zinc-300 disabled:cursor-not-allowed shadow-sm"
+            className="px-5 py-2.5 bg-[#0070cc] text-white font-semibold text-sm rounded-full hover:bg-[#005fa3] active:bg-[#004d8a] transition-all duration-150 disabled:bg-zinc-300 disabled:cursor-not-allowed shadow-sm"
           >
             Save Changes
           </button>

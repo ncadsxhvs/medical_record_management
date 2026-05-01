@@ -1,4 +1,4 @@
-# Design System Master File
+# Design System Master File — PlayStation-Inspired
 
 > **LOGIC:** When building a specific page, first check `design-system/pages/[page-name].md`.
 > If that file exists, its rules **override** this Master file.
@@ -7,8 +7,9 @@
 ---
 
 **Project:** TrackMyRVU
-**Generated:** 2026-04-29 23:28:03
+**Updated:** 2026-04-30
 **Category:** Healthcare App
+**Inspiration:** PlayStation.com — quiet authority, premium surfaces, signature interactions
 
 ---
 
@@ -16,194 +17,114 @@
 
 ### Color Palette
 
-| Role | Hex | CSS Variable |
-|------|-----|--------------|
-| Primary | `#0D9488` | `--color-primary` |
-| On Primary | `#FFFFFF` | `--color-on-primary` |
-| Secondary | `#14B8A6` | `--color-secondary` |
-| Accent/CTA | `#EA580C` | `--color-accent` |
-| Background | `#F0FDFA` | `--color-background` |
-| Foreground | `#134E4A` | `--color-foreground` |
-| Muted | `#E8F1F4` | `--color-muted` |
-| Border | `#99F6E4` | `--color-border` |
-| Destructive | `#DC2626` | `--color-destructive` |
-| Ring | `#0D9488` | `--color-ring` |
-
-**Color Notes:** Teal focus + action orange [Accent adjusted from #F97316 for WCAG 3:1]
+| Role | Hex | CSS Variable | Usage |
+|------|-----|-------------|-------|
+| Primary (Brand) | `#0070cc` | `--color-ps-blue` | Active nav, primary buttons, links, focus rings |
+| Primary hover | `#005fa3` | `--color-ps-blue-hover` | Button pressed states |
+| Interaction Cyan | `#1eaedb` | `--color-ps-cyan` | Hover/focus accent ONLY — never at rest |
+| Console Black | `#000000` | `--color-ps-black` | Header/nav background |
+| Deep Charcoal | `#1f1f1f` | `--color-ps-charcoal` | Body headlines, toast backgrounds |
+| Body Gray | `#6b6b6b` | `--color-ps-body-gray` | Secondary text, metadata |
+| Mute Gray | `#cccccc` | `--color-ps-mute` | Disabled states, placeholders |
+| Paper White | `#ffffff` | `--color-ps-paper` | Card/surface backgrounds |
+| Ice Mist | `#f5f7fa` | `--color-ps-ice` | Page backgrounds (replaces stone-50) |
+| Divider | `#f3f3f3` | `--color-ps-divider` | Section separators |
+| Commerce Orange | `#d53b00` | `--color-ps-orange` | No-show buttons, destructive commerce CTAs |
+| Warning Red | `#c81b3a` | `--color-ps-red` | Form errors, delete confirmations |
+| Success | `#059669` | emerald-600 | Positive indicators (kept from previous system) |
+| Caution | `#d97706` | amber-600 | Warning states (kept from previous system) |
 
 ### Typography
 
-- **Heading Font:** Figtree
-- **Body Font:** Noto Sans
-- **Mood:** medical, clean, accessible, professional, healthcare, trustworthy
-- **Google Fonts:** [Figtree + Noto Sans](https://fonts.google.com/share?selection.family=Figtree:wght@300;400;500;600;700|Noto+Sans:wght@300;400;500;700)
+- **Font:** Geist (sans-serif), Geist Mono (monospace)
+- **Display headings (22px+):** `font-light` (weight 300) — PlayStation quiet authority
+- **Body text:** `font-normal` (weight 400)
+- **UI labels/captions:** `font-medium` (weight 500)
+- **Buttons:** `font-medium` (weight 500)
+- **No ALL-CAPS labels** — sentence case and title case only
 
-**CSS Import:**
-```css
-@import url('https://fonts.googleapis.com/css2?family=Figtree:wght@300;400;500;600;700&family=Noto+Sans:wght@300;400;500;700&display=swap');
-```
+### Signature Button Hover
 
-### Spacing Variables
+Every primary button uses the `ps-btn` class:
+1. Background fills to Cyan `#1eaedb`
+2. 2px white border appears
+3. 2px PlayStation Blue outer ring blooms (`box-shadow: 0 0 0 2px #0070cc`)
+4. Button scales `1.05×`
+5. Active state: `opacity: 0.6`
+6. Transition: 180ms ease
 
-| Token | Value | Usage |
-|-------|-------|-------|
-| `--space-xs` | `4px` / `0.25rem` | Tight gaps |
-| `--space-sm` | `8px` / `0.5rem` | Icon gaps, inline spacing |
-| `--space-md` | `16px` / `1rem` | Standard padding |
-| `--space-lg` | `24px` / `1.5rem` | Section padding |
-| `--space-xl` | `32px` / `2rem` | Large gaps |
-| `--space-2xl` | `48px` / `3rem` | Section margins |
-| `--space-3xl` | `64px` / `4rem` | Hero padding |
+### Border Radius Scale
 
-### Shadow Depths
+| Value | Usage |
+|-------|-------|
+| `rounded-lg` (8px) | Inputs, form controls |
+| `rounded-xl` (12px) | Cards, content panels |
+| `rounded-2xl` (16px) | Modals, feature cards |
+| `rounded-full` (9999px) | All buttons (pill shape) |
+
+### Shadow Scale
 
 | Level | Value | Usage |
 |-------|-------|-------|
-| `--shadow-sm` | `0 1px 2px rgba(0,0,0,0.05)` | Subtle lift |
-| `--shadow-md` | `0 4px 6px rgba(0,0,0,0.1)` | Cards, buttons |
-| `--shadow-lg` | `0 10px 15px rgba(0,0,0,0.1)` | Modals, dropdowns |
-| `--shadow-xl` | `0 20px 25px rgba(0,0,0,0.15)` | Hero images, featured cards |
+| Level 0 | None | Default flat content |
+| Level 1 | `0 5px 9px rgba(0,0,0,0.06)` | Editorial panels, subtle lift |
+| Level 2 | `0 5px 9px rgba(0,0,0,0.08)` | Standard card elevation |
+| Level 3 | `0 5px 9px rgba(0,0,0,0.16)` | Emphasized cards, hover |
 
 ---
 
-## Component Specs
+## Component Patterns
+
+### Header (AppHeader)
+- Background: Console Black `#000000`
+- Logo: 32px circle, PlayStation Blue fill, white "R"
+- Title: `font-light text-white`
+- Active nav pill: `bg-[#0070cc] text-white rounded-full`
+- Inactive nav: `text-white/70 hover:text-[#1eaedb]`
 
 ### Buttons
-
-```css
-/* Primary Button */
-.btn-primary {
-  background: #EA580C;
-  color: white;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.btn-primary:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
-}
-
-/* Secondary Button */
-.btn-secondary {
-  background: transparent;
-  color: #0D9488;
-  border: 2px solid #0D9488;
-  padding: 12px 24px;
-  border-radius: 8px;
-  font-weight: 600;
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-```
+- Primary: `bg-[#0070cc] text-white rounded-full ps-btn`
+- Secondary: `bg-white border border-zinc-200 text-[#1f1f1f] rounded-full`
+- Destructive: `text-[#d53b00] border border-[#d53b00] rounded-full`
+- Ghost (on dark): `bg-transparent border-2 border-white/30 text-white rounded-full ps-btn`
 
 ### Cards
-
-```css
-.card {
-  background: #F0FDFA;
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: var(--shadow-md);
-  transition: all 200ms ease;
-  cursor: pointer;
-}
-
-.card:hover {
-  box-shadow: var(--shadow-lg);
-  transform: translateY(-2px);
-}
-```
+- `bg-white rounded-xl shadow-[0_5px_9px_rgba(0,0,0,0.06)]`
 
 ### Inputs
+- `border border-zinc-200 rounded-lg focus:border-[#0070cc] focus:ring-[#0070cc]/10`
 
-```css
-.input {
-  padding: 12px 16px;
-  border: 1px solid #E2E8F0;
-  border-radius: 8px;
-  font-size: 16px;
-  transition: border-color 200ms ease;
-}
+### Focus States
+- `box-shadow: 0 0 0 2px #0070cc` (2px PlayStation Blue ring)
 
-.input:focus {
-  border-color: #0D9488;
-  outline: none;
-  box-shadow: 0 0 0 3px #0D948820;
-}
-```
-
-### Modals
-
-```css
-.modal-overlay {
-  background: rgba(0, 0, 0, 0.5);
-  backdrop-filter: blur(4px);
-}
-
-.modal {
-  background: white;
-  border-radius: 16px;
-  padding: 32px;
-  box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 90%;
-}
-```
-
----
-
-## Style Guidelines
-
-**Style:** Accessible & Ethical
-
-**Keywords:** High contrast, large text (16px+), keyboard navigation, screen reader friendly, WCAG compliant, focus state, semantic
-
-**Best For:** Government, healthcare, education, inclusive products, large audience, legal compliance, public
-
-**Key Effects:** Clear focus rings (3-4px), ARIA labels, skip links, responsive design, reduced motion, 44x44px touch targets
-
-### Page Pattern
-
-**Pattern Name:** Minimal Single Column
-
-- **Conversion Strategy:** Single CTA focus. Large typography. Lots of whitespace. No nav clutter. Mobile-first.
-- **CTA Placement:** Center, large CTA button
-- **Section Order:** 1. Hero headline, 2. Short description, 3. Benefit bullets (3 max), 4. CTA, 5. Footer
+### Container
+- Max width: `max-w-[1400px] mx-auto`
 
 ---
 
 ## Anti-Patterns (Do NOT Use)
 
-- ❌ Bright neon colors
-- ❌ Motion-heavy animations
-- ❌ AI purple/pink gradients
-
-### Additional Forbidden Patterns
-
-- ❌ **Emojis as icons** — Use SVG icons (Heroicons, Lucide, Simple Icons)
-- ❌ **Missing cursor:pointer** — All clickable elements must have cursor:pointer
-- ❌ **Layout-shifting hovers** — Avoid scale transforms that shift layout
-- ❌ **Low contrast text** — Maintain 4.5:1 minimum contrast ratio
-- ❌ **Instant state changes** — Always use transitions (150-300ms)
-- ❌ **Invisible focus states** — Focus states must be visible for a11y
+- No gradient buttons or text
+- No ALL-CAPS labels or kickers
+- No bold display headlines (use font-light at 22px+)
+- No emojis as icons — use SVG (Heroicons, Lucide)
+- No cyan `#1eaedb` at rest — only on hover/focus
+- No warm colors outside Commerce Orange
+- No square corners on buttons (always pill)
+- No shadows between 0.08 and 0.8 opacity — whisper or shout, never mutter
 
 ---
 
 ## Pre-Delivery Checklist
 
-Before delivering any UI code, verify:
-
-- [ ] No emojis used as icons (use SVG instead)
-- [ ] All icons from consistent icon set (Heroicons/Lucide)
+- [ ] Display headings (22px+) use font-light, not font-bold
+- [ ] All buttons are pill-shaped (rounded-full)
+- [ ] Primary buttons have ps-btn hover treatment
+- [ ] Header is Console Black with white text
+- [ ] Page backgrounds are Ice Mist `#f5f7fa`
+- [ ] No cyan appears at rest — only on hover/focus
+- [ ] Focus rings are 2px PlayStation Blue
+- [ ] No emojis as icons
 - [ ] `cursor-pointer` on all clickable elements
-- [ ] Hover states with smooth transitions (150-300ms)
-- [ ] Light mode: text contrast 4.5:1 minimum
-- [ ] Focus states visible for keyboard navigation
 - [ ] `prefers-reduced-motion` respected
 - [ ] Responsive: 375px, 768px, 1024px, 1440px
-- [ ] No content hidden behind fixed navbars
-- [ ] No horizontal scroll on mobile

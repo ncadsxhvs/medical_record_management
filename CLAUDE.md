@@ -1,433 +1,119 @@
 # Claude Development Guide
 ## RVU Tracker - Medical Procedure RVU Management
 
-This document guides Claude through working on this Next.js project.
-
 ---
 
 ## Project Overview
 
-A full-stack application for tracking medical procedure RVUs (Relative Value Units) with Google OAuth authentication, Postgres database, analytics dashboard, and comprehensive testing.
+Full-stack app for tracking medical procedure RVUs (Relative Value Units). Google OAuth, Postgres, analytics dashboard, 80+ tests.
+
+**Production:** https://trackmyrvu.com
+**Dev server:** http://localhost:3001
 
 ## Tech Stack
 
-- **Framework:** Next.js 16.0.7 (App Router)
+- **Framework:** Next.js 16 (App Router)
 - **Language:** TypeScript (strict mode)
 - **Styling:** Tailwind CSS 4
 - **Authentication:** Auth.js (NextAuth) with Google OAuth
 - **Database:** Neon Postgres (Vercel)
-- **API:** Next.js API Routes
 - **Testing:** Jest, React Testing Library, Playwright
 - **Drag-and-Drop:** @dnd-kit (favorites reordering)
+
+## Quick Start
+
+```bash
+npm run dev                 # Dev server (port 3001)
+npm run build              # Production build
+npm test                   # Run all tests
+```
 
 ## Project Structure
 
 ```
 src/
 ├── app/
-│   ├── (main)/
-│   │   └── page.tsx            # Main authenticated page (visit cards)
-│   ├── analytics/
-│   │   └── page.tsx            # Analytics dashboard
-│   ├── api/
-│   │   ├── entries/            # Legacy entry CRUD (deprecated)
-│   │   ├── favorites/          # Favorites management with drag-drop
-│   │   ├── rvu/                # RVU search & cache
-│   │   ├── analytics/          # Analytics data endpoints
-│   │   └── visits/             # Visit CRUD with procedures
-│   ├── sign-in/
-│   │   └── page.tsx            # Google sign-in page
-│   ├── globals.css
+│   ├── (main)/page.tsx         # Main page (visit cards)
+│   ├── analytics/page.tsx      # Analytics dashboard
+│   ├── productivity/page.tsx   # Productivity view
+│   ├── api/                    # API routes (visits, favorites, rvu, analytics)
+│   ├── sign-in/page.tsx        # Google sign-in
 │   └── layout.tsx              # Root layout
-├── components/
-│   ├── UserProfile.tsx         # User profile dropdown
-│   ├── RVUPicker.tsx           # HCPCS autocomplete search
-│   ├── FavoritesPicker.tsx     # Drag-and-drop favorites
-│   ├── EntryForm.tsx           # Multi-procedure visit form
-│   ├── EditVisitModal.tsx      # Edit existing visits
-│   └── ProcedureList.tsx       # Procedure display with quantities
+├── components/                 # UI components
 ├── lib/
 │   ├── db.ts                   # Postgres client
-│   ├── rvu-cache.ts            # In-memory RVU cache
+│   ├── rvu-cache.ts            # In-memory RVU cache (16,852 codes, ~5ms search)
 │   └── dateUtils.ts            # Date utilities (timezone-safe)
-└── types/
-    └── index.ts                # TypeScript types
+└── types/index.ts
 
-data/
-  RVU.csv                       # 16,852 RVU codes
-
-docs/
-  openapi.yaml                  # OpenAPI 3.0 API specification
-  api-docs.html                 # Interactive Swagger UI viewer
-  README.md                     # API documentation guide
-
-scripts/
-  init-db.sql                   # Database schema
-  seed-rvu.ts                   # Seed RVU data
-  migrate-favorites-sort.ts     # Favorites sort_order migration
-
-__tests__/                      # Test files
-  src/lib/__tests__/
-    dateUtils.test.ts           # Date utility tests (23 tests)
-  src/app/api/__tests__/
-    visits.test.ts              # Visits API tests (20 tests)
-    analytics.test.ts           # Analytics API tests (14 tests)
-```
-
-## Development
-
-### Quick Start
-
-```bash
-npm run dev                 # Development server (port 3001)
-npm run build              # Production build
-npm test                   # Run all tests
-npm run test:watch         # Watch mode
-npm run test:coverage      # Coverage report
-```
-
-**Development URL:** http://localhost:3001
-
-### API Documentation
-
-Complete OpenAPI 3.0 (Swagger) specification with interactive Swagger UI:
-
-**Production:** https://trackmyrvu.com/api-docs
-**Development:** http://localhost:3001/api-docs
-
-**Documentation includes:**
-- All API endpoints (Visits, Favorites, RVU Search, Analytics, Auth)
-- Request/response schemas with examples
-- Authentication details (web session cookies + mobile JWT tokens)
-- Interactive "Try it out" functionality
-
-The OpenAPI spec is also available as static files in `docs/` directory and `public/openapi.yaml`.
-See `docs/README.md` for alternative viewing options and usage examples.
-
-### Environment Configuration
-
-The project uses separate environment files:
-
-- **`.env.development`** - Local development
-  - NEXTAUTH_URL: `http://localhost:3001`
-  - Dev Google OAuth credentials
-  - Neon Postgres connection strings
-
-- **`.env.production`** - Production template
-  - NEXTAUTH_URL: `https://trackmyrvu.com`
-  - Production OAuth credentials
-  - Set actual values in Vercel Dashboard
-
-**IMPORTANT:**
-- Never commit `.env.development` or `.env.production`
-- Do NOT use `.env.local` - causes environment precedence conflicts
-- Auth.js config includes `trustHost: true` for localhost
-
-### Database Setup
-
-```bash
-# Run migrations
-psql $POSTGRES_URL -f scripts/init-db.sql
-
-# Seed RVU data
-npx tsx scripts/seed-rvu.ts
-
-# Run favorites migration
-npx tsx scripts/migrate-favorites-sort.ts
-```
-
-## Core Features
-
-### Authentication
-- Google OAuth sign-in via Auth.js
-- User-specific data isolation
-- Session management
-
-### Visit Management
-- Create visits with multiple procedures
-- Each procedure has HCPCS code, quantity, RVU value
-- **Date and time tracking** - Optional time field for appointments (12-hour format display)
-- Edit existing visits (add/remove procedures, change quantities, update time)
-- Delete visits
-- **No-show tracking** - Quick-add no-show encounters without procedures
-- Ordered by date DESC
-
-### HCPCS Code Picker
-- Autocomplete search across 16,852+ RVU codes
-- In-memory cache for instant search (~5ms queries)
-- Multi-select support for adding multiple procedures
-
-### Favorites
-- Save frequently used HCPCS codes
-- **Drag-and-drop reordering** using @dnd-kit
-- Persistent sort order in database
-- Quick-add to visit form
-- Delete from favorites
-
-### Analytics Dashboard
-- Date range filtering
-- Period grouping: Daily, Weekly, Monthly, Yearly
-- Summary view: RVU chart over time
-- HCPCS breakdown: Detailed procedure statistics
-- Metrics: Total RVUs, Total Encounters, Total No Shows, Avg RVU per Encounter
-
-### Testing
-- **80 passing tests** covering date handling, RVU calculations, API logic
-- Jest + React Testing Library
-- Timezone-independent date tests
-
-## RVU Cache System
-
-In-memory cache for optimal search performance:
-
-- **Location:** `src/lib/rvu-cache.ts`
-- **Capacity:** 16,852 RVU codes
-- **Load Time:** ~200-500ms initial load
-- **Search Time:** ~5ms average per query
-- **Cache Duration:** 24 hours
-- **Auto-reload:** On app startup
-
-### Cache API
-
-```typescript
-await searchRVUCodes('99213', 100);
-await getRVUCodeByHCPCS('99213');
-await refreshCache();
-getCacheStats();
+scripts/                        # DB migrations and seed scripts
+docs/features/                  # Platform-agnostic feature specs
 ```
 
 ## Date Handling (CRITICAL)
 
-All dates use **timezone-independent** handling:
+All dates use **timezone-independent** handling via `src/lib/dateUtils.ts`.
 
-### Date Utilities (`src/lib/dateUtils.ts`)
+**❌ WRONG:** `new Date('2025-12-02')` — interprets as UTC, shifts timezone
+**✅ CORRECT:** `parseLocalDate('2025-12-02')` — local date, no shift
 
-```typescript
-import { parseLocalDate, formatDate, getTodayString, calculateTotalRVU } from '@/lib/dateUtils';
-
-// Parse date string without timezone shifts
-const date = parseLocalDate('2025-12-02');
-
-// Format for display
-const formatted = formatDate('2025-12-02');
-
-// Get today as YYYY-MM-DD
-const today = getTodayString();
-
-// Calculate total RVU with quantities
-const total = calculateTotalRVU(procedures);
-```
-
-### Key Principles
-
-1. **Storage:** Dates stored as DATE type (YYYY-MM-DD) in database
-2. **Parsing:** Always use `parseLocalDate()` - never `new Date(str)`
-3. **Display:** Use `formatDate()` for consistent formatting
-4. **Analytics:** Daily grouping uses `v.date` directly (no DATE_TRUNC)
-
-### Common Date Issues
-
-**❌ WRONG:**
-```typescript
-const date = new Date('2025-12-02');  // Interprets as UTC, shifts timezone
-```
-
-**✅ CORRECT:**
-```typescript
-const date = parseLocalDate('2025-12-02');  // Local date, no shift
-```
+- **Storage:** DATE type (YYYY-MM-DD) in database
+- **Parsing:** Always use `parseLocalDate()` — never `new Date(str)`
+- **Display:** Use `formatDate()` for consistent formatting
+- **Analytics:** Daily grouping uses `v.date` directly (no DATE_TRUNC)
 
 ## Database Schema
 
-### Tables
-
-- **visits** - Parent record for each visit
-  - `id`, `user_id`, `date`, `time`, `notes`, `is_no_show`, `created_at`, `updated_at`
-
-- **visit_procedures** - Procedures for each visit
-  - `id`, `visit_id`, `hcpcs`, `description`, `status_code`, `work_rvu`, `quantity`
-
-- **favorites** - User's favorite HCPCS codes
-  - `id`, `user_id`, `hcpcs`, `sort_order`, `created_at`
-
-- **rvu_codes** - Master RVU code list
-  - `id`, `hcpcs`, `description`, `status_code`, `work_rvu`
-
-## Dependencies
-
-### Core
-- **next**: 16.0.7 (patched CVE-2025-66478)
-- **react**: 19.2.1 (patched CVE-2025-55182)
-- **next-auth**: 5.0.0-beta.30
-- **@vercel/postgres**: 0.10.0
-
-### Drag-and-Drop
-- **@dnd-kit/core**: 6.3.1
-- **@dnd-kit/sortable**: 10.0.0
-- **@dnd-kit/utilities**: 3.2.2
-
-### Testing (DevDependencies)
-- **jest**: 30.2.0
-- **@testing-library/react**: 16.3.0
-- **@testing-library/jest-dom**: 6.9.1
-- **@playwright/test**: 1.57.0
+- **visits** — `id, user_id, date, time, notes, is_no_show, created_at, updated_at`
+- **visit_procedures** — `id, visit_id, hcpcs, description, status_code, work_rvu, quantity`
+- **favorites** — `id, user_id, hcpcs, sort_order, created_at`
+- **rvu_codes** — `id, hcpcs, description, status_code, work_rvu`
 
 ## Conventions
 
-- **Components:** Server components by default, use `'use client'` when needed
-- **State:** All state is local (useState) - no global state management
+- **Components:** Server components by default, `'use client'` when needed
+- **State:** All local (useState) — no global state management
 - **Styling:** Tailwind CSS for all styling
 - **TypeScript:** Strict mode enabled
 - **Dates:** ALWAYS use date utilities from `@/lib/dateUtils`
-- **Testing:** Write tests for date handling, RVU calculations, critical flows
-- **Documentation:** ENFORCED — every PR touching `src/`/`scripts/`/`data/` must update both `docs/FEATURE_LOG.md` and a `docs/features/<name>.md` spec. See `.claude/rules.md`.
+- **Env files:** Use `.env.development` / `.env.production`. Do NOT use `.env.local` (precedence conflicts)
+- **Documentation:** ENFORCED — see `.claude/rules.md` for requirements
 
-## Deployment
+## Development Workflow
 
-### Production URL
-**Custom Domain:** https://trackmyrvu.com
-**Vercel URL:** https://hh-ncadsxhvs-projects.vercel.app
+Follow this workflow for every development task:
 
-### Environment Variables (Vercel Dashboard)
+1. **Explore** — Read relevant files to understand current code and patterns
+2. **Plan** — Design the approach (plan mode if complex, inline if simple)
+   - If the task involves UI/UX changes, invoke **`/ui-ux-pro-max:ui-ux-pro-max`** skill during planning for design recommendations
+3. **Harness design** — Invoke the **harness-design skill** right after planning to set up browser-based development and verification
+4. **Implement** — Edit files following the plan
+5. **Build** — Run `npm run build` to verify no errors
+6. **Browser verify** (required for ANY UI change under `src/components/` or `src/app/`):
+   - a. Check the **browser console** for errors/warnings (use Playwright `page.on('console')` or `browser_console_messages` MCP tool)
+   - b. Run the **UI review checklist**:
+     - Data display correctness (no "NaN", "undefined", bad dates)
+     - Mobile layout at 375px actually works
+     - KPI/summary values match visible data
+     - State synchronization produces visible UI
+     - Touch targets don't break layout on small screens
+   - c. Screenshot desktop + mobile and visually verify before reporting done
+7. **Update docs** — Append `docs/FEATURE_LOG.md` entry + create/update `docs/features/<name>.md` (use `git add -f docs/` since docs/ is gitignored). Do this BEFORE pushing, not after CI fails.
+8. **Commit & push** — Stage specific files, commit, push to branch
+9. **Create PR** — Use `gh pr create` with summary and test plan
 
-Required production environment variables:
-- `NEXTAUTH_URL` - https://trackmyrvu.com
-- `AUTH_SECRET` - Generated via `openssl rand -base64 32`
-- `GOOGLE_CLIENT_ID` - Production OAuth client ID
-- `GOOGLE_CLIENT_SECRET` - Production OAuth client secret
-- `POSTGRES_URL` - Neon Postgres connection string
-- All other database variables from `.env.production`
+**Never skip step 6 for UI changes.** Code correctness != feature correctness.
 
-### Google OAuth Setup
+## Skill Routing
 
-**Production OAuth App:**
-- Client ID: `386826311054-hic8jh474jh1aiq6dclp2oor9mgc981l`
-- Authorized redirect URIs:
-  - `https://trackmyrvu.com/api/auth/callback/google`
-  - `https://www.trackmyrvu.com/api/auth/callback/google`
-  - `https://hh-ncadsxhvs-projects.vercel.app/api/auth/callback/google` (backup)
-
-**Development OAuth App:**
-- Client ID: `386826311054-0irihu7h7uc7ft0nfoh47l393dko7u6d`
-- Authorized redirect URI:
-  - `http://localhost:3001/api/auth/callback/google`
-
-## Recent Updates
-
-### Security Patches (2025-01-XX)
-- Updated React 19.2.0 → 19.2.1 (CVE-2025-55182)
-- Updated Next.js 16.0.3 → 16.0.7 (CVE-2025-66478)
-- Fixed remote code execution vulnerability in React Server Components
-
-### Testing Implementation
-- Added comprehensive test suite (80 tests)
-- Created date utility functions for timezone-safe operations
-- Tests cover: date parsing, RVU calculations, analytics, visits API
-
-### Date Fixes
-- Fixed timezone issues in main page visit cards
-- Fixed analytics date grouping (removed DATE_TRUNC for daily)
-- All dates now parse and display correctly across timezones
-
-### Custom Domain
-- Configured trackmyrvu.com as primary domain
-- Updated all documentation and environment templates
-
-### No-Show Feature (2025-12-12)
-- Added `is_no_show` boolean column to visits table
-- Quick-add no-show encounters without procedures
-- Distinctive orange styling for no-show visit cards
-- No-show visits display badge, date, and notes only (no RVU/procedures)
-- Cannot edit no-show visits (delete only)
-- Migration script: `scripts/add-no-show-column.sql`
-- Analytics dashboard includes "Total No Shows" metric
-
-### Visit Time Tracking (2025-12-13)
-- Added `time` TIME column to visits table for appointment times
-- Optional time field in visit forms (defaults to current time)
-- Display format: 12-hour with AM/PM (e.g., "2:30 PM")
-- Visit cards show "Visit Date & Time" with formatted time
-- Edit visit modal supports time updates
-- Migration script: `scripts/add-visit-time.sql`
-- Database index: `idx_visits_user_date_time` for optimized queries
-
-### Apple Sign-In & Mobile Auth (2026-02-17)
-- Added Apple Sign-In support alongside Google
-- New mobile JWT exchange endpoints: `/api/auth/mobile/google`, `/api/auth/mobile/apple`
-- New `src/lib/mobile-auth.ts` token utility library
-
-### Privacy Policy Page (2026-02-18)
-- Public privacy policy at `/privacy`
-
-### Security Hardening (2026-02-21)
-- Input validation/sanitization on RVU search, visits, and visit detail API routes
-- Stricter request validation may reject previously accepted inputs
-
-### Account Deletion (2026-02-21)
-- New `DELETE /api/user` endpoint for GDPR-compliant account removal
-
-### API Test Suite (2026-02-28)
-- Expanded Jest coverage to 80 tests across visits, analytics, favorites, and date utils
-- Added API contract tests for all primary endpoints
-
-### Bonus Projection (2026-04-01)
-- New `BonusProjection` panel on the Analytics page
-- Inputs: RVU target, custom target start/end dates, bonus rate ($/RVU)
-- Calculates annualized pace, surplus over target, full-year bonus, and prorated period bonus
-- Settings persisted to localStorage
-- Component: `src/components/analytics/BonusProjection.tsx`
-
----
-
-## Current Status
-
-**✅ PRODUCTION READY**
-
-Full-stack RVU tracking application with:
-- Authentication (Google + Apple, web + mobile JWT) ✅
-- Multi-procedure visits with time tracking ✅
-- No-show tracking ✅
-- Drag-and-drop favorites ✅
-- Analytics dashboard with bonus projection ✅
-- Account deletion (GDPR) ✅
-- Privacy policy ✅
-- Comprehensive testing (80 tests) ✅
-- Security patches applied ✅
-- Custom domain configured ✅
-
-See TASK.md for detailed progress tracking.
-
----
-
-## When Working on This Project
-
-1. **Keep it simple** - Avoid adding complexity
-2. **Use TypeScript strictly** - Enable all type checking
-3. **Use date utilities** - NEVER use `new Date(str)` directly
-4. **Write tests** - Especially for date handling and calculations
-5. **Update documentation** - CRITICAL: Always update CLAUDE.md and TASK.md
-6. **Test timezone behavior** - Verify dates work on both localhost and production
-7. **Documentation is enforced on every PR.** When you change anything under `src/`, `scripts/`, or `data/` you MUST also:
-   - Append a new entry at the top of `docs/FEATURE_LOG.md`
-   - Create or update `docs/features/<feature-name>.md` using the rich, platform-agnostic template in `.claude/rules.md`
-   - The feature spec must be detailed enough for another Claude Code agent on a **SwiftUI iOS project** to reproduce the feature without reading the web source code (data shapes, formulas, edge cases, acceptance criteria, iOS notes)
-   - CI (`.github/workflows/docs-check.yml`) will fail the PR if either file is missing
+| When | Skill/Plugin |
+|------|-------------|
+| UI/UX planning & design | `/ui-ux-pro-max:ui-ux-pro-max` during step 2 |
+| Any feature build | `harness-design` skill at step 3 |
+| UI polish & component architecture | `taste-skill` for bias corrections and creative patterns |
 
 ## Feature Specs
 
-Platform-agnostic per-feature specs live in [`docs/features/`](docs/features/README.md). Format defined in [`.claude/rules.md`](.claude/rules.md).
+Platform-agnostic per-feature specs live in `docs/features/`. Format defined in `.claude/rules.md`.
 
-Each spec must allow a Claude Code agent on an iOS / SwiftUI project to recreate the feature using only the spec — no peeking at web source.
-
-- [Analytics Dashboard](docs/features/analytics.md)
-
-<!-- evolver-evolution-memory -->
-## Evolution Memory (Evolver)
-
-This project uses evolver for self-evolution. Hooks automatically:
-1. Inject recent evolution memory at session start
-2. Detect evolution signals during file edits
-3. Record outcomes at session end
-
-For substantive tasks, call `gep_recall` before work and `gep_record_outcome` after.
-Signals: log_error, perf_bottleneck, user_feature_request, capability_gap, deployment_issue, test_failure.
+Each spec must allow a Claude Code agent on an iOS / SwiftUI project to recreate the feature without reading web source code.

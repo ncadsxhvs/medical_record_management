@@ -152,7 +152,7 @@ export default function AnalyticsPage() {
 
   if (status === 'loading' || (loading && data.length === 0)) {
     return (
-      <div className="min-h-screen bg-stone-50">
+      <div className="min-h-screen bg-[#f5f7fa]">
         <AppHeaderSkeleton />
         <div className="max-w-[1400px] mx-auto p-6 space-y-6">
           <Skeleton className="h-14 w-80" />
@@ -169,14 +169,14 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-stone-50">
+    <div className="min-h-screen bg-[#f5f7fa]">
       <AppHeader activePage="analytics" />
 
       <div className="max-w-[1400px] mx-auto p-5 lg:p-8">
         {/* Editorial headline + Period chips */}
         <div className="flex flex-col lg:flex-row lg:items-start lg:justify-between mb-7 gap-4">
           <div>
-            <h2 className="text-3xl lg:text-5xl font-bold text-zinc-900 tracking-tight leading-none">
+            <h2 className="text-3xl lg:text-5xl font-light text-zinc-900 tracking-tight leading-none">
               How {monthName} is shaping up
             </h2>
             <p className="text-sm text-zinc-500 mt-2.5">
@@ -190,7 +190,7 @@ export default function AnalyticsPage() {
                 onClick={() => setActivePreset(p.key)}
                 className={`px-3.5 py-1.5 text-xs font-semibold rounded-full border transition-colors ${
                   activePreset === p.key
-                    ? 'bg-blue-500 text-white border-blue-500'
+                    ? 'bg-[#0070cc] text-white border-[#0070cc]'
                     : 'bg-white text-zinc-700 border-zinc-200 hover:bg-zinc-50'
                 }`}
               >

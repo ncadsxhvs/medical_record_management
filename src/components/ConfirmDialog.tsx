@@ -47,7 +47,7 @@ export default function ConfirmDialog({ open, title, message, confirmLabel = 'Co
 
   const confirmClasses = variant === 'danger'
     ? 'bg-red-600 text-white hover:bg-red-700'
-    : 'bg-zinc-900 text-white hover:bg-zinc-800';
+    : 'bg-[#0070cc] text-white rounded-full';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm" onClick={onCancel}>

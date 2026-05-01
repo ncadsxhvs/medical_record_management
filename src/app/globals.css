@@ -3,14 +3,26 @@
 @theme {
   --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, monospace;
-  --color-primary: var(--color-zinc-900);
-  --color-accent: var(--color-sky-500);
+
+  /* PlayStation-inspired color tokens */
+  --color-ps-blue: #0070cc;
+  --color-ps-blue-hover: #005fa3;
+  --color-ps-cyan: #1eaedb;
+  --color-ps-black: #000000;
+  --color-ps-charcoal: #1f1f1f;
+  --color-ps-body-gray: #6b6b6b;
+  --color-ps-mute: #cccccc;
+  --color-ps-paper: #ffffff;
+  --color-ps-ice: #f5f7fa;
+  --color-ps-divider: #f3f3f3;
+  --color-ps-orange: #d53b00;
+  --color-ps-red: #c81b3a;
 }
 
 @layer base {
   *:focus-visible {
-    outline: 3px solid var(--color-accent);
-    outline-offset: 2px;
+    outline: none;
+    box-shadow: 0 0 0 2px #0070cc;
     border-radius: 6px;
   }
 
@@ -21,6 +33,26 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+/* PlayStation signature button hover */
+@layer components {
+  .ps-btn {
+    border-radius: 9999px;
+    transition: all 180ms ease;
+    cursor: pointer;
+  }
+  .ps-btn:hover {
+    background-color: #1eaedb;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+    box-shadow: 0 0 0 2px #0070cc;
+    transform: scale(1.05);
+  }
+  .ps-btn:active {
+    opacity: 0.6;
+    transform: scale(1.0);
   }
 }
 

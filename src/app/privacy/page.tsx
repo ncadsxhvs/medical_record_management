@@ -102,13 +102,13 @@ export default function PrivacyPage() {
             <h2 className="text-xl font-semibold text-zinc-900 mb-3">Contact</h2>
             <p>
               If you have questions about this privacy policy or wish to request data deletion,
-              please contact us at <a href="mailto:privacy@trackmyrvu.com" className="text-blue-600 hover:underline">privacy@trackmyrvu.com</a>.
+              please contact us at <a href="mailto:privacy@trackmyrvu.com" className="text-[#0070cc] hover:underline">privacy@trackmyrvu.com</a>.
             </p>
           </section>
         </div>
 
         <div className="mt-12 pt-6 border-t border-zinc-200">
-          <a href="/" className="text-sm text-blue-600 hover:underline">&larr; Back to RVU Tracker</a>
+          <a href="/" className="text-sm text-[#0070cc] hover:underline">&larr; Back to RVU Tracker</a>
         </div>
       </div>
     </div>

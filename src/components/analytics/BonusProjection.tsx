@@ -74,7 +74,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 value={settings.rvuTarget || ''}
                 onChange={(e) => updateSettings({ rvuTarget: parseFloat(e.target.value) || 0 })}
                 placeholder="e.g. 4000"
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-[#0070cc] focus:border-[#0070cc]"
               />
             </div>
             <div>
@@ -83,7 +83,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 type="date"
                 value={settings.targetStartDate}
                 onChange={(e) => updateSettings({ targetStartDate: e.target.value })}
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-[#0070cc] focus:border-[#0070cc]"
               />
             </div>
             <div>
@@ -92,7 +92,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 type="date"
                 value={settings.targetEndDate}
                 onChange={(e) => updateSettings({ targetEndDate: e.target.value })}
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-[#0070cc] focus:border-[#0070cc]"
               />
             </div>
             <div>
@@ -104,7 +104,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 value={settings.bonusRate || ''}
                 onChange={(e) => updateSettings({ bonusRate: parseFloat(e.target.value) || 0 })}
                 placeholder="e.g. 35"
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-[#0070cc] focus:border-[#0070cc]"
               />
             </div>
           </div>
@@ -121,7 +121,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
               <div className="w-full bg-zinc-200 rounded-full h-3">
                 <div
                   className={`h-3 rounded-full transition-all ${
-                    results.progressPct >= 100 ? 'bg-emerald-500' : 'bg-blue-500'
+                    results.progressPct >= 100 ? 'bg-emerald-500' : 'bg-[#0070cc]'
                   }`}
                   style={{ width: `${Math.min(100, results.progressPct)}%` }}
                 />
@@ -131,10 +131,10 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg shadow-md border border-blue-200">
-              <h3 className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">Actual RVUs</h3>
-              <p className="text-2xl font-bold text-blue-900">{results.actualRvus.toFixed(2)}</p>
-              <p className="text-xs text-blue-600 mt-1">{results.daysInRange} days in range</p>
+            <div className="bg-gradient-to-br from-[#0070cc]/5 to-[#0070cc]/10 p-4 rounded-lg shadow-md border border-[#0070cc]/20">
+              <h3 className="text-xs font-semibold text-[#0070cc] uppercase tracking-wider mb-1">Actual RVUs</h3>
+              <p className="text-2xl font-bold text-[#1f1f1f]">{results.actualRvus.toFixed(2)}</p>
+              <p className="text-xs text-[#0070cc] mt-1">{results.daysInRange} days in range</p>
             </div>
             <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-lg shadow-md border border-indigo-200">
               <h3 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Annualized Pace</h3>
