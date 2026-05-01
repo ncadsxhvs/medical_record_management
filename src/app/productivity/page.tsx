@@ -11,6 +11,7 @@ import StreakGrid from '@/components/productivity/StreakGrid';
 import WeeklyTrend from '@/components/productivity/WeeklyTrend';
 import PeerComparison from '@/components/productivity/PeerComparison';
 import CoachingSuggestions from '@/components/productivity/CoachingSuggestions';
+import ReminderToggle from '@/components/productivity/ReminderToggle';
 import Skeleton from '@/components/Skeleton';
 import { fetcher } from '@/lib/fetcher';
 import { CACHE_KEYS } from '@/lib/cache-keys';
@@ -173,6 +174,11 @@ export default function ProductivityPage() {
 
         {/* Coaching */}
         <CoachingSuggestions visits={visits} />
+
+        {/* Reminder */}
+        <div className="mt-5">
+          <ReminderToggle />
+        </div>
       </div>
     </div>
   );
