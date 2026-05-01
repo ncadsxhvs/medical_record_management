@@ -80,7 +80,7 @@ export default function ProductivityPage() {
 
   if (status === 'loading' || isLoading) {
     return (
-      <div className="min-h-screen bg-[#f5f7fa]">
+      <div className="min-h-[100dvh] bg-[#f5f7fa]">
         <AppHeaderSkeleton />
         <div className="max-w-[1400px] mx-auto p-6 space-y-6">
           <Skeleton className="h-12 w-96" />
@@ -96,7 +96,7 @@ export default function ProductivityPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa]">
+    <div className="min-h-[100dvh] bg-[#f5f7fa]">
       <AppHeader activePage="productivity" />
 
       <div className="max-w-[1400px] mx-auto p-5 lg:p-8">

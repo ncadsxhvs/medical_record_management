@@ -162,7 +162,7 @@ export default function Home() {
 
   if (status === 'loading' || isLoading) {
     return (
-      <div className="min-h-screen bg-[#f5f7fa]">
+      <div className="min-h-[100dvh] bg-[#f5f7fa]">
         <AppHeaderSkeleton />
         <div className="flex flex-col lg:flex-row max-w-[1400px] mx-auto" style={{ minHeight: 'calc(100vh - 57px)' }}>
           <div className="hidden lg:block w-[300px] p-5 space-y-4">
@@ -193,7 +193,7 @@ export default function Home() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#f5f7fa] flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-[#f5f7fa] flex items-center justify-center">
         <div className="text-center">
           <p className="text-red-600 mb-2">Failed to load visits</p>
           <button
@@ -208,7 +208,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa]">
+    <div className="min-h-[100dvh] bg-[#f5f7fa]">
       <AppHeader activePage="log" />
 
       {/* 3-Column Layout */}

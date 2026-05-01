@@ -136,10 +136,10 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
               <p className="text-2xl font-bold text-[#1f1f1f]">{results.actualRvus.toFixed(2)}</p>
               <p className="text-xs text-[#0070cc] mt-1">{results.daysInRange} days in range</p>
             </div>
-            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-lg shadow-md border border-indigo-200">
-              <h3 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Annualized Pace</h3>
-              <p className="text-2xl font-bold text-indigo-900">{results.annualizedRvus.toFixed(1)}</p>
-              <p className="text-xs text-indigo-600 mt-1">RVUs per year</p>
+            <div className="bg-gradient-to-br from-zinc-50 to-zinc-100 p-4 rounded-lg border border-zinc-200">
+              <h3 className="text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider mb-1">Annualized Pace</h3>
+              <p className="text-2xl font-bold text-[#1f1f1f]">{results.annualizedRvus.toFixed(1)}</p>
+              <p className="text-xs text-[#6b6b6b] mt-1">RVUs per year</p>
             </div>
             <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-lg shadow-md border border-emerald-200">
               <h3 className="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1">Projected Surplus</h3>
@@ -151,10 +151,10 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
               <p className="text-2xl font-bold text-amber-900">${results.projectedBonus.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
               <p className="text-xs text-amber-600 mt-1">Full year estimate</p>
             </div>
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg shadow-md border border-purple-200">
-              <h3 className="text-xs font-semibold text-purple-600 uppercase tracking-wider mb-1">Period Bonus</h3>
-              <p className="text-2xl font-bold text-purple-900">${results.proratedBonus.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
-              <p className="text-xs text-purple-600 mt-1">Prorated ({results.daysInTargetPeriod} days)</p>
+            <div className="bg-gradient-to-br from-[#0070cc]/8 to-[#0070cc]/15 p-4 rounded-lg border border-[#0070cc]/25">
+              <h3 className="text-xs font-semibold text-[#0070cc] uppercase tracking-wider mb-1">Period Bonus</h3>
+              <p className="text-2xl font-bold text-[#1f1f1f]">${results.proratedBonus.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+              <p className="text-xs text-[#0070cc] mt-1">Prorated ({results.daysInTargetPeriod} days)</p>
             </div>
           </div>
         </div>

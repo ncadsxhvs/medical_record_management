@@ -56,7 +56,7 @@ export default function ApiDocsPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-[100dvh] bg-white">
       <div id="swagger-ui"></div>
       <style jsx global>{`
         .topbar {

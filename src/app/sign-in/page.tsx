@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 
 export default function SignInPage() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#f5f7fa]">
+    <div className="min-h-[100dvh] flex items-center justify-center bg-[#f5f7fa]">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-light text-[#1f1f1f]">RVU Tracker</h1>

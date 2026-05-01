@@ -45,7 +45,7 @@ export default function PeerComparison({ visits, monthlyTarget }: PeerComparison
           <div className="flex justify-between mb-1.5 text-xs">
             <span className="text-zinc-500">{m.label}</span>
             <span className="font-mono text-base">
-              <span style={{ color: 'oklch(55% 0.15 265)' }}>{m.you.toFixed(m.you < 10 ? 2 : 0)}</span>
+              <span style={{ color: '#0070cc' }}>{m.you.toFixed(m.you < 10 ? 2 : 0)}</span>
               <span className="text-zinc-500 text-xs"> &middot; peer {m.peer}</span>
             </span>
           </div>
@@ -56,7 +56,7 @@ export default function PeerComparison({ visits, monthlyTarget }: PeerComparison
             />
             <div
               className="absolute left-0 -top-0.5 h-2.5 rounded-full"
-              style={{ width: `${(m.you / m.max) * 100}%`, backgroundColor: 'oklch(55% 0.15 265)' }}
+              style={{ width: `${(m.you / m.max) * 100}%`, backgroundColor: '#0070cc' }}
             />
           </div>
         </div>

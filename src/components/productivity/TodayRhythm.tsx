@@ -62,7 +62,7 @@ export default function TodayRhythm({ visits }: TodayRhythmProps) {
                     className="w-full rounded-t relative"
                     style={{
                       height: `${(h.rvu / maxRVU) * 100}%`,
-                      backgroundColor: h.rvu >= 4 ? 'oklch(60% 0.13 155)' : '#18181b',
+                      backgroundColor: h.rvu >= 4 ? '#059669' : '#1f1f1f',
                       opacity: isPast ? 1 : 0.4,
                     }}
                   >

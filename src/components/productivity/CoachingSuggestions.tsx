@@ -46,17 +46,17 @@ export default function CoachingSuggestions({ visits }: CoachingSuggestionsProps
 
   const suggestions = [
     {
-      color: 'oklch(60% 0.13 155)',
+      color: '#059669',
       title: `${dayFullNames[peakDay]} are your peak`,
       body: `You bill ${peakPctOver > 0 ? peakPctOver : 0}% more on ${dayFullNames[peakDay]}. Consider scheduling complex cases there.`,
     },
     {
-      color: 'oklch(72% 0.13 75)',
+      color: '#d97706',
       title: 'Add G2211 more often',
       body: `${qualifiedVisits.length} of your visits qualified, only ${g2211Visits.length} had it. ${missedG2211} missed add-ons.`,
     },
     {
-      color: 'oklch(55% 0.15 265)',
+      color: '#0070cc',
       title: 'End-of-day drop',
       body: `After 4pm RVU/visit falls ${dropPct > 0 ? dropPct : 0}%. Block that time for documentation.`,
     },

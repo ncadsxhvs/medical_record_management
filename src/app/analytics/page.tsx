@@ -152,7 +152,7 @@ export default function AnalyticsPage() {
 
   if (status === 'loading' || (loading && data.length === 0)) {
     return (
-      <div className="min-h-screen bg-[#f5f7fa]">
+      <div className="min-h-[100dvh] bg-[#f5f7fa]">
         <AppHeaderSkeleton />
         <div className="max-w-[1400px] mx-auto p-6 space-y-6">
           <Skeleton className="h-14 w-80" />
@@ -169,7 +169,7 @@ export default function AnalyticsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f5f7fa]">
+    <div className="min-h-[100dvh] bg-[#f5f7fa]">
       <AppHeader activePage="analytics" />
 
       <div className="max-w-[1400px] mx-auto p-5 lg:p-8">
