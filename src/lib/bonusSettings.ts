@@ -3,6 +3,7 @@ export interface BonusSettings {
   targetStartDate: string;
   targetEndDate: string;
   bonusRate: number;
+  reminderEnabled: boolean;
 }
 
 const STORAGE_KEY = 'rvu-bonus-settings';
@@ -15,6 +16,7 @@ export function getDefaultSettings(): BonusSettings {
     targetStartDate: `${year}-01-01`,
     targetEndDate: `${year}-12-31`,
     bonusRate: 0,
+    reminderEnabled: false,
   };
 }
 

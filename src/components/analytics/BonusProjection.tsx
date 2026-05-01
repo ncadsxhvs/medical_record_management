@@ -108,6 +108,29 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
               />
             </div>
           </div>
+
+          <div className="flex items-center justify-between py-3 px-1">
+            <div>
+              <p className="text-sm font-medium text-[#1f1f1f]">Daily Reminder</p>
+              <p className="text-xs text-zinc-500">Email at 5 PM if no visits logged</p>
+            </div>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={settings.reminderEnabled}
+              onClick={() => updateSettings({ reminderEnabled: !settings.reminderEnabled })}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors cursor-pointer ${
+                settings.reminderEnabled ? 'bg-[#0070cc]' : 'bg-zinc-300'
+              }`}
+            >
+              <span
+                className={`inline-block h-4 w-4 rounded-full bg-white shadow-sm transition-transform ${
+                  settings.reminderEnabled ? 'translate-x-6' : 'translate-x-1'
+                }`}
+              />
+            </button>
+          </div>
+
           <p className="text-xs text-zinc-500">
             Target: {settings.rvuTarget.toLocaleString()} RVUs over {results.daysInTargetPeriod} days ({settings.targetStartDate} to {settings.targetEndDate})
           </p>

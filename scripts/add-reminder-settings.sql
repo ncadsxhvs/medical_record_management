@@ -1,0 +1,2 @@
+ALTER TABLE user_settings
+  ADD COLUMN IF NOT EXISTS reminder_enabled BOOLEAN NOT NULL DEFAULT FALSE;
