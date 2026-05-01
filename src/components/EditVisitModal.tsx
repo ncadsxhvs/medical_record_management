@@ -103,7 +103,7 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
         <div className="sticky top-0 bg-white border-b border-zinc-100 px-6 py-5">
           <div className="flex justify-between items-center">
             <div>
-              <h2 id="edit-visit-title" className="text-2xl font-bold text-zinc-900">Edit Visit</h2>
+              <h2 id="edit-visit-title" className="text-2xl font-light text-[#1f1f1f]">Edit Visit</h2>
               <p className="text-sm text-zinc-500 mt-0.5">Modify procedures, quantities, and visit details</p>
             </div>
             <button
@@ -221,7 +221,7 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
         <div className="sticky bottom-0 bg-white border-t border-zinc-100 px-6 py-4 flex justify-end gap-3">
           <button
             onClick={onClose}
-            className="px-5 py-2.5 text-zinc-700 bg-zinc-100 font-semibold text-sm rounded-lg hover:bg-zinc-200 active:bg-zinc-300 transition-all duration-150"
+            className="px-5 py-2.5 text-zinc-700 bg-zinc-100 font-medium text-sm rounded-full hover:bg-zinc-200 active:scale-[0.98] transition-all duration-150"
           >
             Cancel
           </button>

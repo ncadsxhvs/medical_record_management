@@ -66,13 +66,13 @@ export default function ConfirmDialog({ open, title, message, confirmLabel = 'Co
           <button
             ref={cancelRef}
             onClick={onCancel}
-            className="px-4 py-2 text-sm font-medium text-zinc-700 bg-zinc-100 rounded-lg hover:bg-zinc-200 active:scale-[0.98] transition-all duration-150"
+            className="px-4 py-2 text-sm font-medium text-zinc-700 bg-zinc-100 rounded-full hover:bg-zinc-200 active:scale-[0.98] transition-all duration-150"
           >
             Cancel
           </button>
           <button
             onClick={onConfirm}
-            className={`px-4 py-2 text-sm font-medium rounded-lg active:scale-[0.98] transition-all duration-150 ${confirmClasses}`}
+            className={`px-4 py-2 text-sm font-medium rounded-full active:scale-[0.98] transition-all duration-150 ${confirmClasses}`}
           >
             {confirmLabel}
           </button>

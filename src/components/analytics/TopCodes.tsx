@@ -29,7 +29,7 @@ export default function TopCodes({ data, onViewAll }: TopCodesProps) {
   return (
     <div className="bg-white rounded-2xl border border-zinc-200/80 p-6">
       <div className="flex justify-between items-baseline mb-5">
-        <h2 className="text-2xl font-bold text-zinc-900 tracking-tight">Top HCPCS codes</h2>
+        <h2 className="text-2xl font-light text-[#1f1f1f] tracking-tight">Top HCPCS codes</h2>
         <button onClick={onViewAll} className="text-sm text-zinc-500 hover:text-zinc-900 font-medium transition-colors">
           View all &rarr;
         </button>
