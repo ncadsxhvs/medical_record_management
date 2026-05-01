@@ -1,0 +1,54 @@
+- generic [active] [ref=e1]:
+  - link "Skip to content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - heading "RVU Tracker" [level=1] [ref=e6]
+      - link "Analytics" [ref=e7] [cursor=pointer]:
+        - /url: /analytics
+    - generic [ref=e8]:
+      - generic [ref=e11]:
+        - generic [ref=e13]:
+          - heading "Favorite Groups" [level=3] [ref=e14]
+          - button "Add Group" [ref=e16]:
+            - img [ref=e17]
+            - text: Add Group
+        - generic [ref=e19]:
+          - paragraph [ref=e20]: Search HCPCS
+          - textbox "Search HCPCS code or description... (e.g., 99213)" [ref=e22]
+        - generic [ref=e23]:
+          - paragraph [ref=e24]: Favorites
+          - generic [ref=e25]:
+            - button "+ Add Favorite" [ref=e27]
+            - generic [ref=e28]: No favorites yet
+            - status [ref=e29]
+      - generic [ref=e30]:
+        - generic [ref=e31]:
+          - generic [ref=e32]:
+            - generic [ref=e33]:
+              - generic [ref=e34]: Date
+              - textbox "Date" [ref=e35]: 2026-04-30
+            - generic [ref=e36]:
+              - generic [ref=e37]: Time
+              - textbox "Time" [ref=e38]: 10:05
+          - textbox "Notes (optional)" [ref=e39]
+          - generic [ref=e40]:
+            - button "Save Visit" [disabled] [ref=e41]
+            - button "No Show" [ref=e42]
+        - generic [ref=e44]:
+          - generic [ref=e45]:
+            - paragraph [ref=e47]: Today
+            - paragraph [ref=e48]: "0.00"
+          - generic [ref=e49]:
+            - paragraph [ref=e51]: This Week
+            - paragraph [ref=e52]: "0.00"
+          - generic [ref=e53]:
+            - paragraph [ref=e55]: Month to Date
+            - paragraph [ref=e56]: "0.00"
+        - generic [ref=e58]:
+          - img [ref=e59]
+          - paragraph [ref=e61]: No visits yet today
+          - paragraph [ref=e62]: Search for HCPCS codes or use your favorites to log your first visit.
+  - button "Open Next.js Dev Tools" [ref=e68] [cursor=pointer]:
+    - img [ref=e69]
+  - alert [ref=e72]

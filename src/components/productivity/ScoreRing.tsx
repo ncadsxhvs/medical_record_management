@@ -28,7 +28,7 @@ export default function ScoreRing({ pct, value, sublabel, color, size = 180 }: S
       </svg>
       <div className="absolute inset-0 grid place-items-center text-center">
         <div>
-          <div className="text-4xl font-mono font-bold text-zinc-900 leading-none tracking-tight">{value}</div>
+          <div className="text-4xl font-mono font-bold text-[#1f1f1f] leading-none tracking-tight">{value}</div>
           <div className="text-[11px] text-zinc-500 mt-1 uppercase tracking-widest font-semibold">{sublabel}</div>
         </div>
       </div>

@@ -46,17 +46,17 @@ export default function CoachingSuggestions({ visits }: CoachingSuggestionsProps
 
   const suggestions = [
     {
-      color: 'oklch(60% 0.13 155)',
+      color: '#059669',
       title: `${dayFullNames[peakDay]} are your peak`,
       body: `You bill ${peakPctOver > 0 ? peakPctOver : 0}% more on ${dayFullNames[peakDay]}. Consider scheduling complex cases there.`,
     },
     {
-      color: 'oklch(72% 0.13 75)',
+      color: '#d97706',
       title: 'Add G2211 more often',
       body: `${qualifiedVisits.length} of your visits qualified, only ${g2211Visits.length} had it. ${missedG2211} missed add-ons.`,
     },
     {
-      color: 'oklch(55% 0.15 265)',
+      color: '#0070cc',
       title: 'End-of-day drop',
       body: `After 4pm RVU/visit falls ${dropPct > 0 ? dropPct : 0}%. Block that time for documentation.`,
     },
@@ -64,12 +64,12 @@ export default function CoachingSuggestions({ visits }: CoachingSuggestionsProps
 
   return (
     <div className="bg-zinc-50 rounded-xl border border-zinc-200/80 p-6">
-      <h3 className="text-xl font-semibold text-zinc-900 tracking-tight mb-4">Suggestions for this week</h3>
+      <h3 className="text-xl font-semibold text-[#1f1f1f] tracking-tight mb-4">Suggestions for this week</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {suggestions.map((s, i) => (
           <div key={i} className="bg-white rounded-lg border border-zinc-200/80 p-4">
             <div className="w-2 h-2 rounded-full mb-2.5" style={{ backgroundColor: s.color }} />
-            <p className="font-semibold text-sm text-zinc-900 mb-1">{s.title}</p>
+            <p className="font-semibold text-sm text-[#1f1f1f] mb-1">{s.title}</p>
             <p className="text-xs text-zinc-500 leading-relaxed">{s.body}</p>
           </div>
         ))}

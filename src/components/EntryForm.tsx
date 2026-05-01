@@ -258,7 +258,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
                 {visitData.procedures.map(p => (
                   <div key={p.hcpcs} className="flex items-center justify-between">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="font-mono font-semibold text-sm text-zinc-900">{p.hcpcs}</span>
+                      <span className="font-mono font-semibold text-sm text-[#1f1f1f]">{p.hcpcs}</span>
                       <span className="text-xs text-zinc-500 truncate">{p.description}</span>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">
@@ -341,7 +341,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
                 <button
                   onClick={handleSaveVisit}
                   disabled={visitData.procedures.length === 0}
-                  className="flex-1 py-2.5 bg-zinc-900 text-white text-sm font-semibold rounded-lg hover:bg-zinc-800 active:scale-[0.98] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="flex-1 py-2.5 bg-[#0070cc] text-white text-sm font-semibold rounded-full ps-btn cursor-pointer active:scale-[0.98] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Save Visit
                 </button>
@@ -349,7 +349,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
                   <button
                     onClick={onAddNoShow}
                     disabled={addingNoShow}
-                    className="py-2.5 px-4 bg-red-50 text-red-600 text-xs font-semibold rounded-lg hover:bg-red-100 active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
+                    className="py-2.5 px-4 bg-red-50 text-[#d53b00] text-xs font-semibold rounded-full border border-[#d53b00] cursor-pointer hover:bg-red-100 active:scale-[0.98] transition-all duration-150 disabled:opacity-50"
                   >
                     {addingNoShow ? '...' : 'No Show'}
                   </button>

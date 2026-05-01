@@ -84,7 +84,7 @@ export default function SummaryStats({ data, priorData }: SummaryStatsProps) {
           <div key={card.label} className="bg-white p-5 rounded-2xl border border-zinc-200/80">
             <p className="text-[10px] font-semibold text-zinc-500 uppercase tracking-[0.14em] mb-2">{card.label}</p>
             <div className="flex items-baseline gap-2">
-              <span className="text-3xl font-mono font-bold text-zinc-900 tracking-tight">{card.value}</span>
+              <span className="text-3xl font-mono font-bold text-[#1f1f1f] tracking-tight">{card.value}</span>
               {card.change !== 0 && (
                 <span className={`text-sm font-semibold ${changeColor}`}>
                   {card.change > 0 ? '+' : ''}{card.change.toFixed(1)}%

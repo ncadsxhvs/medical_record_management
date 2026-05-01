@@ -51,9 +51,9 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 hover:bg-zinc-50 transition"
+        className="w-full flex items-center justify-between p-4 hover:bg-zinc-50 active:scale-[0.98] transition cursor-pointer"
       >
-        <h2 className="text-lg font-semibold text-zinc-900">Bonus Projection</h2>
+        <h2 className="text-lg font-semibold text-[#1f1f1f]">Bonus Projection</h2>
         <svg
           className={`w-5 h-5 text-zinc-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
           fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -74,7 +74,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 value={settings.rvuTarget || ''}
                 onChange={(e) => updateSettings({ rvuTarget: parseFloat(e.target.value) || 0 })}
                 placeholder="e.g. 4000"
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-[#0070cc] focus:border-[#0070cc]"
               />
             </div>
             <div>
@@ -83,7 +83,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 type="date"
                 value={settings.targetStartDate}
                 onChange={(e) => updateSettings({ targetStartDate: e.target.value })}
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-[#0070cc] focus:border-[#0070cc]"
               />
             </div>
             <div>
@@ -92,7 +92,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 type="date"
                 value={settings.targetEndDate}
                 onChange={(e) => updateSettings({ targetEndDate: e.target.value })}
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-[#0070cc] focus:border-[#0070cc]"
               />
             </div>
             <div>
@@ -104,7 +104,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 value={settings.bonusRate || ''}
                 onChange={(e) => updateSettings({ bonusRate: parseFloat(e.target.value) || 0 })}
                 placeholder="e.g. 35"
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-blue-500 focus:border-blue-500"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-[#0070cc] focus:border-[#0070cc]"
               />
             </div>
           </div>
@@ -121,7 +121,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
               <div className="w-full bg-zinc-200 rounded-full h-3">
                 <div
                   className={`h-3 rounded-full transition-all ${
-                    results.progressPct >= 100 ? 'bg-emerald-500' : 'bg-blue-500'
+                    results.progressPct >= 100 ? 'bg-emerald-500' : 'bg-[#0070cc]'
                   }`}
                   style={{ width: `${Math.min(100, results.progressPct)}%` }}
                 />
@@ -131,15 +131,15 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
           )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg shadow-md border border-blue-200">
-              <h3 className="text-xs font-semibold text-blue-600 uppercase tracking-wider mb-1">Actual RVUs</h3>
-              <p className="text-2xl font-bold text-blue-900">{results.actualRvus.toFixed(2)}</p>
-              <p className="text-xs text-blue-600 mt-1">{results.daysInRange} days in range</p>
+            <div className="bg-gradient-to-br from-[#0070cc]/5 to-[#0070cc]/10 p-4 rounded-lg shadow-md border border-[#0070cc]/20">
+              <h3 className="text-xs font-semibold text-[#0070cc] uppercase tracking-wider mb-1">Actual RVUs</h3>
+              <p className="text-2xl font-bold text-[#1f1f1f]">{results.actualRvus.toFixed(2)}</p>
+              <p className="text-xs text-[#0070cc] mt-1">{results.daysInRange} days in range</p>
             </div>
-            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-4 rounded-lg shadow-md border border-indigo-200">
-              <h3 className="text-xs font-semibold text-indigo-600 uppercase tracking-wider mb-1">Annualized Pace</h3>
-              <p className="text-2xl font-bold text-indigo-900">{results.annualizedRvus.toFixed(1)}</p>
-              <p className="text-xs text-indigo-600 mt-1">RVUs per year</p>
+            <div className="bg-gradient-to-br from-zinc-50 to-zinc-100 p-4 rounded-lg border border-zinc-200">
+              <h3 className="text-xs font-semibold text-[#6b6b6b] uppercase tracking-wider mb-1">Annualized Pace</h3>
+              <p className="text-2xl font-bold text-[#1f1f1f]">{results.annualizedRvus.toFixed(1)}</p>
+              <p className="text-xs text-[#6b6b6b] mt-1">RVUs per year</p>
             </div>
             <div className="bg-gradient-to-br from-emerald-50 to-emerald-100 p-4 rounded-lg shadow-md border border-emerald-200">
               <h3 className="text-xs font-semibold text-emerald-600 uppercase tracking-wider mb-1">Projected Surplus</h3>
@@ -151,10 +151,10 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
               <p className="text-2xl font-bold text-amber-900">${results.projectedBonus.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
               <p className="text-xs text-amber-600 mt-1">Full year estimate</p>
             </div>
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg shadow-md border border-purple-200">
-              <h3 className="text-xs font-semibold text-purple-600 uppercase tracking-wider mb-1">Period Bonus</h3>
-              <p className="text-2xl font-bold text-purple-900">${results.proratedBonus.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
-              <p className="text-xs text-purple-600 mt-1">Prorated ({results.daysInTargetPeriod} days)</p>
+            <div className="bg-gradient-to-br from-[#0070cc]/8 to-[#0070cc]/15 p-4 rounded-lg border border-[#0070cc]/25">
+              <h3 className="text-xs font-semibold text-[#0070cc] uppercase tracking-wider mb-1">Period Bonus</h3>
+              <p className="text-2xl font-bold text-[#1f1f1f]">${results.proratedBonus.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</p>
+              <p className="text-xs text-[#0070cc] mt-1">Prorated ({results.daysInTargetPeriod} days)</p>
             </div>
           </div>
         </div>

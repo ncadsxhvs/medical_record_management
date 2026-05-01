@@ -108,13 +108,13 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
           onBlur={() => setTimeout(() => setShowDropdown(false), 200)}
           placeholder="Search HCPCS code or desc"
           data-search-input
-          className="w-full pl-9 pr-12 py-2.5 border border-zinc-200 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:border-blue-400 focus:ring-2 focus:ring-blue-500/10 outline-none transition-all"
+          className="w-full pl-9 pr-12 py-2.5 border border-zinc-200 rounded-xl text-sm bg-zinc-50 focus:bg-white focus:border-[#0070cc] focus:ring-2 focus:ring-[#0070cc]/10 outline-none transition-all"
         />
         <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-semibold text-zinc-400 bg-zinc-100 border border-zinc-200 px-1.5 py-0.5 rounded pointer-events-none">&#8984;K</span>
       </div>
       {loading && <div className="p-2">Loading...</div>}
       {displayResults.length > 0 && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-300 rounded-md shadow-lg">
+        <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-300 rounded-lg shadow-lg">
           {query.length < 2 && (
             <div className="px-3 py-2 text-xs font-semibold text-zinc-500 uppercase tracking-wider border-b border-zinc-200 bg-zinc-50">
               Common Office Visit Codes
@@ -153,7 +153,7 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
                       </div>
                       <div className="text-sm text-zinc-600">
                         {rvuCode.description}
-                        {isAlreadySelected && <span className="ml-2 text-blue-600">(Already added)</span>}
+                        {isAlreadySelected && <span className="ml-2 text-[#0070cc]">(Already added)</span>}
                       </div>
                     </div>
                   </div>
@@ -165,7 +165,7 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
             <div className="p-2 border-t border-zinc-300">
               <button
                 onClick={handleAddSelected}
-                className="w-full px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+                className="w-full px-4 py-2 bg-[#0070cc] text-white rounded-full hover:bg-[#005fa3] cursor-pointer"
               >
                 Add Selected ({checkedCodes.size}) {checkedCodes.size === 1 ? 'Code' : 'Codes'}
               </button>

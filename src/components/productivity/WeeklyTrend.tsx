@@ -46,10 +46,10 @@ export default function WeeklyTrend({ visits, weeklyTarget }: WeeklyTrendProps) 
     <div className="bg-white rounded-xl border border-zinc-200/80 p-6">
       <div className="flex justify-between items-baseline mb-4">
         <div>
-          <h3 className="text-xl font-semibold text-zinc-900 tracking-tight">12-week trend</h3>
+          <h3 className="text-xl font-semibold text-[#1f1f1f] tracking-tight">12-week trend</h3>
           <p className="text-xs text-zinc-500 mt-1">
             Weekly RVU &middot; trending{' '}
-            <strong style={{ color: trendPct >= 0 ? 'oklch(60% 0.13 155)' : '#ef4444' }}>
+            <strong style={{ color: trendPct >= 0 ? '#059669' : '#c81b3a' }}>
               {trendPct >= 0 ? '+' : ''}{trendPct.toFixed(0)}%
             </strong>
           </p>
@@ -70,8 +70,8 @@ export default function WeeklyTrend({ visits, weeklyTarget }: WeeklyTrendProps) 
                 style={{
                   height: `${(w.rvu / maxRVU) * 100}%`,
                   backgroundColor: i === weeks.length - 1
-                    ? 'oklch(55% 0.15 265)'
-                    : w.rvu >= weeklyTarget ? 'oklch(60% 0.13 155)' : '#18181b',
+                    ? '#0070cc'
+                    : w.rvu >= weeklyTarget ? '#059669' : '#1f1f1f',
                   opacity: i === weeks.length - 1 ? 1 : 0.7,
                   minHeight: w.rvu > 0 ? 4 : 0,
                 }}

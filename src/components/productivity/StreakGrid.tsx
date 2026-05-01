@@ -36,11 +36,11 @@ export default function StreakGrid({ visits, dailyTarget }: StreakGridProps) {
 
   return (
     <div className="bg-white rounded-xl border border-zinc-200/80 p-6">
-      <h3 className="text-xl font-semibold text-zinc-900 tracking-tight">Hit-target streak</h3>
+      <h3 className="text-xl font-semibold text-[#1f1f1f] tracking-tight">Hit-target streak</h3>
       <p className="text-xs text-zinc-500 mt-1 mb-5">Days you hit your daily RVU target</p>
 
       <div className="flex items-baseline gap-2.5 mb-4">
-        <span className="text-5xl font-mono font-bold leading-none" style={{ color: 'oklch(60% 0.13 155)' }}>
+        <span className="text-5xl font-mono font-bold leading-none" style={{ color: '#059669' }}>
           {currentStreak}
         </span>
         <span className="text-sm text-zinc-500">day streak &middot; best {bestStreak}</span>
@@ -54,10 +54,10 @@ export default function StreakGrid({ visits, dailyTarget }: StreakGridProps) {
             className="aspect-square rounded"
             style={{
               backgroundColor: d.hit
-                ? (d.isToday ? 'oklch(55% 0.15 265)' : 'oklch(60% 0.13 155)')
+                ? (d.isToday ? '#0070cc' : '#059669')
                 : '#e4e4e7',
               opacity: d.hit ? (d.isToday ? 1 : 0.85) : 0.6,
-              border: d.isToday ? '2px solid oklch(55% 0.15 265)' : 'none',
+              border: d.isToday ? '2px solid #0070cc' : 'none',
             }}
           />
         ))}

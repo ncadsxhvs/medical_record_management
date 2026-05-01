@@ -1,0 +1,219 @@
+- generic [active] [ref=e1]:
+  - link "Skip to content" [ref=e2] [cursor=pointer]:
+    - /url: "#main-content"
+  - generic [ref=e3]:
+    - generic [ref=e5]:
+      - heading "RVU Tracker" [level=1] [ref=e6]
+      - link "Analytics" [ref=e7] [cursor=pointer]:
+        - /url: /analytics
+      - generic [ref=e8]:
+        - generic [ref=e9]:
+          - generic [ref=e10]: Sandbox User
+          - generic [ref=e11]: sandbox@localhost
+        - button "Sign Out" [ref=e12]
+    - generic [ref=e13]:
+      - generic [ref=e16]:
+        - generic [ref=e17]:
+          - paragraph [ref=e18]: Search HCPCS
+          - textbox "Search HCPCS code or description... (e.g., 99213)" [ref=e20]
+        - generic [ref=e21]:
+          - paragraph [ref=e22]: Favorites
+          - generic [ref=e23]:
+            - button "+ Add Favorite" [ref=e25]
+            - generic [ref=e26]: Loading favorites...
+            - status [ref=e27]
+      - generic [ref=e28]:
+        - generic [ref=e30]:
+          - generic [ref=e31]:
+            - generic [ref=e32]:
+              - generic [ref=e33]: Date
+              - textbox "Date" [ref=e34]: 2026-04-30
+            - generic [ref=e35]:
+              - generic [ref=e36]: Time
+              - textbox "Time" [ref=e37]: 11:10
+          - textbox "Notes (optional)" [ref=e38]
+          - generic [ref=e39]:
+            - button "Save Visit" [disabled] [ref=e40]
+            - button "No Show" [ref=e41]
+        - generic [ref=e43]:
+          - generic [ref=e44]:
+            - paragraph [ref=e46]: Today
+            - paragraph [ref=e47]: "19.60"
+          - generic [ref=e48]:
+            - paragraph [ref=e50]: This Week
+            - paragraph [ref=e51]: "42.68"
+          - generic [ref=e52]:
+            - paragraph [ref=e54]: Month to Date
+            - paragraph [ref=e55]: "51.69"
+        - generic [ref=e56]:
+          - generic [ref=e57]:
+            - paragraph [ref=e58]: Today
+            - generic [ref=e60] [cursor=pointer]:
+              - generic [ref=e62]: 12:25 AM99214, 99203, 99213
+              - generic [ref=e63]:
+                - generic [ref=e64]:
+                  - button "Edit visit" [ref=e65]:
+                    - img [ref=e66]
+                  - button "Copy visit" [ref=e68]:
+                    - img [ref=e69]
+                  - button "Delete visit" [ref=e71]:
+                    - img [ref=e72]
+                - generic [ref=e74]: "4.82"
+          - generic [ref=e77] [cursor=pointer]:
+            - generic [ref=e79]:
+              - text: 12:13 AMG2211
+              - generic [ref=e80]: · test
+            - generic [ref=e81]:
+              - generic [ref=e82]:
+                - button "Edit visit" [ref=e83]:
+                  - img [ref=e84]
+                - button "Copy visit" [ref=e86]:
+                  - img [ref=e87]
+                - button "Delete visit" [ref=e89]:
+                  - img [ref=e90]
+              - generic [ref=e92]: "0.33"
+          - generic [ref=e95] [cursor=pointer]:
+            - generic [ref=e97]: 12:03 AM99214
+            - generic [ref=e98]:
+              - generic [ref=e99]:
+                - button "Edit visit" [ref=e100]:
+                  - img [ref=e101]
+                - button "Copy visit" [ref=e103]:
+                  - img [ref=e104]
+                - button "Delete visit" [ref=e106]:
+                  - img [ref=e107]
+              - generic [ref=e109]: "1.92"
+          - generic [ref=e112] [cursor=pointer]:
+            - generic [ref=e114]: 12:03 AMG2211, 99214 x5, 99213 x2
+            - generic [ref=e115]:
+              - generic [ref=e116]:
+                - button "Edit visit" [ref=e117]:
+                  - img [ref=e118]
+                - button "Copy visit" [ref=e120]:
+                  - img [ref=e121]
+                - button "Delete visit" [ref=e123]:
+                  - img [ref=e124]
+              - generic [ref=e126]: "12.53"
+          - generic [ref=e127]:
+            - paragraph [ref=e128]: Apr 29
+            - generic [ref=e130] [cursor=pointer]:
+              - generic [ref=e132]: 11:11 PMG2211, 99214, 99213 x2
+              - generic [ref=e133]:
+                - generic [ref=e134]:
+                  - button "Edit visit" [ref=e135]:
+                    - img [ref=e136]
+                  - button "Copy visit" [ref=e138]:
+                    - img [ref=e139]
+                  - button "Delete visit" [ref=e141]:
+                    - img [ref=e142]
+                - generic [ref=e144]: "4.85"
+          - generic [ref=e147] [cursor=pointer]:
+            - generic [ref=e149]: 11:30 AM99215
+            - generic [ref=e150]:
+              - generic [ref=e151]:
+                - button "Edit visit" [ref=e152]:
+                  - img [ref=e153]
+                - button "Copy visit" [ref=e155]:
+                  - img [ref=e156]
+                - button "Delete visit" [ref=e158]:
+                  - img [ref=e159]
+              - generic [ref=e161]: "2.80"
+          - generic [ref=e164] [cursor=pointer]:
+            - generic [ref=e166]: 9:15 AM99214, 99213
+            - generic [ref=e167]:
+              - generic [ref=e168]:
+                - button "Edit visit" [ref=e169]:
+                  - img [ref=e170]
+                - button "Copy visit" [ref=e172]:
+                  - img [ref=e173]
+                - button "Delete visit" [ref=e175]:
+                  - img [ref=e176]
+              - generic [ref=e178]: "3.22"
+          - generic [ref=e179]:
+            - paragraph [ref=e180]: Apr 28
+            - generic [ref=e182] [cursor=pointer]:
+              - generic [ref=e184]: 2:00 PM99232 x3
+              - generic [ref=e185]:
+                - generic [ref=e186]:
+                  - button "Edit visit" [ref=e187]:
+                    - img [ref=e188]
+                  - button "Copy visit" [ref=e190]:
+                    - img [ref=e191]
+                  - button "Delete visit" [ref=e193]:
+                    - img [ref=e194]
+                - generic [ref=e196]: "4.17"
+          - generic [ref=e199] [cursor=pointer]:
+            - generic [ref=e201]: 8:45 AM99203, 99214 x2
+            - generic [ref=e202]:
+              - generic [ref=e203]:
+                - button "Edit visit" [ref=e204]:
+                  - img [ref=e205]
+                - button "Copy visit" [ref=e207]:
+                  - img [ref=e208]
+                - button "Delete visit" [ref=e210]:
+                  - img [ref=e211]
+              - generic [ref=e213]: "5.44"
+          - generic [ref=e214]:
+            - paragraph [ref=e215]: Apr 27
+            - generic [ref=e217] [cursor=pointer]:
+              - generic [ref=e219]: 10:00 AM99213 x2
+              - generic [ref=e220]:
+                - generic [ref=e221]:
+                  - button "Edit visit" [ref=e222]:
+                    - img [ref=e223]
+                  - button "Copy visit" [ref=e225]:
+                    - img [ref=e226]
+                  - button "Delete visit" [ref=e228]:
+                    - img [ref=e229]
+                - generic [ref=e231]: "2.60"
+          - generic [ref=e232]:
+            - paragraph [ref=e233]: Apr 26
+            - generic [ref=e234]:
+              - generic [ref=e236]:
+                - text: 9:00 AM
+                - generic [ref=e237]: No Show
+                - text: Patient did not show
+              - button "Delete no-show visit" [ref=e238]:
+                - img [ref=e239]
+          - generic [ref=e241]:
+            - paragraph [ref=e242]: Apr 25
+            - generic [ref=e244] [cursor=pointer]:
+              - generic [ref=e246]: 1:30 PM99214, 99213, 99232
+              - generic [ref=e247]:
+                - generic [ref=e248]:
+                  - button "Edit visit" [ref=e249]:
+                    - img [ref=e250]
+                  - button "Copy visit" [ref=e252]:
+                    - img [ref=e253]
+                  - button "Delete visit" [ref=e255]:
+                    - img [ref=e256]
+                - generic [ref=e258]: "4.61"
+          - generic [ref=e259]:
+            - paragraph [ref=e260]: Apr 24
+            - generic [ref=e262] [cursor=pointer]:
+              - generic [ref=e264]: 8:00 AM99215
+              - generic [ref=e265]:
+                - generic [ref=e266]:
+                  - button "Edit visit" [ref=e267]:
+                    - img [ref=e268]
+                  - button "Copy visit" [ref=e270]:
+                    - img [ref=e271]
+                  - button "Delete visit" [ref=e273]:
+                    - img [ref=e274]
+                - generic [ref=e276]: "2.80"
+          - generic [ref=e277]:
+            - paragraph [ref=e278]: Apr 23
+            - generic [ref=e280] [cursor=pointer]:
+              - generic [ref=e282]: 11:00 AM99203
+              - generic [ref=e283]:
+                - generic [ref=e284]:
+                  - button "Edit visit" [ref=e285]:
+                    - img [ref=e286]
+                  - button "Copy visit" [ref=e288]:
+                    - img [ref=e289]
+                  - button "Delete visit" [ref=e291]:
+                    - img [ref=e292]
+                - generic [ref=e294]: "1.60"
+  - button "Open Next.js Dev Tools" [ref=e300] [cursor=pointer]:
+    - img [ref=e301]
+  - alert [ref=e304]

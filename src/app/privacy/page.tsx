@@ -7,14 +7,14 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <div className="min-h-screen bg-zinc-50 py-12 px-4">
+    <div className="min-h-[100dvh] bg-[#f5f7fa] py-12 px-4">
       <div className="max-w-3xl mx-auto bg-white rounded-lg shadow p-8 sm:p-12">
-        <h1 className="text-3xl font-bold text-zinc-900 mb-2">Privacy Policy</h1>
+        <h1 className="text-3xl font-light text-[#1f1f1f] mb-2">Privacy Policy</h1>
         <p className="text-sm text-zinc-500 mb-8">Last updated: February 18, 2026</p>
 
         <div className="space-y-8 text-zinc-700 leading-relaxed">
           <section>
-            <h2 className="text-xl font-semibold text-zinc-900 mb-3">Overview</h2>
+            <h2 className="text-xl font-semibold text-[#1f1f1f] mb-3">Overview</h2>
             <p>
               RVU Tracker (&quot;we&quot;, &quot;our&quot;, or &quot;the app&quot;) is a medical procedure RVU
               (Relative Value Unit) tracking tool available at trackmyrvu.com and as a mobile application.
@@ -23,7 +23,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-zinc-900 mb-3">Information We Collect</h2>
+            <h2 className="text-xl font-semibold text-[#1f1f1f] mb-3">Information We Collect</h2>
             <p className="mb-3">When you sign in with Google or Apple, we receive and store:</p>
             <ul className="list-disc pl-6 space-y-1">
               <li>Your name</li>
@@ -40,7 +40,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-zinc-900 mb-3">How We Use Your Information</h2>
+            <h2 className="text-xl font-semibold text-[#1f1f1f] mb-3">How We Use Your Information</h2>
             <p>Your information is used solely to:</p>
             <ul className="list-disc pl-6 space-y-1 mt-2">
               <li>Authenticate your identity and maintain your session</li>
@@ -54,7 +54,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-zinc-900 mb-3">Data Storage &amp; Security</h2>
+            <h2 className="text-xl font-semibold text-[#1f1f1f] mb-3">Data Storage &amp; Security</h2>
             <p>
               Your data is stored in a secure PostgreSQL database hosted by Neon (via Vercel).
               All data is transmitted over HTTPS. Access to your data is restricted to your
@@ -63,7 +63,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-zinc-900 mb-3">Third-Party Services</h2>
+            <h2 className="text-xl font-semibold text-[#1f1f1f] mb-3">Third-Party Services</h2>
             <p>We use the following third-party services:</p>
             <ul className="list-disc pl-6 space-y-1 mt-2">
               <li><strong>Google Sign-In</strong> &mdash; for authentication (governed by Google&apos;s Privacy Policy)</li>
@@ -74,7 +74,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-zinc-900 mb-3">Data Retention &amp; Deletion</h2>
+            <h2 className="text-xl font-semibold text-[#1f1f1f] mb-3">Data Retention &amp; Deletion</h2>
             <p>
               Your data is retained as long as your account is active. You may request deletion
               of your account and all associated data at any time by contacting us. Upon request,
@@ -83,7 +83,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-zinc-900 mb-3">Children&apos;s Privacy</h2>
+            <h2 className="text-xl font-semibold text-[#1f1f1f] mb-3">Children&apos;s Privacy</h2>
             <p>
               RVU Tracker is intended for use by medical professionals. We do not knowingly
               collect information from children under 13.
@@ -91,7 +91,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-zinc-900 mb-3">Changes to This Policy</h2>
+            <h2 className="text-xl font-semibold text-[#1f1f1f] mb-3">Changes to This Policy</h2>
             <p>
               We may update this privacy policy from time to time. Changes will be reflected
               on this page with an updated revision date.
@@ -99,16 +99,16 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-zinc-900 mb-3">Contact</h2>
+            <h2 className="text-xl font-semibold text-[#1f1f1f] mb-3">Contact</h2>
             <p>
               If you have questions about this privacy policy or wish to request data deletion,
-              please contact us at <a href="mailto:privacy@trackmyrvu.com" className="text-blue-600 hover:underline">privacy@trackmyrvu.com</a>.
+              please contact us at <a href="mailto:privacy@trackmyrvu.com" className="text-[#0070cc] hover:underline">privacy@trackmyrvu.com</a>.
             </p>
           </section>
         </div>
 
         <div className="mt-12 pt-6 border-t border-zinc-200">
-          <a href="/" className="text-sm text-blue-600 hover:underline">&larr; Back to RVU Tracker</a>
+          <a href="/" className="text-sm text-[#0070cc] hover:underline">&larr; Back to RVU Tracker</a>
         </div>
       </div>
     </div>

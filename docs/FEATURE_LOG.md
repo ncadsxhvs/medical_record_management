@@ -4,6 +4,57 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 27
+
+- **Date:** 2026-04-30
+- **Title:** style(ui): PlayStation-inspired design system restyle
+- **Branch:** `feat/addbutton-for-fav`
+- **Spec:** [docs/features/ui-consistency.md](features/ui-consistency.md)
+- **What changed:**
+  - Applied PlayStation-inspired design system across entire UI
+  - Dark Console Black (#000000) header with PlayStation Blue (#0070cc) nav pills
+  - All primary buttons pill-shaped (rounded-full) with ps-btn signature hover (cyan fill, white border, blue ring, scale 1.05×)
+  - Display headings (22px+) changed from font-bold to font-light
+  - Page backgrounds changed from stone-50 to Ice Mist (#f5f7fa)
+  - All blue-500/600 colors replaced with PlayStation Blue (#0070cc)
+  - Focus rings use 2px box-shadow instead of outline
+  - Toast backgrounds use Deep Charcoal (#1f1f1f)
+  - Created design-system/trackmyrvu/MASTER.md with full color palette, typography, shadow scale, anti-patterns, and pre-delivery checklist
+  - Added ps-btn CSS utility class to globals.css
+  - Sign-in page restyled: font-light heading, Ice Mist bg, pill buttons, rounded-xl card
+- **Files touched:**
+  - `src/app/globals.css` (PlayStation color tokens, ps-btn class, focus-visible)
+  - `src/components/AppHeader.tsx` (Console Black header, blue nav pills)
+  - `src/components/UserProfile.tsx` (dark header styling)
+  - `src/app/(main)/page.tsx` (Ice Mist bg, font-light headings, ps-btn buttons)
+  - `src/app/sign-in/page.tsx` (full restyle)
+  - `src/app/analytics/page.tsx` (Ice Mist bg, font-light, pill buttons)
+  - `src/app/productivity/page.tsx` (Ice Mist bg, font-light, blue tokens)
+  - `src/components/EntryForm.tsx` (ps-btn, pill buttons, orange no-show)
+  - `src/components/SelectedProceduresCard.tsx` (pill buttons, ps-btn)
+  - `src/components/FavoritesPicker.tsx` (blue tokens)
+  - `src/components/FavoriteGroupsPicker.tsx` (blue tokens, pill buttons)
+  - `src/components/RVUPicker.tsx` (blue tokens, pill buttons)
+  - `src/components/EditVisitModal.tsx` (blue tokens, pill save)
+  - `src/components/Toast.tsx` (charcoal bg)
+  - `src/components/ConfirmDialog.tsx` (pill confirm button)
+  - `src/components/analytics/BonusProjection.tsx` (blue tokens)
+  - `src/components/analytics/BreakdownTable.tsx` (blue tokens)
+  - `src/components/ProcedureList.tsx` (blue tokens)
+  - `src/app/privacy/page.tsx` (link color)
+  - `src/app/loading.tsx` (Ice Mist bg)
+  - `src/app/(main)/loading.tsx` (Ice Mist bg)
+  - `design-system/trackmyrvu/MASTER.md` (new design system doc)
+- **How to verify:**
+  - All pages use Ice Mist (#f5f7fa) backgrounds
+  - Header is Console Black with white text and PlayStation Blue nav pills
+  - All buttons are pill-shaped (rounded-full)
+  - Display headings are font-light, not font-bold
+  - Primary buttons show cyan hover with white border and blue ring
+  - No cyan (#1eaedb) appears at rest — only on hover/focus
+
+---
+
 ## Entry 26
 
 - **Date:** 2026-04-30

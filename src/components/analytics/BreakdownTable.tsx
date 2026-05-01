@@ -25,7 +25,7 @@ export default function BreakdownTable({ data, selectedPeriod, formatPeriod, onC
           {selectedPeriod && (
             <button
               onClick={onClearPeriod}
-              className="text-sm text-blue-600 hover:underline"
+              className="text-sm text-[#0070cc] hover:underline cursor-pointer"
             >
               Show All Periods
             </button>
@@ -65,22 +65,22 @@ export default function BreakdownTable({ data, selectedPeriod, formatPeriod, onC
                     .sort(([periodA], [periodB]) => periodB.localeCompare(periodA))
                     .map(([period, items]) => (
                     <React.Fragment key={period}>
-                      <tr className="bg-blue-50 border-t-2 border-blue-200">
+                      <tr className="bg-[#0070cc]/5 border-t-2 border-[#0070cc]/20">
                         <td colSpan={5} className="px-4 py-3">
                           <div className="flex items-center gap-2">
-                            <svg className="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <svg className="w-5 h-5 text-[#0070cc]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
-                            <span className="text-sm font-bold text-blue-900">{formatPeriod(period)}</span>
-                            <span className="text-xs text-blue-600 ml-2">
+                            <span className="text-sm font-bold text-[#1f1f1f]">{formatPeriod(period)}</span>
+                            <span className="text-xs text-[#0070cc] ml-2">
                               ({items.length} procedure{items.length !== 1 ? 's' : ''})
                             </span>
                           </div>
                         </td>
                       </tr>
                       {items.map((item, idx) => (
-                        <tr key={`${period}-${idx}`} className={`hover:bg-blue-50 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-zinc-50'}`}>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm font-semibold text-zinc-900">
+                        <tr key={`${period}-${idx}`} className={`hover:bg-[#0070cc]/5 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-zinc-50'}`}>
+                          <td className="px-4 py-3 whitespace-nowrap text-sm font-semibold text-[#1f1f1f]">
                             {item.hcpcs}
                           </td>
                           <td className="px-4 py-3 text-sm text-zinc-700 max-w-xs truncate" title={item.description}>
@@ -89,7 +89,7 @@ export default function BreakdownTable({ data, selectedPeriod, formatPeriod, onC
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-zinc-600 text-right font-medium">
                             {item.total_quantity}
                           </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-blue-900 text-right">
+                          <td className="px-4 py-3 whitespace-nowrap text-sm font-bold text-[#1f1f1f] text-right">
                             {item.total_work_rvu.toFixed(2)}
                           </td>
                           <td className="px-4 py-3 whitespace-nowrap text-sm text-zinc-600 text-right">

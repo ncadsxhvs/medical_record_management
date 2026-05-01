@@ -1,0 +1,6 @@
+[     296ms] [INFO] %cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_7a8122d0._.js:2287
+[     328ms] [LOG] %c%s%c [RVU Cache] Loading RVU codes from database... background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_7a8122d0._.js:2287
+[     332ms] [LOG] %c%s%c [RVU Cache] Loaded 16852 RVU codes in 89ms background: #e6e6e6;background: light-dark(rgba(0,0,0,0.1), rgba(255,255,255,0.25));color: #000000;color: light-dark(#000000, #ffffff);border-radius: 2px  Server   @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_7a8122d0._.js:2287
+[     353ms] [LOG] [HMR] connected @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_7a8122d0._.js:2287
+[     471ms] [LOG] [Fast Refresh] rebuilding @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_7a8122d0._.js:2287
+[     525ms] [LOG] [Fast Refresh] done in 162ms @ http://localhost:3001/_next/static/chunks/node_modules_next_dist_7a8122d0._.js:2287
