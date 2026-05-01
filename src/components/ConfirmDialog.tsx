@@ -60,7 +60,7 @@ export default function ConfirmDialog({ open, title, message, confirmLabel = 'Co
         className="bg-white rounded-xl shadow-xl max-w-sm w-full mx-4 p-6"
         onClick={e => e.stopPropagation()}
       >
-        <h3 id="confirm-dialog-title" className="text-lg font-semibold text-zinc-900 mb-2">{title}</h3>
+        <h3 id="confirm-dialog-title" className="text-lg font-semibold text-[#1f1f1f] mb-2">{title}</h3>
         <p id="confirm-dialog-message" className="text-sm text-zinc-600 mb-6">{message}</p>
         <div className="flex gap-3 justify-end">
           <button

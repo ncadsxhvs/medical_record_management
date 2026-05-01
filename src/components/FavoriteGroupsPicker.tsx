@@ -196,7 +196,7 @@ export default function FavoriteGroupsPicker({
         <div className="flex gap-2">
           <button
             onClick={handleAddNewGroup}
-            className="text-xs font-semibold text-[#0070cc] hover:text-[#1eaedb] transition-colors cursor-pointer"
+            className="text-xs font-semibold text-[#0070cc] hover:text-[#1eaedb] active:scale-[0.98] transition-colors cursor-pointer"
           >
             + Add
           </button>
@@ -204,14 +204,14 @@ export default function FavoriteGroupsPicker({
             managementMode ? (
               <button
                 onClick={handleExitManagement}
-                className="text-xs font-semibold text-zinc-500 hover:text-zinc-700 border border-zinc-300 rounded-full px-2.5 py-0.5 cursor-pointer"
+                className="text-xs font-semibold text-zinc-500 hover:text-zinc-700 active:scale-[0.98] border border-zinc-300 rounded-full px-2.5 py-0.5 cursor-pointer"
               >
                 Done
               </button>
             ) : (
               <button
                 onClick={() => setManagementMode(true)}
-                className="text-xs font-semibold text-[#0070cc] hover:text-[#1eaedb] border border-[#0070cc]/30 rounded-full px-2.5 py-0.5 cursor-pointer"
+                className="text-xs font-semibold text-[#0070cc] hover:text-[#1eaedb] active:scale-[0.98] border border-[#0070cc]/30 rounded-full px-2.5 py-0.5 cursor-pointer"
               >
                 Edit
               </button>
@@ -246,14 +246,14 @@ export default function FavoriteGroupsPicker({
                   className="flex-1 text-left min-w-0 pr-12"
                   title="Select to edit procedures"
                 >
-                  <div className="font-semibold text-sm text-zinc-900 truncate">{g.name}</div>
+                  <div className="font-semibold text-sm text-[#1f1f1f] truncate">{g.name}</div>
                   <div className="text-xs text-zinc-400 font-mono">
                     {g.items.length} code{g.items.length !== 1 ? 's' : ''} &middot; {totalRvu.toFixed(2)} RVU
                   </div>
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); handleDelete(g.id, g.name); }}
-                  className="absolute right-2 p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                  className="absolute right-2 p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 active:scale-[0.98] rounded-lg transition-all"
                   title="Delete group"
                 >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -273,7 +273,7 @@ export default function FavoriteGroupsPicker({
             >
               <div className={`w-2 h-2 rounded-full flex-shrink-0 ${dotColor}`} />
               <div className="flex-1 min-w-0">
-                <div className="font-semibold text-sm text-zinc-900 truncate">{g.name}</div>
+                <div className="font-semibold text-sm text-[#1f1f1f] truncate">{g.name}</div>
                 <div className="text-xs text-zinc-400 font-mono">
                   {g.items.length} code{g.items.length !== 1 ? 's' : ''} &middot; {totalRvu.toFixed(2)} RVU
                 </div>
@@ -286,7 +286,7 @@ export default function FavoriteGroupsPicker({
 
       {/* Inline editor for selected group or new group */}
       {managementMode && (editingGroup || creatingGroupName) && (
-        <div className="mt-3 p-4 border border-[#0070cc]/20 rounded-md bg-[#0070cc]/5">
+        <div className="mt-3 p-4 border border-[#0070cc]/20 rounded-lg bg-[#0070cc]/5">
           <div className="flex items-center justify-between mb-3">
             <h4 className="text-md font-semibold text-[#0070cc]">
               {creatingGroupName
@@ -297,7 +297,7 @@ export default function FavoriteGroupsPicker({
             {editingGroup && (
               <button
                 onClick={handleRename}
-                className="px-3 py-1 text-sm bg-white text-zinc-700 border border-zinc-300 rounded-md hover:bg-zinc-50 flex items-center gap-1"
+                className="px-3 py-1 text-sm bg-white text-zinc-700 border border-zinc-300 rounded-lg hover:bg-zinc-50 active:scale-[0.98] flex items-center gap-1"
                 title="Rename group"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -328,13 +328,13 @@ export default function FavoriteGroupsPicker({
             <button
               onClick={creatingGroupName ? handleSaveNewGroup : handleSaveEdit}
               disabled={editProcedures.length === 0}
-              className="px-4 py-2 text-sm bg-[#0070cc] text-white rounded-full hover:bg-[#005fa3] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 text-sm bg-[#0070cc] text-white rounded-full hover:bg-[#005fa3] active:scale-[0.98] cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {creatingGroupName ? 'Create Group' : 'Save Changes'}
             </button>
             <button
               onClick={handleCancelEdit}
-              className="px-4 py-2 text-sm bg-zinc-200 text-zinc-700 rounded-md hover:bg-zinc-300"
+              className="px-4 py-2 text-sm bg-zinc-200 text-zinc-700 rounded-lg hover:bg-zinc-300 active:scale-[0.98]"
             >
               Cancel
             </button>

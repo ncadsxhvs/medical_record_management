@@ -36,7 +36,7 @@ export default function StreakGrid({ visits, dailyTarget }: StreakGridProps) {
 
   return (
     <div className="bg-white rounded-xl border border-zinc-200/80 p-6">
-      <h3 className="text-xl font-semibold text-zinc-900 tracking-tight">Hit-target streak</h3>
+      <h3 className="text-xl font-semibold text-[#1f1f1f] tracking-tight">Hit-target streak</h3>
       <p className="text-xs text-zinc-500 mt-1 mb-5">Days you hit your daily RVU target</p>
 
       <div className="flex items-baseline gap-2.5 mb-4">

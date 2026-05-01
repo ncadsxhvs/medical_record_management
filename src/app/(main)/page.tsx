@@ -233,7 +233,7 @@ export default function Home() {
         <div className="flex-1 p-5 lg:p-8">
           <div className="max-w-[640px] mx-auto">
             {/* Log Visit Header */}
-            <h2 className="text-2xl font-light text-zinc-900 tracking-tight">Log Visit</h2>
+            <h2 className="text-2xl font-light text-[#1f1f1f] tracking-tight">Log Visit</h2>
             <p className="text-sm text-zinc-400 mt-1 mb-6">Pick from favorites or search, then save.</p>
 
             {/* Mobile inline favorites + search */}
@@ -260,7 +260,7 @@ export default function Home() {
           <div className="p-4 lg:p-5">
             {/* Visit Log Header */}
             <div className="flex items-center justify-between mb-4">
-              <h2 className="text-lg font-bold text-zinc-900 tracking-tight">Visit Log</h2>
+              <h2 className="text-lg font-bold text-[#1f1f1f] tracking-tight">Visit Log</h2>
               <span className="text-xs text-zinc-400 font-medium">{todayVisitCount} today</span>
             </div>
 

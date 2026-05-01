@@ -258,7 +258,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
                 {visitData.procedures.map(p => (
                   <div key={p.hcpcs} className="flex items-center justify-between">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="font-mono font-semibold text-sm text-zinc-900">{p.hcpcs}</span>
+                      <span className="font-mono font-semibold text-sm text-[#1f1f1f]">{p.hcpcs}</span>
                       <span className="text-xs text-zinc-500 truncate">{p.description}</span>
                     </div>
                     <div className="flex items-center gap-2 flex-shrink-0">

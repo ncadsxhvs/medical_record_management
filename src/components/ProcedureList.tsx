@@ -15,7 +15,7 @@ export default function ProcedureList({ procedures, onRemove, onQuantityChange, 
   const { isFavorite, toggleFavorite } = useFavorites();
   if (procedures.length === 0) {
     return (
-      <div className="text-zinc-500 text-sm p-4 text-center border border-zinc-200 rounded-md">
+      <div className="text-zinc-500 text-sm p-4 text-center border border-zinc-200 rounded-lg">
         No procedures added yet. Search for HCPCS codes above to add procedures.
       </div>
     );
@@ -28,7 +28,7 @@ export default function ProcedureList({ procedures, onRemove, onQuantityChange, 
       {procedures.map((proc, index) => {
         const fav = isFavorite(proc.hcpcs);
         return (
-          <div key={`${proc.hcpcs}-${index}`} className="p-3 border border-zinc-300 rounded-md bg-white">
+          <div key={`${proc.hcpcs}-${index}`} className="p-3 border border-zinc-300 rounded-lg bg-white">
             <div className="flex justify-between items-start">
               <div className="flex-1">
                 <div className="flex items-center gap-2">
@@ -56,17 +56,17 @@ export default function ProcedureList({ procedures, onRemove, onQuantityChange, 
                       <div className="flex items-center gap-1">
                         <button
                           onClick={() => onQuantityChange(proc.hcpcs, Math.max(1, (proc.quantity || 1) - 1))}
-                          className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-zinc-100 text-zinc-700 rounded-lg hover:bg-zinc-200 active:bg-zinc-300 transition-all duration-150 font-bold text-lg"
+                          className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-zinc-100 text-zinc-700 rounded-lg hover:bg-zinc-200 active:bg-zinc-300 transition-all duration-150 font-bold text-lg cursor-pointer"
                           aria-label="Decrease quantity"
                         >
                           −
                         </button>
-                        <div className="w-12 h-9 flex items-center justify-center bg-white border border-zinc-300 rounded-lg font-semibold text-zinc-900">
+                        <div className="w-12 h-9 flex items-center justify-center bg-white border border-zinc-300 rounded-lg font-semibold text-[#1f1f1f]">
                           {proc.quantity || 1}
                         </div>
                         <button
                           onClick={() => onQuantityChange(proc.hcpcs, (proc.quantity || 1) + 1)}
-                          className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-zinc-100 text-zinc-700 rounded-lg hover:bg-zinc-200 active:bg-zinc-300 transition-all duration-150 font-bold text-lg"
+                          className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-zinc-100 text-zinc-700 rounded-lg hover:bg-zinc-200 active:bg-zinc-300 transition-all duration-150 font-bold text-lg cursor-pointer"
                           aria-label="Increase quantity"
                         >
                           +
@@ -89,7 +89,7 @@ export default function ProcedureList({ procedures, onRemove, onQuantityChange, 
               {editable && onRemove && (
                 <button
                   onClick={() => onRemove(proc.hcpcs)}
-                  className="ml-3 min-w-[44px] min-h-[44px] flex items-center justify-center px-3 text-red-600 hover:bg-red-50 rounded-md border border-red-300"
+                  className="ml-3 min-w-[44px] min-h-[44px] flex items-center justify-center px-3 text-red-600 hover:bg-red-50 rounded-lg border border-red-300 cursor-pointer"
                   aria-label="Remove procedure"
                 >
                   ×
@@ -99,7 +99,7 @@ export default function ProcedureList({ procedures, onRemove, onQuantityChange, 
           </div>
         );
       })}
-      <div className="p-3 bg-[#0070cc]/5 border border-[#0070cc]/20 rounded-md">
+      <div className="p-3 bg-[#0070cc]/5 border border-[#0070cc]/20 rounded-lg">
         <div className="flex justify-between items-center">
           <span className="font-semibold text-zinc-700">Total Procedures:</span>
           <span className="font-bold">{procedures.length}</span>

@@ -111,7 +111,7 @@ export default function KPIStrip({ visits }: KPIStripProps) {
       <div className="bg-white rounded-xl border border-zinc-200/80 px-4 py-3">
         <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Today</p>
         <div className="flex items-baseline gap-1 mt-1">
-          <span className="text-2xl font-bold font-mono text-zinc-900">{todayRVU.toFixed(2)}</span>
+          <span className="text-2xl font-bold font-mono text-[#1f1f1f]">{todayRVU.toFixed(2)}</span>
           <span className="text-xs text-zinc-400">RVU</span>
         </div>
         <MiniProgressBar pct={(todayRVU / dailyTarget) * 100} color="#22c55e" />
@@ -120,7 +120,7 @@ export default function KPIStrip({ visits }: KPIStripProps) {
       <div className="bg-white rounded-xl border border-zinc-200/80 px-4 py-3">
         <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">This Week</p>
         <div className="flex items-baseline gap-1 mt-1">
-          <span className="text-2xl font-bold font-mono text-zinc-900">{weekRVU.toFixed(2)}</span>
+          <span className="text-2xl font-bold font-mono text-[#1f1f1f]">{weekRVU.toFixed(2)}</span>
           <span className="text-xs text-zinc-400">RVU</span>
         </div>
         <MiniProgressBar pct={(weekRVU / weeklyTarget) * 100} color="#3b82f6" />
@@ -129,7 +129,7 @@ export default function KPIStrip({ visits }: KPIStripProps) {
       <div className="bg-white rounded-xl border border-zinc-200/80 px-4 py-3">
         <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">MTD</p>
         <div className="flex items-baseline gap-1 mt-1">
-          <span className="text-2xl font-bold font-mono text-zinc-900">{monthRVU.toFixed(1)}</span>
+          <span className="text-2xl font-bold font-mono text-[#1f1f1f]">{monthRVU.toFixed(1)}</span>
           <span className="text-xs text-zinc-400">/ {monthlyTarget}</span>
         </div>
         <MiniProgressBar pct={(monthRVU / monthlyTarget) * 100} color="#3b82f6" />
@@ -138,7 +138,7 @@ export default function KPIStrip({ visits }: KPIStripProps) {
       <div className="bg-white rounded-xl border border-zinc-200/80 px-4 py-3">
         <p className="text-[10px] font-semibold text-zinc-400 uppercase tracking-wider">Encounters</p>
         <div className="flex items-baseline gap-1.5 mt-1">
-          <span className="text-2xl font-bold font-mono text-zinc-900">{todayEncounters}</span>
+          <span className="text-2xl font-bold font-mono text-[#1f1f1f]">{todayEncounters}</span>
           {encounterDelta !== 0 && (
             <span className={`text-xs font-semibold ${encounterDelta > 0 ? 'text-green-600' : 'text-red-500'}`}>
               {encounterDelta > 0 ? '+' : ''}{encounterDelta} vs avg

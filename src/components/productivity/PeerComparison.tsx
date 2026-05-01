@@ -37,7 +37,7 @@ export default function PeerComparison({ visits, monthlyTarget }: PeerComparison
 
   return (
     <div className="bg-white rounded-xl border border-zinc-200/80 p-6">
-      <h3 className="text-xl font-semibold text-zinc-900 tracking-tight">vs. Peers</h3>
+      <h3 className="text-xl font-semibold text-[#1f1f1f] tracking-tight">vs. Peers</h3>
       <p className="text-xs text-zinc-500 mt-1 mb-5">Internal medicine &middot; same FTE</p>
 
       {metrics.map(m => (

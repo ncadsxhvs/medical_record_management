@@ -46,7 +46,7 @@ export default function WeeklyTrend({ visits, weeklyTarget }: WeeklyTrendProps) 
     <div className="bg-white rounded-xl border border-zinc-200/80 p-6">
       <div className="flex justify-between items-baseline mb-4">
         <div>
-          <h3 className="text-xl font-semibold text-zinc-900 tracking-tight">12-week trend</h3>
+          <h3 className="text-xl font-semibold text-[#1f1f1f] tracking-tight">12-week trend</h3>
           <p className="text-xs text-zinc-500 mt-1">
             Weekly RVU &middot; trending{' '}
             <strong style={{ color: trendPct >= 0 ? '#059669' : '#c81b3a' }}>

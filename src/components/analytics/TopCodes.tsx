@@ -30,7 +30,7 @@ export default function TopCodes({ data, onViewAll }: TopCodesProps) {
     <div className="bg-white rounded-2xl border border-zinc-200/80 p-6">
       <div className="flex justify-between items-baseline mb-5">
         <h2 className="text-2xl font-light text-[#1f1f1f] tracking-tight">Top HCPCS codes</h2>
-        <button onClick={onViewAll} className="text-sm text-zinc-500 hover:text-zinc-900 font-medium transition-colors">
+        <button onClick={onViewAll} className="text-sm text-zinc-500 hover:text-[#1f1f1f] active:scale-[0.98] font-medium transition-colors cursor-pointer">
           View all &rarr;
         </button>
       </div>
@@ -42,10 +42,10 @@ export default function TopCodes({ data, onViewAll }: TopCodesProps) {
             <div key={code.hcpcs}>
               <div className="flex justify-between items-baseline mb-1">
                 <div className="flex items-baseline gap-2 min-w-0">
-                  <span className="font-mono font-bold text-sm text-zinc-900">{code.hcpcs}</span>
+                  <span className="font-mono font-bold text-sm text-[#1f1f1f]">{code.hcpcs}</span>
                   <span className="text-xs text-zinc-500 truncate">{code.description}</span>
                 </div>
-                <span className="font-mono font-bold text-base text-zinc-900 ml-3 flex-shrink-0">{code.rvu.toFixed(2)}</span>
+                <span className="font-mono font-bold text-base text-[#1f1f1f] ml-3 flex-shrink-0">{code.rvu.toFixed(2)}</span>
               </div>
               <div className="flex items-center gap-3">
                 <div className="flex-1 h-1.5 bg-zinc-100 rounded-full overflow-hidden">

@@ -25,7 +25,7 @@ export default function BreakdownTable({ data, selectedPeriod, formatPeriod, onC
           {selectedPeriod && (
             <button
               onClick={onClearPeriod}
-              className="text-sm text-[#0070cc] hover:underline"
+              className="text-sm text-[#0070cc] hover:underline cursor-pointer"
             >
               Show All Periods
             </button>
@@ -80,7 +80,7 @@ export default function BreakdownTable({ data, selectedPeriod, formatPeriod, onC
                       </tr>
                       {items.map((item, idx) => (
                         <tr key={`${period}-${idx}`} className={`hover:bg-[#0070cc]/5 transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-zinc-50'}`}>
-                          <td className="px-4 py-3 whitespace-nowrap text-sm font-semibold text-zinc-900">
+                          <td className="px-4 py-3 whitespace-nowrap text-sm font-semibold text-[#1f1f1f]">
                             {item.hcpcs}
                           </td>
                           <td className="px-4 py-3 text-sm text-zinc-700 max-w-xs truncate" title={item.description}>

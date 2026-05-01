@@ -66,7 +66,7 @@ function SortableItem({ fav, isAlreadySelected, onSelect, multiSelect }: Sortabl
           className="flex-1 text-left min-w-0"
           {...(!isAlreadySelected ? { ...attributes, ...listeners } : {})}
         >
-          <div className={`font-mono font-bold text-sm ${isAlreadySelected ? 'text-green-700' : 'text-zinc-900'}`}>
+          <div className={`font-mono font-bold text-sm ${isAlreadySelected ? 'text-green-700' : 'text-[#1f1f1f]'}`}>
             {fav.hcpcs}
           </div>
           {fav.description && (
@@ -209,7 +209,7 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
         <div className="flex gap-2">
           <button
             onClick={() => setShowAddSearch(true)}
-            className="text-xs font-semibold text-[#0070cc] hover:text-[#1eaedb] transition-colors cursor-pointer"
+            className="text-xs font-semibold text-[#0070cc] hover:text-[#1eaedb] active:scale-[0.98] transition-colors cursor-pointer"
           >
             + Add
           </button>
@@ -217,14 +217,14 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
             editMode ? (
               <button
                 onClick={() => setEditMode(false)}
-                className="text-xs font-semibold text-zinc-500 hover:text-zinc-700 border border-zinc-300 rounded-full px-2.5 py-0.5 cursor-pointer"
+                className="text-xs font-semibold text-zinc-500 hover:text-zinc-700 active:scale-[0.98] border border-zinc-300 rounded-full px-2.5 py-0.5 cursor-pointer"
               >
                 Done
               </button>
             ) : (
               <button
                 onClick={() => setEditMode(true)}
-                className="text-xs font-semibold text-[#0070cc] hover:text-[#1eaedb] border border-[#0070cc]/30 rounded-full px-2.5 py-0.5 cursor-pointer"
+                className="text-xs font-semibold text-[#0070cc] hover:text-[#1eaedb] active:scale-[0.98] border border-[#0070cc]/30 rounded-full px-2.5 py-0.5 cursor-pointer"
               >
                 Edit
               </button>
@@ -311,7 +311,7 @@ export default function FavoritesPicker({ onSelect, onMultiSelect, multiSelect =
                   {editMode && (
                     <button
                       onClick={() => handleRemove(fav.hcpcs)}
-                      className="absolute right-1.5 top-1.5 p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all z-10"
+                      className="absolute right-1.5 top-1.5 p-1.5 text-red-400 hover:text-red-600 hover:bg-red-50 active:scale-[0.98] rounded-lg transition-all z-10"
                       aria-label={`Remove ${fav.hcpcs} from favorites`}
                       title="Remove from favorites"
                     >

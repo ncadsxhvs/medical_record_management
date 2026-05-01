@@ -28,7 +28,7 @@ export default function VisitCard({ visit, accentColor, isExpanded, onToggleExpa
       <div className="flex items-center bg-orange-50 rounded-xl border border-orange-200 px-4 py-3 group">
         <div className="w-1 h-8 bg-orange-400 rounded-full mr-3 flex-shrink-0" />
         <div className="flex-1 min-w-0">
-          <span className="text-sm font-semibold text-zinc-900">{formatTime(visit.time)}</span>
+          <span className="text-sm font-semibold text-[#1f1f1f]">{formatTime(visit.time)}</span>
           <span className="inline-block ml-2 px-2 py-0.5 bg-orange-500 text-white text-[10px] font-bold rounded-full uppercase">No Show</span>
           {visit.notes && visit.notes !== 'No Show' && (
             <span className="text-xs text-zinc-400 ml-2">{visit.notes}</span>
@@ -55,7 +55,7 @@ export default function VisitCard({ visit, accentColor, isExpanded, onToggleExpa
       <div className="flex items-center px-4 py-3 cursor-pointer" onClick={onToggleExpand}>
         <div className={`w-1 h-8 ${accentBg} rounded-full mr-3 flex-shrink-0`} />
         <div className="flex-1 min-w-0">
-          <span className="text-sm font-semibold text-zinc-900">{formatTime(visit.time)}</span>
+          <span className="text-sm font-semibold text-[#1f1f1f]">{formatTime(visit.time)}</span>
           <span className="text-xs text-zinc-400 ml-2 truncate">
             {visit.procedures.map(p => p.quantity && p.quantity > 1 ? `${p.hcpcs} x${p.quantity}` : p.hcpcs).join(', ')}
           </span>
@@ -93,7 +93,7 @@ export default function VisitCard({ visit, accentColor, isExpanded, onToggleExpa
               </svg>
             </button>
           </div>
-          <span className="font-mono text-lg font-bold text-zinc-900 ml-2 w-16 text-right">{totalRVU.toFixed(2)}</span>
+          <span className="font-mono text-lg font-bold text-[#1f1f1f] ml-2 w-16 text-right">{totalRVU.toFixed(2)}</span>
         </div>
       </div>
 
@@ -104,7 +104,7 @@ export default function VisitCard({ visit, accentColor, isExpanded, onToggleExpa
             {visit.procedures.map((proc, idx) => (
               <div key={idx} className="flex items-center justify-between text-xs py-1">
                 <div className="min-w-0">
-                  <span className="font-mono font-semibold text-zinc-900">{proc.hcpcs}</span>
+                  <span className="font-mono font-semibold text-[#1f1f1f]">{proc.hcpcs}</span>
                   <span className="text-zinc-500 ml-1.5 truncate">{proc.description}</span>
                 </div>
                 <span className="font-mono text-zinc-600 flex-shrink-0 ml-2">

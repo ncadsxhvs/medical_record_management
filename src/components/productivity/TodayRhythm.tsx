@@ -40,15 +40,15 @@ export default function TodayRhythm({ visits }: TodayRhythmProps) {
     <div className="bg-white rounded-xl border border-zinc-200/80 p-6">
       <div className="flex justify-between items-baseline mb-4">
         <div>
-          <h3 className="text-xl font-semibold text-zinc-900 tracking-tight">Today&apos;s rhythm</h3>
+          <h3 className="text-xl font-semibold text-[#1f1f1f] tracking-tight">Today&apos;s rhythm</h3>
           <p className="text-xs text-zinc-500 mt-1">
-            Most productive hour: <strong className="text-zinc-900">{peakHour.label}</strong> &middot; {peakHour.rvu.toFixed(1)} RVU
+            Most productive hour: <strong className="text-[#1f1f1f]">{peakHour.label}</strong> &middot; {peakHour.rvu.toFixed(1)} RVU
           </p>
         </div>
         <div className="flex gap-3 text-xs text-zinc-500">
-          <span><strong className="text-zinc-900">{totalRVU.toFixed(1)}</strong> total</span>
+          <span><strong className="text-[#1f1f1f]">{totalRVU.toFixed(1)}</strong> total</span>
           <span>&middot;</span>
-          <span><strong className="text-zinc-900">{avgPerHr.toFixed(1)}</strong> avg/hr</span>
+          <span><strong className="text-[#1f1f1f]">{avgPerHr.toFixed(1)}</strong> avg/hr</span>
         </div>
       </div>
       <div className="grid gap-1.5 items-end" style={{ gridTemplateColumns: `repeat(${HOURS.length}, 1fr)`, height: 160 }}>
@@ -66,7 +66,7 @@ export default function TodayRhythm({ visits }: TodayRhythmProps) {
                       opacity: isPast ? 1 : 0.4,
                     }}
                   >
-                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-mono text-zinc-900 whitespace-nowrap">
+                    <div className="absolute -top-5 left-1/2 -translate-x-1/2 text-xs font-mono text-[#1f1f1f] whitespace-nowrap">
                       {h.rvu.toFixed(1)}
                     </div>
                   </div>

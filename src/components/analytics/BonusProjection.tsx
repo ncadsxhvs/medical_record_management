@@ -51,9 +51,9 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
       <button
         onClick={() => setIsExpanded(!isExpanded)}
-        className="w-full flex items-center justify-between p-4 hover:bg-zinc-50 transition"
+        className="w-full flex items-center justify-between p-4 hover:bg-zinc-50 active:scale-[0.98] transition cursor-pointer"
       >
-        <h2 className="text-lg font-semibold text-zinc-900">Bonus Projection</h2>
+        <h2 className="text-lg font-semibold text-[#1f1f1f]">Bonus Projection</h2>
         <svg
           className={`w-5 h-5 text-zinc-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`}
           fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -74,7 +74,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 value={settings.rvuTarget || ''}
                 onChange={(e) => updateSettings({ rvuTarget: parseFloat(e.target.value) || 0 })}
                 placeholder="e.g. 4000"
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-[#0070cc] focus:border-[#0070cc]"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-[#0070cc] focus:border-[#0070cc]"
               />
             </div>
             <div>
@@ -83,7 +83,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 type="date"
                 value={settings.targetStartDate}
                 onChange={(e) => updateSettings({ targetStartDate: e.target.value })}
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-[#0070cc] focus:border-[#0070cc]"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-[#0070cc] focus:border-[#0070cc]"
               />
             </div>
             <div>
@@ -92,7 +92,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 type="date"
                 value={settings.targetEndDate}
                 onChange={(e) => updateSettings({ targetEndDate: e.target.value })}
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-[#0070cc] focus:border-[#0070cc]"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-[#0070cc] focus:border-[#0070cc]"
               />
             </div>
             <div>
@@ -104,7 +104,7 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 value={settings.bonusRate || ''}
                 onChange={(e) => updateSettings({ bonusRate: parseFloat(e.target.value) || 0 })}
                 placeholder="e.g. 35"
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-md focus:ring-[#0070cc] focus:border-[#0070cc]"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-[#0070cc] focus:border-[#0070cc]"
               />
             </div>
           </div>

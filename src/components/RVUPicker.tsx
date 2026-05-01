@@ -114,7 +114,7 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
       </div>
       {loading && <div className="p-2">Loading...</div>}
       {displayResults.length > 0 && (
-        <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-300 rounded-md shadow-lg">
+        <div className="absolute z-10 w-full mt-1 bg-white border border-zinc-300 rounded-lg shadow-lg">
           {query.length < 2 && (
             <div className="px-3 py-2 text-xs font-semibold text-zinc-500 uppercase tracking-wider border-b border-zinc-200 bg-zinc-50">
               Common Office Visit Codes

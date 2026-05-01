@@ -102,7 +102,7 @@ export default function ProductivityPage() {
       <div className="max-w-[1400px] mx-auto p-5 lg:p-8">
         {/* Editorial headline */}
         <div className="mb-7">
-          <h2 className="text-3xl lg:text-5xl font-light text-zinc-900 tracking-tight leading-none">
+          <h2 className="text-3xl lg:text-5xl font-light text-[#1f1f1f] tracking-tight leading-none">
             You&apos;re having{' '}
             <em className="not-italic font-bold" style={{ color: onPace ? '#059669' : '#d97706' }}>
               {onPace ? 'a strong week' : 'a slow week'}
