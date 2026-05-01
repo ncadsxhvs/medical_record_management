@@ -43,6 +43,13 @@ Each agent runs as a separate context. They do not share scratchpads. They commu
 
 **Constraint:** Max ~2000 words. Summarize, don't dump. The Planner reads this instead of reading raw files. If the Researcher is unsure about something, it should say so explicitly rather than guessing.
 
+**Interactive handoff:** After the Researcher completes `research.md`, do NOT proceed directly to the Planner. Instead, present the user with:
+
+1. **Open questions** — Anything the research couldn't resolve or where multiple approaches exist. E.g., "Should this live in the existing settings table or a new one?" or "The codebase has two auth patterns — which applies here?"
+2. **Outline** — A brief bullet-point outline of the proposed feature scope based on what the research found. Not a full spec — just enough for the user to confirm direction or redirect.
+
+Wait for the user to respond before writing the plan. This back-and-forth prevents the Planner from committing to an approach the user didn't want. The Planner only runs after the user confirms the outline.
+
 ### Planner
 
 **Input:** The user's prompt + the research brief at `research.md`.
