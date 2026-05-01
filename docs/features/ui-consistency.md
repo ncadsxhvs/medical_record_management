@@ -83,6 +83,28 @@ Middleware runs in the Edge Runtime, which does not support Node.js `crypto`. Th
 - `src/auth.ts` — Node-only: imports `auth.config`, adds `jwt` and `session` callbacks that use `@/lib/db`.
 - `middleware.ts` — imports only from `auth.config.ts`.
 
+## Mobile Layout
+
+### Responsive Header
+- Title "RVU Tracker" hidden below `sm` (640px); logo "R" circle always visible
+- Padding: `px-3` on mobile, `px-6` on `sm`+
+- Nav pill padding: `px-2 py-1` on mobile, `px-3 py-1.5` on `sm`+
+- UserProfile: avatar circle only on mobile (< `lg`), tapping signs out; full name/email/sign-out on desktop
+
+### Inline Favorites on Mobile
+- On mobile (< `lg`), favorites groups and favorites grid render inline on the main page above the selected procedures card
+- No bottom sheet or FAB button — everything is visible on one scrollable page
+- EntryForm children reorder on mobile via flex `order-` classes:
+  1. Favorite Groups (`order-1`)
+  2. Favorites grid (`order-2`)
+  3. Search / RVUPicker (`order-3`)
+- Desktop (`lg`+): search first, then groups, then favorites (order-1, order-2, order-3)
+
+### iOS / SwiftUI Notes (Mobile)
+- On iPhone, favorites and groups should be inline on the main Log tab, not behind a modal
+- Use a `ScrollView` with groups section, favorites grid, then search bar
+- Header: hide title text on compact width, show only logo + nav tabs + avatar
+
 ## Edge Cases
 - Pages must render identically when navigating between them (no header flash/layout shift).
 - Loading skeleton must match the same header width and structure.

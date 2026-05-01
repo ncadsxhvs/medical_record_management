@@ -7,20 +7,31 @@ export default function UserProfile() {
 
   if (!session?.user) return null;
 
+  const initial = (session.user.name || session.user.email || "U").charAt(0).toUpperCase();
+
   return (
     <div className="flex items-center gap-4">
-      <div className="text-right">
-        <div className="text-sm font-medium text-zinc-900">
-          {session.user.name || session.user.email}
-        </div>
-        <div className="text-xs text-zinc-500">{session.user.email}</div>
-      </div>
       <button
         onClick={() => signOut({ callbackUrl: "/sign-in" })}
-        className="px-4 py-2 text-sm font-medium text-zinc-600 bg-white border border-zinc-200 rounded-lg hover:bg-zinc-50 active:scale-[0.98] transition-all duration-150"
+        className="w-8 h-8 rounded-full bg-zinc-200 flex items-center justify-center text-xs font-bold text-zinc-600 lg:hidden flex-shrink-0"
+        title="Sign Out"
       >
-        Sign Out
+        {initial}
       </button>
+      <div className="hidden lg:flex items-center gap-4">
+        <div className="text-right">
+          <div className="text-sm font-medium text-zinc-900">
+            {session.user.name || session.user.email}
+          </div>
+          <div className="text-xs text-zinc-500">{session.user.email}</div>
+        </div>
+        <button
+          onClick={() => signOut({ callbackUrl: "/sign-in" })}
+          className="px-4 py-2 text-sm font-medium text-zinc-600 bg-white border border-zinc-200 rounded-lg hover:bg-zinc-50 active:scale-[0.98] transition-all duration-150"
+        >
+          Sign Out
+        </button>
+      </div>
     </div>
   );
 }

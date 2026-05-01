@@ -29,19 +29,11 @@ export default function Home() {
   const [copiedVisit, setCopiedVisit] = useState<Visit | null>(null);
   const [deletingVisitId, setDeletingVisitId] = useState<number | null>(null);
   const [selectedData, setSelectedData] = useState<VisitFormControls | null>(null);
-  const [showMobileForm, setShowMobileForm] = useState(false);
 
   useKeyboardShortcuts({
     'mod+k': () => {
       const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
       searchInput?.focus();
-    },
-    'mod+n': () => {
-      setShowMobileForm(true);
-      setTimeout(() => {
-        const searchInput = document.querySelector<HTMLInputElement>('[data-search-input]');
-        searchInput?.focus();
-      }, 100);
     },
   });
   const { toast } = useToast();
@@ -244,6 +236,19 @@ export default function Home() {
             <h2 className="text-2xl font-bold text-zinc-900 tracking-tight">Log Visit</h2>
             <p className="text-sm text-zinc-400 mt-1 mb-6">Pick from favorites or search, then save.</p>
 
+            {/* Mobile inline favorites + search */}
+            <div className="lg:hidden mb-4">
+              <EntryForm
+                onEntryAdded={() => { mutate(CACHE_KEYS.visits); setSelectedData(null); }}
+                copiedVisit={copiedVisit}
+                onClearCopy={() => setCopiedVisit(null)}
+                onAddNoShow={handleAddNoShow}
+                addingNoShow={addingNoShow}
+                externalSelected={true}
+                onSelectedUpdate={setSelectedData}
+              />
+            </div>
+
             {/* Selected Procedures Card + Form */}
             <SelectedProceduresCard data={selectedData} />
 
@@ -307,50 +312,6 @@ export default function Home() {
           onSave={() => mutate(CACHE_KEYS.visits)}
         />
       )}
-
-      {/* Mobile bottom sheet */}
-      {showMobileForm && (
-        <div className="fixed inset-0 z-40 lg:hidden">
-          <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setShowMobileForm(false)} />
-          <div className="absolute bottom-0 left-0 right-0 bg-white rounded-t-2xl shadow-2xl z-50 max-h-[85vh] overflow-auto animate-[slideUp_300ms_ease-out]">
-            <div className="flex justify-center pt-3 pb-1">
-              <div className="w-10 h-1 bg-zinc-300 rounded-full" />
-            </div>
-            <div className="px-4 pb-6">
-              <div className="flex items-center justify-between mb-3">
-                <p className="text-sm font-semibold">Add Visit</p>
-                <button
-                  onClick={() => setShowMobileForm(false)}
-                  className="min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded-md text-zinc-400 hover:text-zinc-600"
-                  aria-label="Close"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                  </svg>
-                </button>
-              </div>
-              <EntryForm
-                onEntryAdded={() => { mutate(CACHE_KEYS.visits); setSelectedData(null); setShowMobileForm(false); }}
-                copiedVisit={copiedVisit}
-                onClearCopy={() => setCopiedVisit(null)}
-                onAddNoShow={handleAddNoShow}
-                addingNoShow={addingNoShow}
-              />
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* FAB - mobile only */}
-      <button
-        onClick={() => setShowMobileForm(true)}
-        className="fixed bottom-6 right-4 w-14 h-14 bg-zinc-900 text-white rounded-full shadow-lg flex items-center justify-center hover:bg-zinc-800 active:scale-95 transition-all z-30 lg:hidden"
-        aria-label="Add visit"
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 4v16m8-8H4" />
-        </svg>
-      </button>
 
       <ConfirmDialog
         open={deletingVisitId !== null}

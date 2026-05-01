@@ -4,6 +4,29 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 26
+
+- **Date:** 2026-04-30
+- **Title:** fix(mobile): responsive header and inline favorites
+- **Branch:** `feat/ui-consistency`
+- **Spec:** [docs/features/ui-consistency.md](features/ui-consistency.md)
+- **What changed:**
+  - AppHeader: responsive padding, hide title on small screens, shrink nav pills
+  - UserProfile: avatar-only on mobile (< lg), full name/email/sign-out on desktop
+  - Main page: favorites and favorite groups now inline on mobile (no bottom sheet or FAB)
+  - EntryForm: reordered children on mobile — groups first, favorites second, search third
+- **Files touched:**
+  - `src/components/AppHeader.tsx` (responsive classes)
+  - `src/components/UserProfile.tsx` (mobile avatar)
+  - `src/app/(main)/page.tsx` (inline mobile EntryForm, removed bottom sheet + FAB)
+  - `src/components/EntryForm.tsx` (flex order reorder)
+- **How to verify:**
+  - Open on 375px viewport — header fits, no overflow
+  - Favorites groups and grid visible inline on mobile home page
+  - Desktop 3-column layout unchanged
+
+---
+
 ## Entry 25
 
 - **Date:** 2026-04-30
