@@ -194,7 +194,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
   });
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-4">
       {/* Copy Indicator Banner */}
       {copiedVisit && (
         <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center justify-between">
@@ -212,8 +212,8 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
         </div>
       )}
 
-      {/* Search — always at top */}
-      <div>
+      {/* Search — top on desktop, below favorites on mobile */}
+      <div className="order-3 lg:order-1">
         <RVUPicker
           multiSelect={true}
           onMultiSelect={handleAddProcedures}
@@ -222,11 +222,13 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
       </div>
 
       {/* Favorite Groups */}
-      <FavoriteGroupsPicker
-        onAddGroup={handleAddGroup}
-        onEditingChange={setIsEditingGroup}
-        refreshKey={0}
-      />
+      <div className="order-1 lg:order-2">
+        <FavoriteGroupsPicker
+          onAddGroup={handleAddGroup}
+          onEditingChange={setIsEditingGroup}
+          refreshKey={0}
+        />
+      </div>
 
       {/* Block visit form while editing a group */}
       {isEditingGroup && (
@@ -240,7 +242,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
       {!isEditingGroup && (
         <>
           {/* Favorites */}
-          <div>
+          <div className="order-2 lg:order-3">
             <FavoritesPicker
               multiSelect={true}
               onMultiSelect={handleAddFromFavorites}
