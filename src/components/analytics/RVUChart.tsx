@@ -29,13 +29,16 @@ export default function RVUChart({ data, dailyTarget, monthlyTarget, onBarClick 
   return (
     <div className="bg-white p-6 rounded-2xl border border-zinc-200/80">
       <div className="flex justify-between items-baseline mb-1">
-        <h2 className="text-2xl font-bold text-zinc-900 tracking-tight">Daily RVU</h2>
-        <div className="flex items-center gap-5 text-xs text-zinc-500">
+        <h2 className="text-2xl font-light text-[#1f1f1f] tracking-tight">Daily RVU</h2>
+        <div className="flex items-center gap-5 text-xs text-[#6b6b6b]">
           <span className="flex items-center gap-1.5">
-            <span className="inline-block w-3 h-3 bg-zinc-800 rounded-sm" /> Logged
+            <span className="inline-block w-3 h-3 bg-emerald-600 rounded-sm" /> Logged
           </span>
           <span className="flex items-center gap-1.5">
-            <span className="inline-block w-6 border-t-2 border-dashed border-zinc-400" /> Target {dailyTarget.toFixed(0)}
+            <span className="inline-block w-3 h-3 bg-[#0070cc] rounded-sm" /> Today
+          </span>
+          <span className="flex items-center gap-1.5">
+            <span className="inline-block w-6 border-t-2 border-dashed border-[#cccccc]" /> Target {dailyTarget.toFixed(0)}
           </span>
           <span className="flex items-center gap-1.5">
             <span className="inline-block w-3 h-3 rounded-sm" style={{ background: 'repeating-linear-gradient(45deg, #d4d4d8, #d4d4d8 2px, transparent 2px, transparent 4px)' }} /> Off day
@@ -64,7 +67,7 @@ export default function RVUChart({ data, dailyTarget, monthlyTarget, onBarClick 
 
             {/* Target line */}
             <div
-              className="absolute left-0 right-0 border-t-2 border-dashed border-zinc-400 z-10"
+              className="absolute left-0 right-0 border-t-2 border-dashed border-[#cccccc] z-10"
               style={{ bottom: `${targetPct}%` }}
             />
 
@@ -94,7 +97,7 @@ export default function RVUChart({ data, dailyTarget, monthlyTarget, onBarClick 
                       ) : (
                         <div
                           className={`w-[80%] rounded-t transition-colors ${
-                            isToday ? 'bg-indigo-500 hover:bg-indigo-400' : 'bg-zinc-800 hover:bg-zinc-700'
+                            isToday ? 'bg-[#0070cc] hover:bg-[#005fa3]' : 'bg-emerald-600 hover:bg-emerald-500'
                           }`}
                           style={{
                             height: `${barPct}%`,
@@ -116,7 +119,7 @@ export default function RVUChart({ data, dailyTarget, monthlyTarget, onBarClick 
               const dayNum = d.period_start.split('-')[2]?.replace(/^0/, '') || '';
               return (
                 <div key={`label-${d.period_start}`} className="flex-1 text-center">
-                  <span className={`text-[11px] font-mono ${isToday ? 'text-indigo-500 font-bold' : 'text-zinc-400'}`}>
+                  <span className={`text-[11px] font-mono ${isToday ? 'text-[#0070cc] font-bold' : 'text-zinc-400'}`}>
                     {dayNum}
                   </span>
                 </div>
