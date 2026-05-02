@@ -1,6 +1,7 @@
 'use client';
 
 import { VisitFormControls } from './EntryForm';
+import DateInput from './DateInput';
 
 interface Props {
   data: VisitFormControls | null;
@@ -42,10 +43,9 @@ export default function SelectedProceduresCard({ data }: Props) {
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <div className="flex items-center gap-0.5">
                       <button
-                        onClick={() => onQuantityChange(p.hcpcs, qty - 1)}
-                        disabled={qty <= 1}
-                        className="w-7 h-7 flex items-center justify-center rounded-lg bg-zinc-200 text-zinc-600 text-sm font-bold hover:bg-zinc-300 disabled:opacity-30 disabled:cursor-not-allowed transition-colors cursor-pointer"
-                        aria-label={`Decrease ${p.hcpcs} quantity`}
+                        onClick={() => qty <= 1 ? onRemove(p.hcpcs) : onQuantityChange(p.hcpcs, qty - 1)}
+                        className="w-7 h-7 flex items-center justify-center rounded-lg bg-zinc-200 text-zinc-600 text-sm font-bold hover:bg-zinc-300 transition-colors cursor-pointer"
+                        aria-label={qty <= 1 ? `Remove ${p.hcpcs}` : `Decrease ${p.hcpcs} quantity`}
                       >
                         &minus;
                       </button>
@@ -80,11 +80,10 @@ export default function SelectedProceduresCard({ data }: Props) {
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label htmlFor="ext-date" className="block text-sm font-medium text-zinc-600 mb-1.5">Date</label>
-          <input
-            type="date"
+          <DateInput
             id="ext-date"
             value={date}
-            onChange={(e) => onDateChange(e.target.value)}
+            onChange={onDateChange}
             className="w-full px-4 py-2.5 border border-zinc-200 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#0070cc]/20 focus:border-[#0070cc] transition-all"
           />
         </div>
@@ -115,19 +114,6 @@ export default function SelectedProceduresCard({ data }: Props) {
 
       {/* Action Buttons */}
       <div className="flex gap-3">
-        <button
-          onClick={onSave}
-          disabled={!canSave}
-          className="flex-1 py-3 bg-[#0070cc] text-white text-sm font-semibold rounded-full ps-btn cursor-pointer active:scale-[0.98] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          Save Visit
-        </button>
-        <button
-          onClick={onClear}
-          className="py-3 px-5 text-zinc-500 text-sm font-semibold rounded-full border border-zinc-200 cursor-pointer hover:bg-zinc-50 active:scale-[0.98] transition-all duration-150"
-        >
-          Clear
-        </button>
         {onAddNoShow && (
           <button
             onClick={onAddNoShow}
@@ -137,6 +123,19 @@ export default function SelectedProceduresCard({ data }: Props) {
             {addingNoShow ? '...' : 'No Show'}
           </button>
         )}
+        <button
+          onClick={onClear}
+          className="py-3 px-5 text-zinc-500 text-sm font-semibold rounded-full border border-zinc-200 cursor-pointer hover:bg-zinc-50 active:scale-[0.98] transition-all duration-150"
+        >
+          Clear
+        </button>
+        <button
+          onClick={onSave}
+          disabled={!canSave}
+          className="flex-1 py-3 bg-[#0070cc] text-white text-sm font-semibold rounded-full ps-btn cursor-pointer active:scale-[0.98] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Save Visit
+        </button>
       </div>
     </div>
   );

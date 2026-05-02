@@ -20,6 +20,9 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
   const { isFavorite, toggleFavorite } = useFavorites();
   const [showDropdown, setShowDropdown] = useState(false);
   const [popularCodes, setPopularCodes] = useState<RVUCode[]>([]);
+  const [showCustomForm, setShowCustomForm] = useState(false);
+  const [customCode, setCustomCode] = useState({ hcpcs: '', description: '', work_rvu: '' });
+  const [savingCustom, setSavingCustom] = useState(false);
 
   const fetchResults = useCallback(
     debounce((searchQuery: string) => {
@@ -90,6 +93,26 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
   const handleToggleFavorite = async (hcpcs: string, event: React.MouseEvent) => {
     event.stopPropagation();
     await toggleFavorite(hcpcs);
+  };
+
+  const handleSaveCustomCode = async () => {
+    if (!customCode.hcpcs || !customCode.description) return;
+    setSavingCustom(true);
+    try {
+      const res = await fetch('/api/custom-codes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(customCode),
+      });
+      if (res.ok) {
+        setCustomCode({ hcpcs: '', description: '', work_rvu: '' });
+        setShowCustomForm(false);
+      }
+    } catch (err) {
+      console.error('Failed to save custom code:', err);
+    } finally {
+      setSavingCustom(false);
+    }
   };
 
   const displayResults = query.length >= 2 ? results : (showDropdown && popularCodes.length > 0 ? popularCodes : []);
@@ -171,6 +194,59 @@ export default function RVUPicker({ onSelect, onMultiSelect, multiSelect = false
               </button>
             </div>
           )}
+        </div>
+      )}
+
+      {/* Custom Code */}
+      {!showCustomForm ? (
+        <button
+          onClick={() => setShowCustomForm(true)}
+          className="mt-2 text-xs font-semibold text-[#0070cc] hover:text-[#1eaedb] cursor-pointer"
+        >
+          + Custom Code
+        </button>
+      ) : (
+        <div className="mt-2 p-3 border border-zinc-200 rounded-lg bg-zinc-50 space-y-2">
+          <p className="text-xs font-semibold text-zinc-500 uppercase tracking-wider">Add Custom Code</p>
+          <div className="grid grid-cols-2 gap-2">
+            <input
+              type="text"
+              value={customCode.hcpcs}
+              onChange={(e) => setCustomCode(prev => ({ ...prev, hcpcs: e.target.value }))}
+              placeholder="Code (e.g. CUSTOM1)"
+              className="px-2.5 py-1.5 border border-zinc-200 rounded-lg text-sm"
+            />
+            <input
+              type="text"
+              inputMode="decimal"
+              value={customCode.work_rvu}
+              onChange={(e) => setCustomCode(prev => ({ ...prev, work_rvu: e.target.value }))}
+              placeholder="RVU value"
+              className="px-2.5 py-1.5 border border-zinc-200 rounded-lg text-sm"
+            />
+          </div>
+          <input
+            type="text"
+            value={customCode.description}
+            onChange={(e) => setCustomCode(prev => ({ ...prev, description: e.target.value }))}
+            placeholder="Description"
+            className="w-full px-2.5 py-1.5 border border-zinc-200 rounded-lg text-sm"
+          />
+          <div className="flex gap-2">
+            <button
+              onClick={handleSaveCustomCode}
+              disabled={!customCode.hcpcs || !customCode.description || savingCustom}
+              className="px-3 py-1.5 text-xs font-semibold bg-[#0070cc] text-white rounded-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {savingCustom ? 'Saving...' : 'Save'}
+            </button>
+            <button
+              onClick={() => { setShowCustomForm(false); setCustomCode({ hcpcs: '', description: '', work_rvu: '' }); }}
+              className="px-3 py-1.5 text-xs font-semibold text-zinc-500 border border-zinc-200 rounded-lg cursor-pointer hover:bg-zinc-100"
+            >
+              Cancel
+            </button>
+          </div>
         </div>
       )}
     </div>

@@ -6,6 +6,7 @@ import RVUPicker from './RVUPicker';
 import FavoritesPicker from './FavoritesPicker';
 import FavoriteGroupsPicker from './FavoriteGroupsPicker';
 import { getCurrentTimeString, getTodayString } from '@/lib/dateUtils';
+import DateInput from './DateInput';
 import { rvuCodesToProcedures, fetchRvuCodeByHcpcs, groupItemsToProcedures } from '@/lib/procedureUtils';
 import { useToast } from './Toast';
 
@@ -52,6 +53,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
     procedures: [],
   });
   const [isTimeManuallyEdited, setIsTimeManuallyEdited] = useState(false);
+  const [isDateManuallyEdited, setIsDateManuallyEdited] = useState(false);
   const [isEditingGroup, setIsEditingGroup] = useState(false);
   const { toast } = useToast();
 
@@ -122,17 +124,17 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
   }, []);
 
   const handleClearAll = useCallback(() => {
-    setVisitData({
-      date: getTodayString(),
+    setVisitData(prev => ({
+      date: isDateManuallyEdited ? prev.date : getTodayString(),
       time: getCurrentTimeString(),
       notes: '',
       procedures: [],
-    });
+    }));
     setIsTimeManuallyEdited(false);
     if (onClearCopy) {
       onClearCopy();
     }
-  }, [onClearCopy]);
+  }, [onClearCopy, isDateManuallyEdited]);
 
   const handleSaveVisit = useCallback(async () => {
     if (visitData.procedures.length === 0) return;
@@ -182,7 +184,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
       date: visitData.date,
       time: visitData.time || '',
       notes: visitData.notes || '',
-      onDateChange: (date: string) => setVisitData(prev => ({ ...prev, date })),
+      onDateChange: (date: string) => { setVisitData(prev => ({ ...prev, date })); setIsDateManuallyEdited(date !== getTodayString()); },
       onTimeChange: (time: string) => { setVisitData(prev => ({ ...prev, time })); setIsTimeManuallyEdited(true); },
       onNotesChange: (notes: string) => setVisitData(prev => ({ ...prev, notes })),
       onSave: (...args) => callbackRefs.current.handleSaveVisit(...args),
@@ -264,7 +266,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
                     <div className="flex items-center gap-2 flex-shrink-0">
                       <div className="flex items-center gap-1">
                         <button
-                          onClick={() => handleQuantityChange(p.hcpcs, (p.quantity || 1) - 1)}
+                          onClick={() => (p.quantity || 1) <= 1 ? handleRemoveProcedure(p.hcpcs) : handleQuantityChange(p.hcpcs, (p.quantity || 1) - 1)}
                           className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-sky-100 text-sky-700 rounded-lg text-sm font-bold hover:bg-sky-200"
                         >
                           −
@@ -305,11 +307,10 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label htmlFor="date" className="block text-xs font-medium text-zinc-500 mb-1">Date</label>
-                  <input
-                    type="date"
+                  <DateInput
                     id="date"
                     value={visitData.date}
-                    onChange={(e) => setVisitData({ ...visitData, date: e.target.value })}
+                    onChange={(date) => { setVisitData({ ...visitData, date }); setIsDateManuallyEdited(date !== getTodayString()); }}
                     className="w-full px-3 py-2 border border-zinc-200 rounded-lg text-sm"
                   />
                 </div>
@@ -338,13 +339,6 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
               />
 
               <div className="flex gap-2">
-                <button
-                  onClick={handleSaveVisit}
-                  disabled={visitData.procedures.length === 0}
-                  className="flex-1 py-2.5 bg-[#0070cc] text-white text-sm font-semibold rounded-full ps-btn cursor-pointer active:scale-[0.98] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
-                >
-                  Save Visit
-                </button>
                 {onAddNoShow && (
                   <button
                     onClick={onAddNoShow}
@@ -354,6 +348,13 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
                     {addingNoShow ? '...' : 'No Show'}
                   </button>
                 )}
+                <button
+                  onClick={handleSaveVisit}
+                  disabled={visitData.procedures.length === 0}
+                  className="flex-1 py-2.5 bg-[#0070cc] text-white text-sm font-semibold rounded-full ps-btn cursor-pointer active:scale-[0.98] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Save Visit
+                </button>
               </div>
             </>
           )}
