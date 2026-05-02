@@ -2,6 +2,8 @@ import { sql } from '@/lib/db';
 import { withAuth, apiError } from '@/lib/api-utils';
 import { NextRequest, NextResponse } from 'next/server';
 
+const DEFAULT_FAVORITES = ['99213', '99214', '99215', '99203', '99204'];
+
 export const GET = withAuth(async (_req: NextRequest, userId: string) => {
   try {
     const { rows } = await sql`
@@ -11,6 +13,25 @@ export const GET = withAuth(async (_req: NextRequest, userId: string) => {
       WHERE f.user_id = ${userId}
       ORDER BY f.sort_order ASC, f.created_at ASC;
     `;
+
+    if (rows.length === 0) {
+      for (let i = 0; i < DEFAULT_FAVORITES.length; i++) {
+        await sql`
+          INSERT INTO favorites (user_id, hcpcs, sort_order)
+          VALUES (${userId}, ${DEFAULT_FAVORITES[i]}, ${i})
+          ON CONFLICT (user_id, hcpcs) DO NOTHING;
+        `;
+      }
+      const { rows: seeded } = await sql`
+        SELECT f.*, r.description, r.work_rvu
+        FROM favorites f
+        LEFT JOIN rvu_codes r ON f.hcpcs = r.hcpcs
+        WHERE f.user_id = ${userId}
+        ORDER BY f.sort_order ASC, f.created_at ASC;
+      `;
+      return NextResponse.json(seeded);
+    }
+
     return NextResponse.json(rows);
   } catch (error) {
     console.error('Failed to fetch favorites:', error);

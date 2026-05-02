@@ -28,73 +28,78 @@ export default function ProcedureList({ procedures, onRemove, onQuantityChange, 
       {procedures.map((proc, index) => {
         const fav = isFavorite(proc.hcpcs);
         return (
-          <div key={`${proc.hcpcs}-${index}`} className="p-3 border border-zinc-300 rounded-lg bg-white">
-            <div className="flex justify-between items-start">
-              <div className="flex-1">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-lg">{proc.hcpcs}</span>
-                  {proc.status_code && (
-                    <span className="text-xs px-2 py-1 bg-zinc-200 rounded">
-                      {proc.status_code}
-                    </span>
-                  )}
-                  {showFavorites && (
-                    <button
-                      onClick={() => toggleFavorite(proc.hcpcs)}
-                      className={`min-w-[44px] min-h-[44px] flex items-center justify-center text-lg ${fav ? 'text-yellow-500' : 'text-zinc-300'} hover:text-yellow-400 transition-colors`}
-                      aria-label={fav ? 'Remove from favorites' : 'Add to favorites'}
-                    >
-                      {fav ? '★' : '☆'}
-                    </button>
-                  )}
-                </div>
-                <div className="text-zinc-700 mt-1">{proc.description}</div>
-                <div className="flex items-center gap-4 mt-2">
-                  {editable && onQuantityChange ? (
-                    <div className="flex items-center gap-2">
-                      <label className="text-sm text-zinc-600">Quantity:</label>
-                      <div className="flex items-center gap-1">
-                        <button
-                          onClick={() => onQuantityChange(proc.hcpcs, Math.max(1, (proc.quantity || 1) - 1))}
-                          className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-zinc-100 text-zinc-700 rounded-lg hover:bg-zinc-200 active:bg-zinc-300 transition-all duration-150 font-bold text-lg cursor-pointer"
-                          aria-label="Decrease quantity"
-                        >
-                          −
-                        </button>
-                        <div className="w-12 h-9 flex items-center justify-center bg-white border border-zinc-300 rounded-lg font-semibold text-[#1f1f1f]">
-                          {proc.quantity || 1}
-                        </div>
-                        <button
-                          onClick={() => onQuantityChange(proc.hcpcs, (proc.quantity || 1) + 1)}
-                          className="min-w-[44px] min-h-[44px] flex items-center justify-center bg-zinc-100 text-zinc-700 rounded-lg hover:bg-zinc-200 active:bg-zinc-300 transition-all duration-150 font-bold text-lg cursor-pointer"
-                          aria-label="Increase quantity"
-                        >
-                          +
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <div className="text-sm text-zinc-600">
-                      Quantity: <span className="font-semibold">{proc.quantity || 1}</span>
-                    </div>
-                  )}
-                  <div className="text-sm text-zinc-600">
-                    Unit RVU: <span className="font-semibold">{Number(proc.work_rvu).toFixed(2)}</span>
-                  </div>
-                  <div className="text-sm text-zinc-600">
-                    Total: <span className="font-semibold text-[#0070cc]">{(Number(proc.work_rvu) * (proc.quantity || 1)).toFixed(2)} RVU</span>
-                  </div>
-                </div>
+          <div key={`${proc.hcpcs}-${index}`} className="p-3 border border-zinc-300 rounded-lg bg-white overflow-hidden">
+            <div className="flex justify-between items-start gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                <span className="font-bold text-lg">{proc.hcpcs}</span>
+                {proc.status_code && (
+                  <span className="text-xs px-2 py-1 bg-zinc-200 rounded flex-shrink-0">
+                    {proc.status_code}
+                  </span>
+                )}
+                {showFavorites && (
+                  <button
+                    onClick={() => toggleFavorite(proc.hcpcs)}
+                    className={`min-w-[44px] min-h-[44px] flex items-center justify-center text-lg flex-shrink-0 ${fav ? 'text-yellow-500' : 'text-zinc-300'} hover:text-yellow-400 transition-colors`}
+                    aria-label={fav ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    {fav ? '★' : '☆'}
+                  </button>
+                )}
               </div>
               {editable && onRemove && (
                 <button
                   onClick={() => onRemove(proc.hcpcs)}
-                  className="ml-3 min-w-[44px] min-h-[44px] flex items-center justify-center px-3 text-red-600 hover:bg-red-50 rounded-lg border border-red-300 cursor-pointer"
+                  className="min-w-[36px] min-h-[36px] flex items-center justify-center text-red-600 hover:bg-red-50 rounded-lg border border-red-300 cursor-pointer flex-shrink-0"
                   aria-label="Remove procedure"
                 >
                   ×
                 </button>
               )}
+            </div>
+            <div className="text-zinc-700 text-sm mt-1 break-words">{proc.description}</div>
+            <div className="flex flex-wrap items-center gap-3 mt-2">
+              {editable && onQuantityChange ? (
+                <div className="flex items-center gap-2">
+                  <label className="text-sm text-zinc-600">Qty:</label>
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => {
+                        const qty = proc.quantity || 1;
+                        if (qty <= 1 && onRemove) {
+                          onRemove(proc.hcpcs);
+                        } else {
+                          onQuantityChange(proc.hcpcs, qty - 1);
+                        }
+                      }}
+                      className="min-w-[36px] min-h-[36px] flex items-center justify-center bg-zinc-100 text-zinc-700 rounded-lg hover:bg-zinc-200 active:bg-zinc-300 transition-all duration-150 font-bold text-base cursor-pointer"
+                      aria-label={proc.quantity && proc.quantity > 1 ? "Decrease quantity" : "Remove procedure"}
+                    >
+                      −
+                    </button>
+                    <div className="w-10 h-8 flex items-center justify-center bg-white border border-zinc-300 rounded-lg font-semibold text-sm text-[#1f1f1f]">
+                      {proc.quantity || 1}
+                    </div>
+                    <button
+                      onClick={() => onQuantityChange(proc.hcpcs, (proc.quantity || 1) + 1)}
+                      className="min-w-[36px] min-h-[36px] flex items-center justify-center bg-zinc-100 text-zinc-700 rounded-lg hover:bg-zinc-200 active:bg-zinc-300 transition-all duration-150 font-bold text-base cursor-pointer"
+                      aria-label="Increase quantity"
+                    >
+                      +
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-sm text-zinc-600">
+                  Qty: <span className="font-semibold">{proc.quantity || 1}</span>
+                </div>
+              )}
+              <div className="text-sm text-zinc-600">
+                {Number(proc.work_rvu).toFixed(2)} RVU
+              </div>
+              <div className="text-sm text-zinc-600">
+                Total: <span className="font-semibold text-[#0070cc]">{(Number(proc.work_rvu) * (proc.quantity || 1)).toFixed(2)}</span>
+              </div>
             </div>
           </div>
         );

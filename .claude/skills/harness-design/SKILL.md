@@ -5,7 +5,7 @@ description: Use when building a multi-file feature autonomously (schema + API +
 
 # Harness Design Skill
 
-A three-agent harness — **Planner**, **Generator**, **Evaluator** — wrapped in a Ralph loop. The harness exists because a single agent grading its own work tends to declare victory too early. Splitting the work into a builder and a skeptical critic, and refusing to exit the loop until the critic passes, is what gets a feature from "looks fine" to "actually works."
+A four-agent harness — **Researcher**, **Planner**, **Generator**, **Evaluator** — wrapped in a Ralph loop. The harness exists because a single agent grading its own work tends to declare victory too early. Splitting the work into a builder and a skeptical critic, and refusing to exit the loop until the critic passes, is what gets a feature from "looks fine" to "actually works."
 
 ## When to invoke this skill
 
@@ -18,13 +18,41 @@ Use the harness when **all** of these are true:
 
 If any of those is false, do not use the harness. Just do the task directly. The harness has real overhead (orchestration, token cost, file shuffling) and is wasted on small edits.
 
-## The three agents
+## The four agents
 
 Each agent runs as a separate context. They do not share scratchpads. They communicate only through files in the working directory. This isolation is load-bearing — it is what prevents the generator from rationalizing its own work into a passing grade.
 
+### Researcher
+
+**Input:** The user's prompt + the project's CLAUDE.md.
+
+**Runs as:** A sub-agent (Explore type) — reads files, greps patterns, checks schema, but writes no code.
+
+**Output:** A research brief written to `harness-runs/<timestamp>-<slug>/research.md`.
+
+**Job:** Answer these specific questions for the Planner:
+
+1. **Relevant schema** — What existing DB tables/columns relate to this feature? Include column names, types, and key constraints.
+2. **API route patterns** — How does the project structure API routes? What auth wrappers, error handling, and response shapes are used? Cite a representative example route.
+3. **Nearby UI components** — What existing components and state patterns are similar to what this feature needs? File paths + brief description.
+4. **Project conventions** — Date handling, cache keys, styling system, doc requirements, testing patterns. Anything from CLAUDE.md that applies.
+5. **Reusable utilities** — What functions already exist that the feature should use instead of reimplementing? File paths + function signatures.
+6. **Known landmines** — What does CLAUDE.md flag as recurring failure modes? (e.g., date parsing, auth edge cases, env file rules)
+
+**Format:** Structured markdown with one section per question above. Each section includes file paths and short code excerpts (function signatures, type definitions) — not full file contents.
+
+**Constraint:** Max ~2000 words. Summarize, don't dump. The Planner reads this instead of reading raw files. If the Researcher is unsure about something, it should say so explicitly rather than guessing.
+
+**Interactive handoff:** After the Researcher completes `research.md`, do NOT proceed directly to the Planner. Instead, present the user with:
+
+1. **Open questions** — Anything the research couldn't resolve or where multiple approaches exist. E.g., "Should this live in the existing settings table or a new one?" or "The codebase has two auth patterns — which applies here?"
+2. **Outline** — A brief bullet-point outline of the proposed feature scope based on what the research found. Not a full spec — just enough for the user to confirm direction or redirect.
+
+Wait for the user to respond before writing the plan. This back-and-forth prevents the Planner from committing to an approach the user didn't want. The Planner only runs after the user confirms the outline.
+
 ### Planner
 
-**Input:** A 1–4 sentence prompt from the user.
+**Input:** The user's prompt + the research brief at `research.md`.
 
 **Output:** A full feature spec written to `harness-runs/<timestamp>-<slug>/spec.md`.
 
@@ -40,6 +68,8 @@ Each agent runs as a separate context. They do not share scratchpads. They commu
 
 **Constraints:**
 
+- The Planner should NOT read raw source files. All codebase context comes from `research.md`. If the research is insufficient, note what's missing in the spec so the Generator can investigate.
+- Reference specific utilities and patterns from the research brief by file path.
 - Be ambitious about scope but stay at the product/architecture level. Do not specify granular implementation (variable names, exact SQL syntax, component file structure). The generator decides those, because if the planner gets a low-level detail wrong the error cascades.
 - If the project has a feature-spec template in `.claude/rules.md` or `docs/features/`, conform to it. Reuse the template; do not invent a new one.
 - If the project has existing conventions (date utilities, auth patterns, cache-key files, state management rules), call them out explicitly in the spec. The generator will read this spec without seeing the rest of the codebase upfront.
@@ -117,7 +147,8 @@ Every harness run creates a working directory. Agents read each other's files; t
 ```
 harness-runs/<timestamp>-<feature-slug>/
 ├── prompt.txt              # Original 1-4 sentence input
-├── spec.md                 # Planner output
+├── research.md             # Researcher output — codebase context for Planner
+├── spec.md                 # Planner output (reads research.md)
 ├── contract-slice-1.md     # Sprint contract for slice 1
 ├── contract-slice-2.md     # ...
 ├── generator-log.md        # Generator's progress notes, slice by slice
@@ -194,9 +225,11 @@ The harness runs autonomously. That means the sandbox must be locked down before
 
 Not every feature needs the full three-agent harness. Choose based on scope:
 
-**Minimal (planner → generator → single-pass evaluator at the end).** Use for routine features that follow established patterns in the codebase: one migration, one route, one component. Fast and cheap. Skip the per-slice sprint contracts; the spec itself is the contract.
+**Minimal (researcher → planner → generator → single-pass evaluator at the end).** Use for routine features that follow established patterns in the codebase: one migration, one route, one component. Fast and cheap. Skip the per-slice sprint contracts; the spec itself is the contract.
 
-**Full (planner → per-slice generator/evaluator with sprint contracts → integration evaluator).** Use when the feature spans multiple files, crosses auth boundaries, requires schema changes across multiple tables, or touches a known landmine area (dates, caching, mobile auth). The per-slice grading is what catches issues before they compound across slices.
+**Full (researcher → planner → per-slice generator/evaluator with sprint contracts → integration evaluator).** Use when the feature spans multiple files, crosses auth boundaries, requires schema changes across multiple tables, or touches a known landmine area (dates, caching, mobile auth). The per-slice grading is what catches issues before they compound across slices.
+
+Note: The Researcher always runs, even in minimal config. It's cheap (read-only, no code generation) and prevents the most common failure mode — the Planner making wrong assumptions about existing code.
 
 A small upfront classifier call can choose between the two: "Given this prompt and the project's feature log, is this routine or complex?"
 
@@ -210,6 +243,8 @@ A small upfront classifier call can choose between the two: "Given this prompt a
 - **Compaction instead of fresh context.** For long runs on older models, compaction preserves context-anxiety bias. Fresh context resets between iterations are cleaner.
 - **Stopping at first build success.** A build that compiles is not a feature that works. The Ralph loop exists because of this exact failure.
 - **Skipping the sprint contract.** Without an upfront contract, the evaluator and generator argue about what "done" meant. The contract is cheap; skipping it is expensive.
+- **Planner reading raw source files.** The Planner should consume the research brief, not explore the codebase itself. Mixing exploration and planning in one context dilutes both.
+- **Research brief that dumps full files.** The Researcher should summarize patterns and cite file paths, not paste entire files. The Planner needs to understand conventions, not read implementations.
 
 ## Re-examining the harness when models improve
 
@@ -226,12 +261,13 @@ Strip pieces that no longer earn their keep. Add pieces that capture new capabil
 When the user asks to "run the harness on X" or "build X with planner/generator/evaluator":
 
 1. Create `harness-runs/<timestamp>-<slug>/` and write the user's prompt to `prompt.txt`.
-2. Run the **planner** as a subagent / fresh context. Output: `spec.md`. Stop and let the user review the spec if it materially affects scope; otherwise proceed.
-3. Enter the Ralph loop:
+2. Run the **Researcher** as a sub-agent (Explore type). Input: user prompt + CLAUDE.md. Output: `research.md`.
+3. Run the **Planner** as a sub-agent. Input: user prompt + `research.md`. Output: `spec.md`. Stop and let the user review the spec if it materially affects scope; otherwise proceed.
+4. Enter the Ralph loop:
    - Run the **generator** with the spec and (if iteration > 1) the previous evaluator report.
    - Run the **evaluator** with the spec and the generator's branch. Output ends with `VERDICT: PASS` or `VERDICT: FAIL`.
    - Check stop conditions (pass verdict, iteration cap, stuck detection, budget cap).
-4. On exit, write `final-report.md` summarizing iterations, cost, duration, and the final verdict. Open a PR if and only if the verdict is PASS.
-5. Hand off to the user with the PR link or the failure diagnosis.
+5. On exit, write `final-report.md` summarizing iterations, cost, duration, and the final verdict. Open a PR if and only if the verdict is PASS.
+6. Hand off to the user with the PR link or the failure diagnosis.
 
-The user should be able to walk away during step 3 and come back to either a green PR or a clear "here's why I'm stuck" report.
+The user should be able to walk away during step 4 and come back to either a green PR or a clear "here's why I'm stuck" report.

@@ -160,12 +160,23 @@ export default function Home() {
 
   const todayVisitCount = visits.filter(v => v.date === getTodayString()).length;
 
+  const dailyRvuTotals = (() => {
+    const totals: Record<string, number> = {};
+    for (const v of visits) {
+      if (!v.is_no_show && v.procedures) {
+        const rvu = v.procedures.reduce((sum, p) => sum + Number(p.work_rvu) * (p.quantity || 1), 0);
+        totals[v.date] = (totals[v.date] || 0) + rvu;
+      }
+    }
+    return totals;
+  })();
+
   if (status === 'loading' || isLoading) {
     return (
       <div className="min-h-[100dvh] bg-[#f5f7fa]">
         <AppHeaderSkeleton />
         <div className="flex flex-col lg:flex-row max-w-[1400px] mx-auto" style={{ minHeight: 'calc(100vh - 57px)' }}>
-          <div className="hidden lg:block w-[300px] p-5 space-y-4">
+          <div className="hidden lg:block flex-1 p-5 space-y-4">
             <Skeleton className="h-10 w-full rounded-lg" />
             <Skeleton className="h-32 w-full rounded-lg" />
             <Skeleton className="h-48 w-full rounded-lg" />
@@ -215,7 +226,7 @@ export default function Home() {
       <div id="main-content" className="max-w-[1400px] mx-auto flex flex-col lg:flex-row" style={{ minHeight: 'calc(100vh - 57px)' }}>
 
         {/* Left Column — Search + Groups + Favorites */}
-        <div className="hidden lg:block lg:w-[300px] flex-shrink-0 border-r border-zinc-200/60 bg-white lg:overflow-y-auto lg:sticky lg:top-[57px]" style={{ maxHeight: 'calc(100vh - 57px)' }}>
+        <div className="hidden lg:block lg:flex-1 flex-shrink-0 border-r border-zinc-200/60 bg-white lg:overflow-y-auto lg:sticky lg:top-[57px]" style={{ maxHeight: 'calc(100vh - 57px)' }}>
           <div className="p-4">
             <EntryForm
               onEntryAdded={() => { mutate(CACHE_KEYS.visits); setSelectedData(null); }}
@@ -231,7 +242,7 @@ export default function Home() {
 
         {/* Center Column — Log Visit Form + KPI */}
         <div className="flex-1 p-5 lg:p-8">
-          <div className="max-w-[640px] mx-auto">
+          <div>
             {/* Log Visit Header */}
             <h2 className="text-2xl font-light text-[#1f1f1f] tracking-tight">Log Visit</h2>
             <p className="text-sm text-zinc-400 mt-1 mb-6">Pick from favorites or search, then save.</p>
@@ -283,9 +294,16 @@ export default function Home() {
                   return (
                     <div key={visit.id}>
                       {showDateHeader && (
-                        <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider pt-3 pb-1 first:pt-0">
-                          {visit.date === getTodayString() ? `Today \u2014 ${formatDate(visit.date, { month: 'long', day: 'numeric' })}` : formatDate(visit.date, { month: 'short', day: 'numeric' })}
-                        </p>
+                        <div className="flex items-center justify-between pt-3 pb-1 first:pt-0">
+                          <p className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">
+                            {visit.date === getTodayString() ? `Today \u2014 ${formatDate(visit.date, { month: 'long', day: 'numeric' })}` : formatDate(visit.date, { month: 'short', day: 'numeric' })}
+                          </p>
+                          {dailyRvuTotals[visit.date] > 0 && (
+                            <span className="text-xs font-mono font-semibold text-[#0070cc]">
+                              {dailyRvuTotals[visit.date].toFixed(2)} RVU
+                            </span>
+                          )}
+                        </div>
                       )}
                       <VisitCard
                         visit={visit}

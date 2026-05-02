@@ -4,6 +4,42 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 28
+
+- **Date:** 2026-05-02
+- **Title:** feat: implement 9 feature requests — export, custom codes, UI fixes
+- **Branch:** `feat/email-reminders`
+- **What changed:**
+  - Excel export with daily/weekly/monthly/annual tabs on analytics page
+  - Custom codes: user-defined HCPCS with custom RVU and description (API + UI)
+  - Minus button removes procedure at qty=1 instead of clamping to 1
+  - Favorite description tooltip via title attribute on truncated text
+  - Swapped Save/No-Show button positions (No Show left, Save right)
+  - Daily total RVUs shown in visit log next to each date header
+  - DateInput component replacing native date picker (MM/DD/YYYY auto-format)
+  - Manually changed date persists across encounters
+  - Default favorites seeded for new users (common E/M codes)
+  - Equal-width left and center columns in main layout
+  - Responsive procedure card layout (no overflow on mobile)
+- **Files touched:**
+  - `src/app/api/export/route.ts` (new — Excel export API)
+  - `src/app/api/custom-codes/route.ts` (new — custom codes CRUD)
+  - `src/app/api/custom-codes/[id]/route.ts` (new — delete custom code)
+  - `scripts/add-custom-codes.sql` (new — custom_codes table migration)
+  - `src/components/DateInput.tsx` (new — MM/DD/YYYY input component)
+  - `src/components/ProcedureList.tsx` (minus-to-remove, responsive layout)
+  - `src/components/RVUPicker.tsx` (custom code form)
+  - `src/components/EntryForm.tsx` (DateInput, date persistence, button swap)
+  - `src/components/SelectedProceduresCard.tsx` (DateInput, button swap)
+  - `src/components/FavoritesPicker.tsx` (description tooltip)
+  - `src/app/(main)/page.tsx` (daily RVU totals, equal column widths)
+  - `src/app/analytics/page.tsx` (export button)
+  - `src/app/api/favorites/route.ts` (default favorites seeding)
+  - `src/app/api/rvu/search/route.ts` (custom codes in search results)
+  - `package.json` (xlsx dependency)
+
+---
+
 ## Entry 27
 
 - **Date:** 2026-04-30

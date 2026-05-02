@@ -70,7 +70,7 @@ function SortableItem({ fav, isAlreadySelected, onSelect, multiSelect }: Sortabl
             {fav.hcpcs}
           </div>
           {fav.description && (
-            <div className="text-[11px] text-zinc-400 truncate mt-0.5">{fav.description}</div>
+            <div className="text-[11px] text-zinc-400 truncate mt-0.5" title={fav.description}>{fav.description}</div>
           )}
           <div className="text-xs font-mono font-semibold text-[#0070cc] mt-1">
             {fav.work_rvu ? `${Number(fav.work_rvu).toFixed(2)} RVU` : ''}
