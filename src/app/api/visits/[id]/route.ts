@@ -4,8 +4,6 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}(:\d{2})?$/;
-const HCPCS_RE = /^[A-Za-z0-9]{4,5}$/;
-
 function validateId(id: string): number | null {
   const n = parseInt(id, 10);
   return !isNaN(n) && n > 0 ? n : null;
@@ -13,7 +11,7 @@ function validateId(id: string): number | null {
 
 function validateProcedures(procedures: any[]): string | null {
   for (const proc of procedures) {
-    if (!proc.hcpcs || !HCPCS_RE.test(proc.hcpcs)) return 'Invalid HCPCS code format';
+    if (!proc.hcpcs || typeof proc.hcpcs !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9 .\-]{0,19}$/.test(proc.hcpcs)) return 'Invalid HCPCS code format';
     if (!proc.description || typeof proc.description !== 'string') return 'Invalid procedure description';
     const rvu = Number(proc.work_rvu);
     if (proc.work_rvu == null || isNaN(rvu)) return 'Invalid work_rvu value';

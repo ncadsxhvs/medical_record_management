@@ -2,15 +2,13 @@ import { sql } from '@/lib/db';
 import { withAuth, apiError } from '@/lib/api-utils';
 import { NextRequest, NextResponse } from 'next/server';
 
-const HCPCS_RE = /^[A-Za-z0-9]{4,5}$/;
-
 function validateItems(items: any): string | null {
   if (!Array.isArray(items) || items.length === 0) {
     return 'items must be a non-empty array';
   }
   const seen = new Set<string>();
   for (const it of items) {
-    if (!it || typeof it.hcpcs !== 'string' || !HCPCS_RE.test(it.hcpcs)) {
+    if (!it || typeof it.hcpcs !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9 .\-]{0,19}$/.test(it.hcpcs)) {
       return 'Invalid HCPCS code format';
     }
     if (seen.has(it.hcpcs)) return `Duplicate hcpcs in items: ${it.hcpcs}`;
