@@ -17,6 +17,16 @@ Replaces native `<input type="date">` with a text-based date input.
 1. User sees date field pre-filled with today's date in MM/DD/YYYY format.
 2. User types digits; slashes auto-insert after month and day.
 3. "Today" button resets to current date.
+4. Calendar icon opens a dropdown calendar for visual date selection.
+
+**Calendar Picker:**
+- Month/year header with prev/next navigation arrows
+- 7-column grid (Su Mo Tu We Th Fr Sa)
+- Selected day: `bg-[#0070cc] text-white rounded-full`
+- Today indicator: `border border-[#0070cc]` ring (not filled unless selected)
+- Other-month days shown in `text-zinc-300`
+- Click outside closes calendar
+- Selecting a day updates the date and closes the calendar
 
 **Validation:**
 - Month: 1-12
@@ -30,14 +40,22 @@ Replaces native `<input type="date">` with a text-based date input.
 - Internal format: YYYY-MM-DD (ISO)
 - Conversion uses `parseLocalDate()` from dateUtils (never `new Date(str)`)
 
-### 2. Date Persistence
-When user manually changes the date, it persists for the next encounter.
+### 2. Date Persistence with Toggle
+When user manually changes the date, a "Keep date" toggle controls whether it persists for the next encounter.
 
 **Behavior:**
+- "Keep date" toggle switch displayed next to the Date label
+- Toggle OFF (default): date always resets to today after saving
+- Toggle ON + date manually changed: date persists after saving
 - State `isDateManuallyEdited` tracks whether user changed the date from today
-- After saving a visit, if date was manually edited, it stays; otherwise resets to today
-- "Clear" button preserves manually edited date
+- `keepDate` state controls whether persistence is active
+- "Clear" button preserves manually edited date only when toggle is ON
 - "Today" button resets `isDateManuallyEdited` to false
+
+**Toggle UI:**
+- Small pill switch inline with Date label: `w-7 h-4 rounded-full`
+- Active: `bg-[#0070cc]`, inactive: `bg-zinc-300`
+- Label: "Keep date" in `text-[11px] text-zinc-400`
 
 ### 3. Button Layout Swap
 No Show and Save Visit buttons swapped for better UX.

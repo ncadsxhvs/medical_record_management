@@ -26,6 +26,13 @@ export default function RVUChart({ data, dailyTarget, monthlyTarget, onBarClick 
 
   const targetPct = (dailyTarget / maxRvu) * 100;
 
+  const monthBoundaries = chartData.reduce<number[]>((acc, d, i) => {
+    if (i > 0 && d.period_start.slice(5, 7) !== chartData[i - 1].period_start.slice(5, 7)) {
+      acc.push(i);
+    }
+    return acc;
+  }, []);
+
   return (
     <div className="bg-white p-6 rounded-2xl border border-zinc-200/80">
       <div className="flex justify-between items-baseline mb-1">
@@ -63,6 +70,15 @@ export default function RVUChart({ data, dailyTarget, monthlyTarget, onBarClick 
             {/* Gridlines */}
             {[0, 25, 50, 75, 100].map(pct => (
               <div key={pct} className="absolute left-0 right-0 border-t border-zinc-100" style={{ bottom: `${pct}%` }} />
+            ))}
+
+            {/* Month boundary lines */}
+            {monthBoundaries.map(idx => (
+              <div
+                key={`month-${idx}`}
+                className="absolute top-0 bottom-0 border-l-2 border-dashed border-zinc-300 z-10 pointer-events-none"
+                style={{ left: `${(idx / chartData.length) * 100}%` }}
+              />
             ))}
 
             {/* Target line */}
@@ -113,12 +129,21 @@ export default function RVUChart({ data, dailyTarget, monthlyTarget, onBarClick 
           </div>
 
           {/* X-axis labels */}
-          <div className="flex gap-px mt-2">
-            {chartData.map((d) => {
+          <div className="relative flex gap-px mt-2">
+            {chartData.map((d, i) => {
               const isToday = d.period_start === today;
               const dayNum = d.period_start.split('-')[2]?.replace(/^0/, '') || '';
+              const isMonthStart = monthBoundaries.includes(i);
+              const monthName = isMonthStart
+                ? new Date(d.period_start + 'T12:00:00').toLocaleString('en-US', { month: 'short' })
+                : null;
               return (
-                <div key={`label-${d.period_start}`} className="flex-1 text-center">
+                <div key={`label-${d.period_start}`} className="flex-1 text-center relative">
+                  {monthName && (
+                    <span className="absolute -top-0.5 left-0 text-[9px] font-semibold text-zinc-500 -translate-x-1/2">
+                      {monthName}
+                    </span>
+                  )}
                   <span className={`text-[11px] font-mono ${isToday ? 'text-[#0070cc] font-bold' : 'text-zinc-400'}`}>
                     {dayNum}
                   </span>

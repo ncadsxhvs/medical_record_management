@@ -33,6 +33,8 @@ export interface VisitFormControls {
   onAddNoShow?: () => void;
   addingNoShow?: boolean;
   canSave: boolean;
+  keepDate: boolean;
+  onKeepDateChange: (v: boolean) => void;
 }
 
 interface EntryFormProps {
@@ -123,9 +125,11 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
     }));
   }, []);
 
+  const [keepDate, setKeepDate] = useState(false);
+
   const handleClearAll = useCallback(() => {
     setVisitData(prev => ({
-      date: isDateManuallyEdited ? prev.date : getTodayString(),
+      date: keepDate && isDateManuallyEdited ? prev.date : getTodayString(),
       time: getCurrentTimeString(),
       notes: '',
       procedures: [],
@@ -134,7 +138,7 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
     if (onClearCopy) {
       onClearCopy();
     }
-  }, [onClearCopy, isDateManuallyEdited]);
+  }, [onClearCopy, isDateManuallyEdited, keepDate]);
 
   const handleSaveVisit = useCallback(async () => {
     if (visitData.procedures.length === 0) return;
@@ -167,13 +171,13 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
     }
   }, [visitData, isTimeManuallyEdited, handleClearAll, onClearCopy, onEntryAdded, toast]);
 
-  const callbackRefs = useRef({ onSelectedUpdate, handleSaveVisit, handleClearAll, handleQuantityChange, handleRemoveProcedure, onAddNoShow, addingNoShow });
-  callbackRefs.current = { onSelectedUpdate, handleSaveVisit, handleClearAll, handleQuantityChange, handleRemoveProcedure, onAddNoShow, addingNoShow };
+  const callbackRefs = useRef({ onSelectedUpdate, handleSaveVisit, handleClearAll, handleQuantityChange, handleRemoveProcedure, onAddNoShow, addingNoShow, keepDate, setKeepDate });
+  callbackRefs.current = { onSelectedUpdate, handleSaveVisit, handleClearAll, handleQuantityChange, handleRemoveProcedure, onAddNoShow, addingNoShow, keepDate, setKeepDate };
 
   const prevDataKey = useRef('');
   useEffect(() => {
     if (!externalSelected || !callbackRefs.current.onSelectedUpdate) return;
-    const dataKey = JSON.stringify({ d: visitData.date, t: visitData.time, n: visitData.notes, p: visitData.procedures.map(p => `${p.hcpcs}:${p.quantity}`), a: callbackRefs.current.addingNoShow });
+    const dataKey = JSON.stringify({ d: visitData.date, t: visitData.time, n: visitData.notes, p: visitData.procedures.map(p => `${p.hcpcs}:${p.quantity}`), a: callbackRefs.current.addingNoShow, k: callbackRefs.current.keepDate });
     if (dataKey === prevDataKey.current) return;
     prevDataKey.current = dataKey;
 
@@ -192,6 +196,8 @@ export default function EntryForm({ onEntryAdded, copiedVisit, onClearCopy, onAd
       onAddNoShow: callbackRefs.current.onAddNoShow,
       addingNoShow: callbackRefs.current.addingNoShow,
       canSave: visitData.procedures.length > 0,
+      keepDate: callbackRefs.current.keepDate,
+      onKeepDateChange: (v: boolean) => callbackRefs.current.setKeepDate(v),
     });
   });
 

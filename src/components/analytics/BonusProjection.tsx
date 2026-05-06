@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import useSWR, { mutate } from 'swr';
 import { AnalyticsData } from '@/types';
 import { parseLocalDate } from '@/lib/dateUtils';
 import { BonusSettings, getDefaultSettings, saveBonusSettings } from '@/lib/bonusSettings';
 import { fetcher } from '@/lib/fetcher';
 import { CACHE_KEYS } from '@/lib/cache-keys';
+import { useToast } from '@/components/Toast';
 
 interface BonusProjectionProps {
   data: AnalyticsData[];
@@ -18,12 +19,31 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
   const [isExpanded, setIsExpanded] = useState(false);
   const { data: dbSettings } = useSWR<BonusSettings>(CACHE_KEYS.settings, fetcher);
   const settings = dbSettings || getDefaultSettings();
+  const [draft, setDraft] = useState<BonusSettings>(settings);
+  const [saving, setSaving] = useState(false);
+  const { toast } = useToast();
 
-  const updateSettings = async (update: Partial<BonusSettings>) => {
-    const newSettings = { ...settings, ...update };
-    mutate(CACHE_KEYS.settings, newSettings, false);
-    await saveBonusSettings(newSettings);
-    mutate(CACHE_KEYS.settings);
+  useEffect(() => {
+    if (dbSettings) setDraft(dbSettings);
+  }, [dbSettings]);
+
+  const isDirty = draft.rvuTarget !== settings.rvuTarget
+    || draft.targetStartDate !== settings.targetStartDate
+    || draft.targetEndDate !== settings.targetEndDate
+    || draft.bonusRate !== settings.bonusRate;
+
+  const handleSave = async () => {
+    setSaving(true);
+    try {
+      mutate(CACHE_KEYS.settings, draft, false);
+      await saveBonusSettings(draft);
+      mutate(CACHE_KEYS.settings);
+      toast('Settings saved', 'success');
+    } catch {
+      toast('Failed to save settings', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
   const results = useMemo(() => {
@@ -34,18 +54,18 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
     const dailyRate = actualRvus / daysInRange;
     const annualizedRvus = dailyRate * 365;
 
-    const targetStart = parseLocalDate(settings.targetStartDate);
-    const targetEnd = parseLocalDate(settings.targetEndDate);
+    const targetStart = parseLocalDate(draft.targetStartDate);
+    const targetEnd = parseLocalDate(draft.targetEndDate);
     const daysInTargetPeriod = Math.max(1, Math.round((targetEnd.getTime() - targetStart.getTime()) / (1000 * 60 * 60 * 24)) + 1);
-    const annualTarget = settings.rvuTarget * (365 / daysInTargetPeriod);
+    const annualTarget = draft.rvuTarget * (365 / daysInTargetPeriod);
 
     const surplus = Math.max(0, annualizedRvus - annualTarget);
-    const projectedBonus = surplus * settings.bonusRate;
+    const projectedBonus = surplus * draft.bonusRate;
     const progressPct = annualTarget > 0 ? Math.min(100, (annualizedRvus / annualTarget) * 100) : 0;
     const proratedBonus = projectedBonus * (daysInTargetPeriod / 365);
 
     return { actualRvus, daysInRange, annualizedRvus, annualTarget, surplus, projectedBonus, progressPct, daysInTargetPeriod, proratedBonus };
-  }, [data, startDate, endDate, settings]);
+  }, [data, startDate, endDate, draft]);
 
   return (
     <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -71,28 +91,28 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 type="number"
                 min="0"
                 step="any"
-                value={settings.rvuTarget || ''}
-                onChange={(e) => updateSettings({ rvuTarget: parseFloat(e.target.value) || 0 })}
+                value={draft.rvuTarget || ''}
+                onChange={(e) => setDraft(prev => ({ ...prev, rvuTarget: parseFloat(e.target.value) || 0 }))}
                 placeholder="e.g. 4000"
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-[#0070cc] focus:border-[#0070cc]"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0070cc]/10 focus:border-[#0070cc]"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-700 mb-1">Target Period Start</label>
               <input
                 type="date"
-                value={settings.targetStartDate}
-                onChange={(e) => updateSettings({ targetStartDate: e.target.value })}
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-[#0070cc] focus:border-[#0070cc]"
+                value={draft.targetStartDate}
+                onChange={(e) => setDraft(prev => ({ ...prev, targetStartDate: e.target.value }))}
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0070cc]/10 focus:border-[#0070cc]"
               />
             </div>
             <div>
               <label className="block text-sm font-medium text-zinc-700 mb-1">Target Period End</label>
               <input
                 type="date"
-                value={settings.targetEndDate}
-                onChange={(e) => updateSettings({ targetEndDate: e.target.value })}
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-[#0070cc] focus:border-[#0070cc]"
+                value={draft.targetEndDate}
+                onChange={(e) => setDraft(prev => ({ ...prev, targetEndDate: e.target.value }))}
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0070cc]/10 focus:border-[#0070cc]"
               />
             </div>
             <div>
@@ -101,15 +121,25 @@ export default function BonusProjection({ data, startDate, endDate }: BonusProje
                 type="number"
                 min="0"
                 step="any"
-                value={settings.bonusRate || ''}
-                onChange={(e) => updateSettings({ bonusRate: parseFloat(e.target.value) || 0 })}
+                value={draft.bonusRate || ''}
+                onChange={(e) => setDraft(prev => ({ ...prev, bonusRate: parseFloat(e.target.value) || 0 }))}
                 placeholder="e.g. 35"
-                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:ring-[#0070cc] focus:border-[#0070cc]"
+                className="block w-full px-3 py-2 border border-zinc-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#0070cc]/10 focus:border-[#0070cc]"
               />
             </div>
           </div>
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleSave}
+              disabled={!isDirty || saving}
+              className="px-5 py-2 bg-[#0070cc] text-white text-sm font-semibold rounded-full ps-btn cursor-pointer active:scale-[0.98] transition-all duration-150 disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              {saving ? 'Saving...' : 'Save'}
+            </button>
+            {isDirty && <span className="text-xs text-zinc-400">Unsaved changes</span>}
+          </div>
           <p className="text-xs text-zinc-500">
-            Target: {settings.rvuTarget.toLocaleString()} RVUs over {results.daysInTargetPeriod} days ({settings.targetStartDate} to {settings.targetEndDate})
+            Target: {draft.rvuTarget.toLocaleString()} RVUs over {results.daysInTargetPeriod} days ({draft.targetStartDate} to {draft.targetEndDate})
           </p>
 
           {results.annualTarget > 0 && (

@@ -4,6 +4,33 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 29
+
+- **Date:** 2026-05-05
+- **Title:** feat: TASK.md features — date picker, keep-date toggle, month lines, remove peers, bonus save button
+- **Branch:** `feat/email-reminders`
+- **What changed:**
+  - Calendar date picker dropdown added to DateInput component
+  - "Keep date" toggle in SelectedProceduresCard controls whether manually changed date persists after saving
+  - Month boundary vertical dashed lines in Daily RVU chart with abbreviated month labels
+  - Removed vs. Peers chart from productivity page (hardcoded data)
+  - Bonus Projection: explicit Save button instead of auto-save on keystroke, with toast feedback
+  - Fixed custom code visits failing due to HCPCS regex being too restrictive (4-5 chars → 1-20 chars)
+  - Added missing `reminder_enabled` column to `user_settings` table in sandbox DB
+  - Expanded design system MASTER.md with component anatomy, layout, states, accessibility, responsive, animation, icons, and page layout sections
+- **Files touched:**
+  - `src/components/DateInput.tsx` (calendar popup)
+  - `src/components/EntryForm.tsx` (keepDate toggle state)
+  - `src/components/SelectedProceduresCard.tsx` (keep-date toggle UI)
+  - `src/components/analytics/RVUChart.tsx` (month boundary lines)
+  - `src/components/analytics/BonusProjection.tsx` (save button, draft state)
+  - `src/app/productivity/page.tsx` (removed PeerComparison)
+  - `src/components/productivity/PeerComparison.tsx` (deleted)
+  - `src/app/api/visits/route.ts` (relaxed HCPCS regex)
+  - `design-system/trackmyrvu/MASTER.md` (expanded design doc)
+
+---
+
 ## Entry 28
 
 - **Date:** 2026-05-02
