@@ -10,7 +10,7 @@ interface Props {
 export default function SelectedProceduresCard({ data }: Props) {
   if (!data) return null;
 
-  const { procedures, onQuantityChange, onRemove, date, time, notes, onDateChange, onTimeChange, onNotesChange, onSave, onClear, onAddNoShow, addingNoShow, canSave } = data;
+  const { procedures, onQuantityChange, onRemove, date, time, notes, onDateChange, onTimeChange, onNotesChange, onSave, onClear, onAddNoShow, addingNoShow, canSave, keepDate, onKeepDateChange } = data;
 
   const totalRvu = procedures.reduce((s, p) => s + Number(p.work_rvu) * (p.quantity || 1), 0);
 
@@ -79,7 +79,20 @@ export default function SelectedProceduresCard({ data }: Props) {
       {/* Date / Time */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label htmlFor="ext-date" className="block text-sm font-medium text-zinc-600 mb-1.5">Date</label>
+          <div className="flex items-center justify-between mb-1.5">
+            <label htmlFor="ext-date" className="text-sm font-medium text-zinc-600">Date</label>
+            <button
+              type="button"
+              onClick={() => onKeepDateChange(!keepDate)}
+              className="flex items-center gap-1.5 cursor-pointer"
+              aria-label={keepDate ? 'Disable keep date' : 'Enable keep date'}
+            >
+              <span className="text-[11px] text-zinc-400">Keep date</span>
+              <div className={`w-7 h-4 rounded-full transition-colors duration-150 relative ${keepDate ? 'bg-[#0070cc]' : 'bg-zinc-300'}`}>
+                <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-transform duration-150 ${keepDate ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+              </div>
+            </button>
+          </div>
           <DateInput
             id="ext-date"
             value={date}

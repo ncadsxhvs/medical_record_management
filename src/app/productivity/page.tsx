@@ -9,7 +9,6 @@ import AppHeader, { AppHeaderSkeleton } from '@/components/AppHeader';
 import TodayRhythm from '@/components/productivity/TodayRhythm';
 import StreakGrid from '@/components/productivity/StreakGrid';
 import WeeklyTrend from '@/components/productivity/WeeklyTrend';
-import PeerComparison from '@/components/productivity/PeerComparison';
 import CoachingSuggestions from '@/components/productivity/CoachingSuggestions';
 import ReminderToggle from '@/components/productivity/ReminderToggle';
 import Skeleton from '@/components/Skeleton';
@@ -162,14 +161,9 @@ export default function ProductivityPage() {
           </div>
         </div>
 
-        {/* Trend + Peers */}
-        <div className="grid grid-cols-1 lg:grid-cols-5 gap-5 mb-6">
-          <div className="lg:col-span-3">
-            <WeeklyTrend visits={visits} weeklyTarget={weeklyTarget} />
-          </div>
-          <div className="lg:col-span-2">
-            <PeerComparison visits={visits} monthlyTarget={monthlyTarget} />
-          </div>
+        {/* Trend */}
+        <div className="mb-6">
+          <WeeklyTrend visits={visits} weeklyTarget={weeklyTarget} />
         </div>
 
         {/* Coaching */}

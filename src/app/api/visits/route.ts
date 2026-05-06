@@ -4,7 +4,7 @@ import { NextRequest, NextResponse } from 'next/server';
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
 const TIME_RE = /^\d{2}:\d{2}(:\d{2})?$/;
-const HCPCS_RE = /^[A-Za-z0-9]{4,5}$/;
+const HCPCS_RE = /^[A-Za-z0-9]{1,20}$/;
 
 function validateProcedures(procedures: any[]): string | null {
   for (const proc of procedures) {
