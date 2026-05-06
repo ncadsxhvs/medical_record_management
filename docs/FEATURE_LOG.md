@@ -4,6 +4,32 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 30
+
+- **Date:** 2026-05-05
+- **Title:** fix: DB constraints, HCPCS validation, and data model docs
+- **Branch:** `feat/email-reminders`
+- **What changed:**
+  - Added FK constraints (`ON DELETE CASCADE`) on all `user_id` columns (visits, favorites, favorite_groups, custom_codes, user_settings)
+  - Added CHECK constraints on `visit_procedures.quantity` (1-1000) and `user_settings` date range
+  - Added missing index on `favorite_group_items(group_id, sort_order)`
+  - Relaxed HCPCS validation across all API routes to allow custom codes with hyphens, dots, and spaces
+  - Simplified user deletion from 4 manual queries to 1 (CASCADE handles cleanup)
+  - Added `docs/db/DATA_MODEL.md` with full ER diagram and schema documentation
+  - Added `scripts/run-sql.ts` generic migration runner accepting env file + SQL file args
+- **Files touched:**
+  - `scripts/add-constraints.sql` (new migration)
+  - `scripts/run-sql.ts` (new generic migration runner)
+  - `docs/db/DATA_MODEL.md` (new data model docs)
+  - `src/app/api/user/route.ts` (simplified delete)
+  - `src/app/api/visits/route.ts` (relaxed HCPCS regex)
+  - `src/app/api/visits/[id]/route.ts` (relaxed HCPCS regex)
+  - `src/app/api/favorite-groups/route.ts` (relaxed HCPCS regex)
+  - `src/app/api/favorite-groups/[id]/route.ts` (relaxed HCPCS regex)
+  - `src/app/api/__tests__/user-api.test.ts` (updated for single-query delete)
+
+---
+
 ## Entry 29
 
 - **Date:** 2026-05-05

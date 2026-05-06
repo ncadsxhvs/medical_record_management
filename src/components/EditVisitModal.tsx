@@ -12,15 +12,18 @@ interface EditVisitModalProps {
   visit: Visit;
   onClose: () => void;
   onSave: () => void;
+  keptDate: string | null;
+  onKeptDateChange: (date: string | null) => void;
 }
 
-export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModalProps) {
+export default function EditVisitModal({ visit, onClose, onSave, keptDate, onKeptDateChange }: EditVisitModalProps) {
+  const visitDate = visit.date?.includes('T') ? visit.date.split('T')[0] : visit.date;
+  const [keepDate, setKeepDate] = useState(!!keptDate);
   const [editedVisit, setEditedVisit] = useState<Visit>({
     ...visit,
-    date: visit.date?.includes('T') ? visit.date.split('T')[0] : visit.date,
+    date: keptDate || visitDate,
     procedures: [...visit.procedures],
   });
-
   const [selectedCodes, setSelectedCodes] = useState<string[]>(
     visit.procedures.map(p => p.hcpcs)
   );
@@ -82,6 +85,7 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
         throw new Error('Failed to update visit');
       }
 
+      onKeptDateChange(keepDate ? editedVisit.date : null);
       onSave();
       onClose();
       toast('Visit updated', 'success');
@@ -177,14 +181,26 @@ export default function EditVisitModal({ visit, onClose, onSave }: EditVisitModa
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-zinc-700 mb-2">
-                  Date
-                </label>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="text-sm font-medium text-zinc-700">Date</label>
+                  <button
+                    type="button"
+                    onClick={() => setKeepDate(!keepDate)}
+                    className="flex items-center gap-1.5 cursor-pointer"
+                    aria-label={keepDate ? 'Disable keep date' : 'Enable keep date'}
+                  >
+                    <span className="text-[11px] text-zinc-400">Keep date</span>
+                    <div className={`w-7 h-4 rounded-full transition-colors duration-150 relative ${keepDate ? 'bg-[#0070cc]' : 'bg-zinc-300'}`}>
+                      <div className={`absolute top-0.5 w-3 h-3 rounded-full bg-white shadow-sm transition-transform duration-150 ${keepDate ? 'translate-x-3.5' : 'translate-x-0.5'}`} />
+                    </div>
+                  </button>
+                </div>
                 <input
                   type="date"
                   value={editedVisit.date}
                   onChange={(e) => setEditedVisit(prev => ({ ...prev, date: e.target.value }))}
-                  className="w-full px-4 py-2.5 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-[#0070cc] focus:border-transparent transition-all"
+                  disabled={keepDate}
+                  className={`w-full px-4 py-2.5 border border-zinc-300 rounded-lg focus:ring-2 focus:ring-[#0070cc] focus:border-transparent transition-all ${keepDate ? 'bg-zinc-100 text-zinc-500 cursor-not-allowed' : ''}`}
                 />
               </div>
 

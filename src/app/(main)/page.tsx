@@ -25,6 +25,7 @@ export default function Home() {
 
   const [expandedVisits, setExpandedVisits] = useState<Set<number>>(new Set());
   const [editingVisit, setEditingVisit] = useState<Visit | null>(null);
+  const [editKeptDate, setEditKeptDate] = useState<string | null>(null);
   const [addingNoShow, setAddingNoShow] = useState(false);
   const [copiedVisit, setCopiedVisit] = useState<Visit | null>(null);
   const [deletingVisitId, setDeletingVisitId] = useState<number | null>(null);
@@ -328,6 +329,8 @@ export default function Home() {
           visit={editingVisit}
           onClose={() => setEditingVisit(null)}
           onSave={() => mutate(CACHE_KEYS.visits)}
+          keptDate={editKeptDate}
+          onKeptDateChange={setEditKeptDate}
         />
       )}
 
