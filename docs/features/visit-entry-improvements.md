@@ -43,7 +43,7 @@ Replaces native `<input type="date">` with a text-based date input.
 ### 2. Date Persistence with Toggle
 When user manually changes the date, a "Keep date" toggle controls whether it persists for the next encounter.
 
-**Behavior:**
+**Behavior (New Visit):**
 - "Keep date" toggle switch displayed next to the Date label
 - Toggle OFF (default): date always resets to today after saving
 - Toggle ON + date manually changed: date persists after saving
@@ -52,10 +52,19 @@ When user manually changes the date, a "Keep date" toggle controls whether it pe
 - "Clear" button preserves manually edited date only when toggle is ON
 - "Today" button resets `isDateManuallyEdited` to false
 
+**Behavior (Edit Visit):**
+- "Keep date" toggle in the edit visit modal, next to the Date label
+- Toggle ON (default when a kept date exists): date field shows previously saved date and is disabled/locked
+- Toggle OFF: date field shows the visit's original date and is editable
+- On save with toggle ON: the date is remembered in parent state (`editKeptDate`) and carries to the next edit modal
+- On save with toggle OFF: the kept date is cleared
+- First edit (no kept date): toggle defaults to off, date is editable
+
 **Toggle UI:**
 - Small pill switch inline with Date label: `w-7 h-4 rounded-full`
 - Active: `bg-[#0070cc]`, inactive: `bg-zinc-300`
 - Label: "Keep date" in `text-[11px] text-zinc-400`
+- Edit modal: date input gets `bg-zinc-100 text-zinc-500 cursor-not-allowed` when locked
 
 ### 3. Button Layout Swap
 No Show and Save Visit buttons swapped for better UX.
@@ -129,6 +138,7 @@ No new data model — uses existing visits, visit_procedures, favorites tables.
 ## Files (web reference)
 - `src/components/DateInput.tsx` — date input component
 - `src/components/EntryForm.tsx` — date persistence, button swap
+- `src/components/EditVisitModal.tsx` — keep-date toggle in edit modal
 - `src/components/SelectedProceduresCard.tsx` — button swap, DateInput
 - `src/components/ProcedureList.tsx` — minus-to-remove, responsive layout
 - `src/components/FavoritesPicker.tsx` — description tooltip
