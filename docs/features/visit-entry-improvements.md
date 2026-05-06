@@ -88,6 +88,22 @@ Each date header in the visit log shows the total RVUs for that day.
 **Display:** `{date} ——— {total} RVU` (right-aligned, blue mono text)
 **Calculation:** Sum of `work_rvu * quantity` for all procedures in non-no-show visits on that date.
 
+### 8. Adaptive Chart Granularity
+The Daily RVU bar chart automatically adjusts its time scale based on the selected period.
+
+**Granularity rules:**
+- ≤14 days (7d): daily bars, target per day
+- 15–90 days (30d, QTD): weekly bars, target = daily × 5, labels like "5/5"
+- >90 days (YTD): monthly bars, target = monthly target, labels like "Jan", "Feb"
+
+**Behavior:**
+- Title changes: "Daily RVU" → "Weekly RVU" → "Monthly RVU"
+- Target line and legend adapt to the granularity
+- Current period (containing today) highlighted in blue
+- Off-day hatching only shown in daily view
+- Weekly buckets use ISO weeks (Monday start)
+- Granularity calculated from actual date range span, not number of data points
+
 ### 7. Default Favorites for New Users
 New users are auto-seeded with common E/M codes on first favorites fetch.
 

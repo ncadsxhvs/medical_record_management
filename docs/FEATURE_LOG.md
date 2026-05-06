@@ -4,6 +4,24 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 32
+
+- **Date:** 2026-05-06
+- **Title:** feat: adaptive chart granularity + keep-date in edit visit + DB constraints
+- **Branch:** `feat/email-reminders`
+- **What changed:**
+  - RVU chart auto-switches to weekly (QTD) or monthly (YTD) bars based on date range
+  - Keep-date toggle added to edit visit modal with cross-session persistence
+  - DB FK constraints, CHECK constraints, relaxed HCPCS validation for custom codes
+  - Dev auth bypass button restored in `.env.development`
+- **Files touched:**
+  - `src/components/analytics/RVUChart.tsx` (adaptive granularity)
+  - `src/app/analytics/page.tsx` (pass startDate/endDate to chart)
+  - `src/components/EditVisitModal.tsx` (keep-date toggle)
+  - `src/app/(main)/page.tsx` (editKeptDate state)
+
+---
+
 ## Entry 31
 
 - **Date:** 2026-05-05

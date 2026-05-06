@@ -265,6 +265,8 @@ export default function AnalyticsPage() {
                   data={data}
                   dailyTarget={dailyTarget}
                   monthlyTarget={monthlyTarget}
+                  startDate={startDate}
+                  endDate={endDate}
                   onBarClick={(periodStart) => {
                     setSelectedPeriod(periodStart);
                     setViewMode('breakdown');
