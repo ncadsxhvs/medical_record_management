@@ -83,7 +83,13 @@ export default function KPIStrip({ visits }: KPIStripProps) {
   const monthRVU = useMemo(() => sumRVUs(visits, month.start, month.end), [visits, month]);
   const todayEncounters = useMemo(() => countEncounters(visits, today, today), [visits, today]);
 
-  const monthlyTarget = settings.rvuTarget || 480;
+  const monthlyTarget = (() => {
+    const target = settings.rvuTarget || 480;
+    const start = new Date(settings.targetStartDate + 'T00:00:00');
+    const end = new Date(settings.targetEndDate + 'T00:00:00');
+    const months = Math.max(1, (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth() + 1);
+    return target / months;
+  })();
   const dailyTarget = monthlyTarget / 22;
   const weeklyTarget = dailyTarget * 5;
 

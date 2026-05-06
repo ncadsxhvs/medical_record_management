@@ -47,7 +47,13 @@ export default function ProductivityPage() {
   );
 
   const workdaysTotal = 22;
-  const monthlyTarget = settings.rvuTarget || 480;
+  const monthlyTarget = (() => {
+    const target = settings.rvuTarget || 480;
+    const start = new Date(settings.targetStartDate + 'T00:00:00');
+    const end = new Date(settings.targetEndDate + 'T00:00:00');
+    const months = Math.max(1, (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth() + 1);
+    return target / months;
+  })();
   const dailyTarget = monthlyTarget / workdaysTotal;
   const weeklyTarget = dailyTarget * 5;
 

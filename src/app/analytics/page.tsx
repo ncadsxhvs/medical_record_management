@@ -76,7 +76,13 @@ export default function AnalyticsPage() {
     fetcher,
   );
   const userSettings = dbSettings || getDefaultSettings();
-  const monthlyTarget = userSettings.rvuTarget || 480;
+  const monthlyTarget = (() => {
+    const target = userSettings.rvuTarget || 480;
+    const start = new Date(userSettings.targetStartDate + 'T00:00:00');
+    const end = new Date(userSettings.targetEndDate + 'T00:00:00');
+    const months = Math.max(1, (end.getFullYear() - start.getFullYear()) * 12 + end.getMonth() - start.getMonth() + 1);
+    return target / months;
+  })();
   const dailyTarget = monthlyTarget / 22;
 
   const dates = activePreset === 'custom'
