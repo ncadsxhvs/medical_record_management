@@ -4,6 +4,19 @@ Append-only log of implemented features. Newest first.
 
 ---
 
+## Entry 31
+
+- **Date:** 2026-05-05
+- **Title:** fix: daily RVU target calculation uses period length
+- **Branch:** `fix/daily-target-calculation`
+- **What changed:**
+  - Daily target line now derived as `rvuTarget / monthsInPeriod / 22` instead of `rvuTarget / 22`
+  - Affects: analytics chart, KPI strip, productivity page
+  - Example: 6000 annual target → 6000/12/22 = 22.7/day (was incorrectly 272.7)
+- **Files:** `src/app/analytics/page.tsx`, `src/app/productivity/page.tsx`, `src/components/KPIStrip.tsx`
+
+---
+
 ## Entry 30
 
 - **Date:** 2026-05-05
